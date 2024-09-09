@@ -1,0 +1,30 @@
+{
+    "id": "5b4b3f8c-6f6b-476d-8891-b0e8bef75af8",
+    "data_host": "https://registry.countermetrics.org/api/v1/usage-data-host/dcd08025-f8fb-48d8-a322-9a8a4043b518/",
+    "contact": {
+        "person": "",
+        "email": "CustomerService@abc-clio.com",
+        "phone": "",
+        "form_url": ""
+    },
+    "url": "https://connect.liblynx.com/sushi/r5",
+    "customer_id_info": "Customer ID for SUSHI is available from the LibLynx portal or from the publisher",
+    "requestor_id_required": true,
+    "requestor_id_info": "Requestor ID for SUSHI is available from the LibLynx portal or from the publisher",
+    "api_key_required": false,
+    "api_key_info": "Not required",
+    "platform_attr_required": false,
+    "platform_specific_info": "",
+    "credentials_auto_expire": false,
+    "credentials_auto_expire_info": "",
+    "request_volume_limits_applied": false,
+    "request_volume_limits_info": "",
+    "ip_address_authorization": false,
+    "ip_address_authorization_info": "",
+    "customizations_in_place": false,
+    "customizations_info": "",
+    "notifications_url": "https://registry.countermetrics.org/api/v1/sushi-service/5b4b3f8c-6f6b-476d-8891-b0e8bef75af8/notification/",
+    "migrations": [],
+    "counter_release": "5",
+    "notification_count": 0
+}

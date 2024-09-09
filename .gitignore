@@ -1,0 +1,16 @@
+__pycache__
+.idea/
+*~
+config/settings/secret_settings.json
+.cache
+.coverage
+locale/*/LC_MESSAGES/django.mo
+celerybeat-schedule
+/.pytest_cache
+.~*
+media/*
+/.env
+/venv
+error.log
+.DS_Store
+/upload

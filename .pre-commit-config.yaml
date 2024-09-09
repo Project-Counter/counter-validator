@@ -1,0 +1,47 @@
+default_stages: [push, commit, manual]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '^.*\.(tsv|json|svg)'
+      - id: end-of-file-fixer
+        exclude: '^.*\.(tsv|json|svg)'
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff formatter
+        entry: ruff format
+        language: system
+        types: [python]
+
+      - id: ruff
+        name: ruff linter
+        entry: ruff check --fix
+        language: system
+        types: [python]
+
+      - id: pytestnow
+        name: Check that no tests marked with 'now' exist
+        entry: "@pytest.mark.now"
+        language: pygrep
+        types: [python]
+
+      - id: django-migrations
+        name: Check django migrations
+        entry: python manage.py makemigrations --check --no-input
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: eslint
+        name: ESLint linter
+        stages: [push, commit]
+        entry: bash -c 'cd frontend && yarn lint'
+        language: system
+        types_or: [javascript, ts, vue]
+        files: frontend/.*
+        pass_filenames: false

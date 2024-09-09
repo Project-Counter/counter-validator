@@ -1,0 +1,166 @@
+[
+    {
+        "id": "60d34416-9666-4b09-8d58-220ffc04901e",
+        "name": "ABC-CLIO",
+        "abbrev": "",
+        "content_provider_name": "ABC-CLIO",
+        "host_types": [
+            {
+                "name": "Aggregated_Full_Content"
+            }
+        ],
+        "address": "ABC-CLIO\n147 Castilian Drive\nSanta Barbara, CA 93117",
+        "address_country": {
+            "code": "US",
+            "name": "United States of America"
+        },
+        "website": "https://www.abc-clio.com/",
+        "contact": {
+            "person": "",
+            "email": "CustomerService@abc-clio.com",
+            "phone": "",
+            "form_url": ""
+        },
+        "reports": [
+            {
+                "counter_release": "5",
+                "report_id": "DR",
+                "report_name": "Database Master Report"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "DR_D1",
+                "report_name": "Database Report - Report 1"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "PR",
+                "report_name": "Platform Master Report"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "PR_P1",
+                "report_name": "Platform Report - Report 1"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR",
+                "report_name": "Title Master Report"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_B1",
+                "report_name": "Title Report - Book Report 1"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_B3",
+                "report_name": "Title Report - Book Report 3"
+            }
+        ],
+        "sushi_services": [
+            {
+                "counter_release": "5",
+                "url": "https://registry.countermetrics.org/api/v1/sushi-service/5b4b3f8c-6f6b-476d-8891-b0e8bef75af8/"
+            }
+        ],
+        "audited": true
+    },
+    {
+        "id": "bf9a2458-2386-48c5-a810-4a33c2dacf80",
+        "name": "Academy of Management",
+        "abbrev": "AOM",
+        "content_provider_name": "Academy of Management",
+        "host_types": [
+            {
+                "name": "Aggregated_Full_Content"
+            }
+        ],
+        "address": "555 Pleasantville Road, \nSuite N200, \nBriarcliff Manor, \nNY 10510",
+        "address_country": {
+            "code": "US",
+            "name": "United States of America"
+        },
+        "website": "https://aom.org/",
+        "contact": {
+            "person": "",
+            "email": "",
+            "phone": "",
+            "form_url": "https://support.aom.org/hc/en-us/requests/new"
+        },
+        "reports": [
+            {
+                "counter_release": "5",
+                "report_id": "TR_J1",
+                "report_name": "Title Report - Journal Report 1"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_J4",
+                "report_name": "Title Report - Journal Report 4"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "DR",
+                "report_name": "Database Master Report"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_J2",
+                "report_name": "Title Report - Journal Report 2"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "PR_P1",
+                "report_name": "Platform Report - Report 1"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_B1",
+                "report_name": "Title Report - Book Report 1"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR",
+                "report_name": "Title Master Report"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_B2",
+                "report_name": "Title Report - Book Report 2"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_B3",
+                "report_name": "Title Report - Book Report 3"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "DR_D2",
+                "report_name": "Database Report - Report 2"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "TR_J3",
+                "report_name": "Title Report - Journal Report 3"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "PR",
+                "report_name": "Platform Master Report"
+            },
+            {
+                "counter_release": "5",
+                "report_id": "DR_D1",
+                "report_name": "Database Report - Report 1"
+            }
+        ],
+        "sushi_services": [
+            {
+                "counter_release": "5",
+                "url": "https://registry.countermetrics.org/api/v1/sushi-service/21f2d1ed-76fe-4ecc-b939-83209f3de125/"
+            }
+        ],
+        "audited": true
+    }
+]

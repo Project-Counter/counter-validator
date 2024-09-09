@@ -1,0 +1,19 @@
+lints:pre_commit:
+  stage: lints
+  needs: []
+  image: python:3.10
+  services:
+    - postgres
+  variables:
+    DJANGO_SETTINGS_MODULE: config.settings.base
+  before_script:
+    - apt-get update && apt-get install -y curl nodejs npm
+    - curl -sSL https://install.python-poetry.org | python
+    - export PATH="$PATH:/root/.local/bin"
+    - poetry install --no-root
+    - cp .env.example .env
+    - cd frontend && npm install -g corepack && corepack enable && yarn install
+  script:
+    - poetry run pre-commit run --hook-stage push --all-files
+  tags:
+    - bdd

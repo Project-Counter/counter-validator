@@ -1,0 +1,9 @@
+stages:
+  - lints
+  - tests
+  - build
+
+include:
+  - local: /.gitlab/pre-commit.yml
+  - local: /.gitlab/run-tests.yml
+  - local: /.gitlab/build-vue.yml

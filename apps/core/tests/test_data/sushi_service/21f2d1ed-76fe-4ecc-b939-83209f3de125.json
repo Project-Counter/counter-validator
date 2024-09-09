@@ -1,0 +1,30 @@
+{
+    "id": "21f2d1ed-76fe-4ecc-b939-83209f3de125",
+    "data_host": "https://registry.countermetrics.org/api/v1/usage-data-host/761269a2-27ed-44ce-8a8f-cca4f198c23f/",
+    "contact": {
+        "person": "",
+        "email": "",
+        "phone": "",
+        "form_url": "https://support.aom.org/hc/en-us/requests/new"
+    },
+    "url": "https://journals.aom.org/",
+    "customer_id_info": "For existing consumers, the customer ID info is available on the 'Usage reporting' page in the Institution admin area. For new consumers, please use contact/support details to inquire further.",
+    "requestor_id_required": true,
+    "requestor_id_info": "For existing consumers, the requestor ID info is available on the 'Usage reporting' page in the Institution admin area. For new consumers, please use contact/support details to inquire further.",
+    "api_key_required": false,
+    "api_key_info": "",
+    "platform_attr_required": false,
+    "platform_specific_info": "",
+    "credentials_auto_expire": false,
+    "credentials_auto_expire_info": "",
+    "request_volume_limits_applied": false,
+    "request_volume_limits_info": "",
+    "ip_address_authorization": false,
+    "ip_address_authorization_info": "",
+    "customizations_in_place": true,
+    "customizations_info": "Consortia reporting extension",
+    "notifications_url": "https://registry.countermetrics.org/api/v1/sushi-service/21f2d1ed-76fe-4ecc-b939-83209f3de125/notification/",
+    "migrations": [],
+    "counter_release": "5",
+    "notification_count": 0
+}

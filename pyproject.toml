@@ -1,0 +1,72 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+name = "counter-validation-tool"
+version = "0.1.0"
+description = ""
+authors = ["Jakub Smetana <jakub.smetana@protonmail.com>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+psycopg2-binary = "^2.9.9"
+djangorestframework = "^3.15.2"
+python-decouple = "^3.8"
+celery = "^5.4.0"
+django-celery-results = "^2.5.1"
+redis = "^5.0.8"
+django-redis = "^5.4.0"
+lz4 = "^4.3.3"
+djangorestframework-api-key = "^3.0.0"
+requests = "^2.32.3"
+dj-rest-auth = {extras = ["with-social"], version = "^6.0.0"}
+
+
+[tool.poetry.group.dev.dependencies]
+django-debug-toolbar = "^4.4.6"
+pytest = "^8.3.2"
+pytest-django = "^4.8.0"
+factory-boy = "^3.3.1"
+pytest-cov = "^5.0.0"
+pre-commit = "^3.8.0"
+ruff = "^0.6.3"
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.devel"
+python_files = "tests.py test_*.py"
+addopts = "--reuse-db"
+
+
+[tool.ruff]
+line-length = 100
+lint.ignore = [
+	"W191",  # ignore tabs
+]
+lint.select = [
+    "A",   # flake8-builtins
+    "B",   # flake8-bugbear
+    "DJ",  # flake8-django
+    "E",   # pycodestyle - errors
+    "F",   # pyflakes
+	"FIX", # flake8-fixme
+    "I",   # isort
+	"ISC", # flake8-implicit-str-concat
+	"N",   # pep8-naming
+	"SIM", # flake8-simplify
+	"UP",  # pyupgrade (simplify)
+    "W",   # pycodestyle - warnings
+]
+target-version = "py310"
+
+
+[tool.ruff.format]
+indent-style = "tab"
+
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = ["B011"]  # test files should have asserts
