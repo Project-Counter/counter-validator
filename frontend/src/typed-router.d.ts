@@ -23,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/settings': RouteRecordInfo<'/settings', '/settings', Record<never, never>, Record<never, never>>,
     '/validation/': RouteRecordInfo<'/validation/', '/validation', Record<never, never>, Record<never, never>>,
     '/validation/[path]': RouteRecordInfo<'/validation/[path]', '/validation/:path', { path: ParamValue<true> }, { path: ParamValue<false> }>,
-    '/validation/new': RouteRecordInfo<'/validation/new', '/validation/new', Record<never, never>, Record<never, never>>,
+    '/validation/file': RouteRecordInfo<'/validation/file', '/validation/file', Record<never, never>, Record<never, never>>,
+    '/validation/sushi': RouteRecordInfo<'/validation/sushi', '/validation/sushi', Record<never, never>, Record<never, never>>,
   }
 }

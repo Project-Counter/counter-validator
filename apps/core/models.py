@@ -118,7 +118,7 @@ class SushiService(models.Model):
 		return f"{self.url or ''} (C{self.counter_release})"
 
 
-class TaskMixin(models.Model):
+class Validation(models.Model):
 	class StatusEnum(models.IntegerChoices):
 		WAITING = 0
 		RUNNING = 1
@@ -127,6 +127,8 @@ class TaskMixin(models.Model):
 
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	api_key = models.ForeignKey(UserApiKey, null=True, on_delete=models.CASCADE)
+	created = models.DateTimeField(auto_now_add=True)
+
 	status = models.SmallIntegerField(choices=StatusEnum)
 	task_id = models.CharField(
 		max_length=getattr(settings, "DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH", 255),
@@ -134,12 +136,17 @@ class TaskMixin(models.Model):
 		null=True,
 		blank=True,
 	)
-	created = models.DateTimeField(auto_now_add=True)
+
 	platform = models.ForeignKey(Platform, null=True, on_delete=models.SET_NULL)
 	platform_name = models.CharField(max_length=150, blank=True)
 
+	filename = models.CharField(max_length=100, blank=True)
+	file = models.FileField(upload_to="file_validations", storage=upload_storage, null=True)
+	result = models.JSONField(null=True)
+	memory = models.PositiveBigIntegerField(null=True)
+	time = models.FloatField(null=True)
+
 	class Meta:
-		abstract = True
 		ordering = ("-id",)
 		constraints = (
 			models.CheckConstraint(
@@ -147,23 +154,6 @@ class TaskMixin(models.Model):
 				name="%(app_label)s_%(class)s_platform_union",
 			),
 		)
-
-
-class SushiDownload(TaskMixin):
-	url = models.URLField()
-	credential = models.JSONField()
-
-	def __str__(self):
-		return self.url
-
-
-class FileValidation(TaskMixin):
-	sushi = models.ForeignKey(SushiDownload, null=True, on_delete=models.CASCADE)
-	filename = models.CharField(max_length=100, blank=True)
-	file = models.FileField(upload_to="file_validations", storage=upload_storage, null=True)
-	headers = models.JSONField(null=True)
-	messages = models.JSONField(null=True)
-	memory = models.PositiveBigIntegerField(null=True)
 
 	def __str__(self):
 		return self.filename

@@ -15,6 +15,15 @@ class TestApi:
 		"validation-detail": {
 			"pk": 1,
 		},
+		"validation-details": {
+			"pk": 1,
+		},
+		"platform-detail": {
+			"pk": "uuid-",
+		},
+		"sushi-detail": {
+			"pk": "uuid-",
+		},
 		"api-key-detail": {
 			"prefix": "6mxB2Ads",
 		},

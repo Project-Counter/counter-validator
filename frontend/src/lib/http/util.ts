@@ -2,9 +2,9 @@ export function getCookie(key: string) {
 	return document.cookie.split(";").find(row => row.trim().startsWith(key + "="))?.split("=")[1]
 }
 
-// export interface RequestOptions extends RequestInit {
-// 	body?: string,
-// }
+export type RequestOptions = undefined | (RequestInit & {
+	json?: unknown
+})
 
 export class HttpStatusError extends Error {
 	res
@@ -16,15 +16,17 @@ export class HttpStatusError extends Error {
 	}
 }
 
-export async function wfetch(resource: string, options: RequestInit | undefined = undefined): Promise<unknown> {
+export class NoResponseError extends Error {}
+
+export async function wrapFetch(resource: string, options: RequestOptions = undefined): Promise<Response> {
 	if (!options) {
 		options = {}
 	}
 	options.headers = new Headers(options.headers)
 	options.mode = "same-origin"
 
-	if (options.body && !(options.body instanceof File)) {
-		options.body = JSON.stringify(options.body)
+	if (options.json) {
+		options.body = JSON.stringify(options.json)
 
 		options.headers.set("Content-Type", "application/json")
 	}
@@ -42,7 +44,14 @@ export async function wfetch(resource: string, options: RequestInit | undefined 
 		const err = new HttpStatusError(res)
 		throw err
 	}
-	if (Number(res.headers.get("Content-Length")) > 0) {
-		return res.json()
+
+	return res
+}
+
+export async function jsonFetch<T>(resource: string, options: RequestOptions = undefined): Promise<T> {
+	const res = await wrapFetch(resource, options)
+	if (Number(res.headers.get("Content-Length")) == 0) {
+		throw NoResponseError
 	}
+	return res.json() as Promise<T>
 }

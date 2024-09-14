@@ -1,28 +1,39 @@
 <template>
-  <file-upload v-model="files" />
+	<v-window v-model="window">
+		<v-window-item>
+			<file-picker v-model="files" />
 
-  <div class="text-end">
-    <v-btn
-      color="primary"
-      prepend-icon="mdi-play"
-      @click="send"
-    >
-      Validate
-    </v-btn>
-  </div>
+			<div class="text-end">
+				<v-slide-x-transition>
+					<v-btn
+						v-if="files.length > 0"
+						text="Validate"
+						color="primary"
+						@click="window = 1"
+					/>
+				</v-slide-x-transition>
+			</div>
+		</v-window-item>
+		<v-window-item>
+			<file-uploader
+				v-if="window == 1"
+				:files="files"
+				@back="back"
+			/>
+		</v-window-item>
+	</v-window>
 </template>
 
 <script setup lang="ts">
-import { ValidationFile } from "@/lib/definitions/ValidationFile"
-import { validateFile } from "@/lib/http/validation"
+import { FUpload } from "@/lib/definitions/upload"
 
-const files: Ref<ValidationFile[]> = ref([])
+const window = ref(1)
 
-async function send() {
-	for (const file of files.value) {
-		file.progress = 50
-		await validateFile(file)
-		file.progress = 100
-	}
+const files: Ref<FUpload[]> = ref([])
+
+function back() {
+	files.value.length = 0
+	window.value = 0
 }
+
 </script>

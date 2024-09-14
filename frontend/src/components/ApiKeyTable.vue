@@ -1,68 +1,68 @@
 <template>
-  <v-data-table-virtual
-    :headers="headers"
-    :items="data"
-    :mobile="null"
-    mobile-breakpoint="sm"
-    must-sort
-    :sort-by="[{key: 'created', order: 'desc'}]"
-  >
-    <template #top>
-      <v-sheet class="bg-surface-light d-flex align-center pa-4">
-        <span class="text-caption">Your API keys<v-icon class="ml-4">mdi-key</v-icon> {{ data.length }}</span>
-        <v-spacer />
-        <v-btn size="small">
-          Create a key
-          <api-key-create @update="load" />
-        </v-btn>
-      </v-sheet>
-    </template>
-    <template #item.created="{ value }">
-      <date-tooltip :date="value" />
-    </template>
-    <template #item.expiry_date="{ value }">
-      <date-tooltip
-        v-if="value"
-        :date="value"
-      />
-      <span
-        v-else
-        class="text-disabled"
-      >never</span>
-    </template>
-    <template #item.status="{ item }">
-      <span
-        v-if="item.revoked"
-        class="text-error"
-      >Revoked</span>
-      <span
-        v-else-if="item.has_expired"
-        class="text-warning"
-      >Expired</span>
-      <span
-        v-else
-        class="text-success"
-      >OK</span>
-    </template>
-    <template #item.actions="{ item }">
-      <v-btn
-        v-if="!item.revoked && !item.has_expired"
-        color="error"
-        size="small"
-        variant="tonal"
-      >
-        Revoke
-        <api-key-revoke
-          :prefix="item.prefix"
-          @update="load"
-        />
-      </v-btn>
-    </template>
-  </v-data-table-virtual>
+	<v-data-table-virtual
+		:headers="headers"
+		:items="data"
+		:mobile="null"
+		mobile-breakpoint="sm"
+		must-sort
+		:sort-by="[{key: 'created', order: 'desc'}]"
+	>
+		<template #top>
+			<v-sheet class="bg-surface-light d-flex align-center pa-4">
+				<span class="text-caption">Your API keys<v-icon class="ml-4">mdi-key</v-icon> {{ data.length }}</span>
+				<v-spacer />
+				<v-btn size="small">
+					Create a key
+					<api-key-create @update="load" />
+				</v-btn>
+			</v-sheet>
+		</template>
+		<template #item.created="{ value }">
+			<date-tooltip :date="value" />
+		</template>
+		<template #item.expiry_date="{ value }">
+			<date-tooltip
+				v-if="value"
+				:date="value"
+			/>
+			<span
+				v-else
+				class="text-disabled"
+			>never</span>
+		</template>
+		<template #item.status="{ item }">
+			<span
+				v-if="item.revoked"
+				class="text-error"
+			>Revoked</span>
+			<span
+				v-else-if="item.has_expired"
+				class="text-warning"
+			>Expired</span>
+			<span
+				v-else
+				class="text-success"
+			>OK</span>
+		</template>
+		<template #item.actions="{ item }">
+			<v-btn
+				v-if="!item.revoked && !item.has_expired"
+				color="error"
+				size="small"
+				variant="tonal"
+			>
+				Revoke
+				<api-key-revoke
+					:prefix="item.prefix"
+					@update="load"
+				/>
+			</v-btn>
+		</template>
+	</v-data-table-virtual>
 </template>
 
 <script setup lang="ts">
-import { ApiKey } from "@/lib/definitions/ApiKey"
+import { ApiKey } from "@/lib/definitions/api"
 import { loadApiKeys } from "@/lib/http/auth"
 
 const data: Ref<ApiKey[]> = ref([])
@@ -98,7 +98,7 @@ load().then()
 </script>
 
 <style>
-tbody {
+tjson {
 	hyphens: auto;
 	word-break: break-word;
 }

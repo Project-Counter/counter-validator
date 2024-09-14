@@ -50,6 +50,13 @@ export default [
 			"@stylistic/indent": ["error", "tab"],
 			"@stylistic/quotes": ["error", "double"],
 			"no-warning-comments": "warn",
+			"vue/html-indent": ["error", "tab", {
+				attribute: 1,
+				baseIndent: 1,
+				closeBracket: 0,
+				alignAttributesVertically: true,
+				ignores: [],
+			}],
 		},
 	},
 ]

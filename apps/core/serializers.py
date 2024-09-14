@@ -59,7 +59,6 @@ class PlatformSimpleSerializer(serializers.ModelSerializer):
 class PlatformSerializer(serializers.ModelSerializer):
 	reports = ReportSerializer(many=True, read_only=True)
 	sushi_services = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-	# todo sushi_services = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name="")
 	deprecated = serializers.ReadOnlyField()
 
 	class Meta:
@@ -76,27 +75,41 @@ class PlatformSerializer(serializers.ModelSerializer):
 		)
 
 
-class FileValidationSerializer(serializers.ModelSerializer):
-	status = serializers.ReadOnlyField()
-	created = serializers.ReadOnlyField()
-	headers = serializers.ReadOnlyField()
-	messages = serializers.ReadOnlyField()
-	memory = serializers.ReadOnlyField()
-
-	platform = serializers.PrimaryKeyRelatedField(read_only=True)
+class ValidationSerializer(serializers.ModelSerializer):
+	api_key = serializers.PrimaryKeyRelatedField(read_only=True)
+	platform = serializers.SlugRelatedField(read_only=True, slug_field="name")
 	file = serializers.FileField(write_only=True)
 
 	class Meta:
-		model = models.FileValidation
+		model = models.Validation
 		fields = (
 			"id",
+			"api_key",
+			"file",
 			"status",
 			"created",
-			"file",
 			"filename",
-			"headers",
-			"messages",
-			"memory",
 			"platform",
 			"platform_name",
 		)
+		read_only_fields = (
+			"api_key",
+			"status",
+			"created",
+		)
+
+
+class ValidationDetailSerializer(ValidationSerializer):
+	result = serializers.ReadOnlyField()
+
+	class Meta(ValidationSerializer.Meta):
+		fields = ValidationSerializer.Meta.fields + ("result",)
+		read_only_fields = ValidationSerializer.Meta.read_only_fields + ("result",)
+
+
+class Credentials(serializers.Serializer):
+	url = serializers.CharField(max_length=250)
+	platform = serializers.CharField(max_length=250, allow_blank=True)
+	customer_id = serializers.CharField(max_length=250)
+	requestor_id = serializers.CharField(max_length=250, allow_blank=True)
+	api_key = serializers.CharField(max_length=250, allow_blank=True)

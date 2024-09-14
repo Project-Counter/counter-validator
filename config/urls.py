@@ -23,7 +23,7 @@ urlpatterns = [
 	path("api/", include("core.urls")),
 	path(
 		"api/", include("dj_rest_auth.urls")
-	),  # FIXME: messages cookie?? don't login when logged in? csrf?
+	),
 	path("api/registration/", include("dj_rest_auth.registration.urls")),
 	path("admin/", admin.site.urls),
 ]

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
-import type { User } from "@/lib/definitions/User"
+import type { Status, User } from "@/lib/definitions/api"
 import { VueError } from "@/lib/definitions/VueError"
+import { useStorage } from "@vueuse/core"
 
 export const useAppStore = defineStore("app", () => {
 	const user: Ref<User> = ref({
@@ -12,9 +13,15 @@ export const useAppStore = defineStore("app", () => {
 
 	const errors: Ref<VueError[]> = ref([])
 
+	const darkTheme = useStorage("pinia/dark-theme", false)
+
+	const fileHistory = useStorage<{ filename: string, id?: number, status?: Status }[]>("pinia/file-history", [])
+
 	return {
 		user,
 		loggedIn,
 		errors,
+		darkTheme,
+		fileHistory,
 	}
 })

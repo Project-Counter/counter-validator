@@ -1,89 +1,88 @@
 <template>
-  <v-dialog
-    v-model="dialog"
-    activator="parent"
-    :max-width="500"
-  >
-    <template #default>
-      <v-form
-        v-model="valid"
-        @submit.prevent="send"
-      >
-        <v-card title="Create an API key">
-          <v-card-text class="d-flex flex-column ga-1">
-            <v-text-field
-              v-model="name"
-              class="mb-1"
-              counter
-              label="Name"
-              :maxlength="50"
-              :rules="[rules.required]"
-            />
-            <v-text-field
-              v-model="expiryDate"
-              clearable
-              hint="Optional, 00:00 UTC (midnight)"
-              label="Expires"
-              persistent-clear
-              persistent-hint
-              type="date"
-            />
-          </v-card-text>
+	<v-dialog
+		v-model="dialog"
+		activator="parent"
+		:max-width="500"
+	>
+		<template #default>
+			<v-form
+				v-model="valid"
+				@submit.prevent="send"
+			>
+				<v-card title="Create an API key">
+					<v-card-text class="d-flex flex-column ga-1">
+						<v-text-field
+							v-model="name"
+							class="mb-1"
+							counter
+							label="Name"
+							:maxlength="50"
+							:rules="[rules.required]"
+						/>
+						<v-text-field
+							v-model="expiryDate"
+							clearable
+							hint="Optional, 00:00 UTC (midnight)"
+							label="Expires"
+							persistent-clear
+							persistent-hint
+							type="date"
+						/>
+					</v-card-text>
 
-          <v-card-actions>
-            <v-btn
-              text="Cancel"
-              @click="reset"
-            />
-            <v-spacer />
-            <v-btn
-              :disabled="!valid"
-              :loading="loading"
-              text="Create"
-              type="submit"
-            />
-          </v-card-actions>
-        </v-card>
-      </v-form>
-    </template>
-  </v-dialog>
-  <v-dialog
-    v-model="okDialog"
-    :max-width="680"
-  >
-    <template #default>
-      <v-card title="API key created">
-        <v-card-text class="px-4 d-flex flex-column ga-6">
-          <v-alert
-            color="primary"
-            icon="mdi-alert"
-          >
-            Be sure to save this key securely, it won't be displayed again!
-          </v-alert>
-          <code
-            ref="codeRef"
-            class="bg-surface-light pa-2 rounded"
-            @click="select"
-          >{{ okKey }}</code>
-          <v-btn
-            color="primary"
-            :prepend-icon="icon ? 'mdi-check' : 'mdi-content-copy'"
-            variant="outlined"
-            @click="copy"
-          >
-            Copy
-          </v-btn>
-        </v-card-text>
+					<v-card-actions>
+						<v-btn
+							text="Cancel"
+							@click="reset"
+						/>
+						<v-spacer />
+						<v-btn
+							:disabled="!valid"
+							:loading="loading"
+							text="Create"
+							type="submit"
+						/>
+					</v-card-actions>
+				</v-card>
+			</v-form>
+		</template>
+	</v-dialog>
+	<v-dialog
+		v-model="okDialog"
+		:max-width="680"
+	>
+		<template #default>
+			<v-card title="API key created">
+				<v-card-text class="px-4 d-flex flex-column ga-6">
+					<v-alert
+						color="primary"
+						icon="mdi-alert"
+					>
+						Be sure to save this key securely, it won't be displayed again!
+					</v-alert>
+					<code
+						ref="codeRef"
+						class="bg-surface-light pa-2 rounded"
+						@click="select"
+					>{{ okKey }}</code>
+					<v-btn
+						text="Copy"
+						color="primary"
+						:prepend-icon="icon ? 'mdi-check' : 'mdi-content-copy'"
+						variant="outlined"
+						@click="copy"
+					/>
+				</v-card-text>
 
-        <v-card-actions>
-          <v-btn
-            text="OK"
-            @click="okReset"
-          />
-        </v-card-actions>
-      </v-card>
-    </template>
-  </v-dialog>
+				<v-card-actions>
+					<v-btn
+						text="OK"
+						@click="okReset"
+					/>
+				</v-card-actions>
+			</v-card>
+		</template>
+	</v-dialog>
 </template>
 
 <script setup lang="ts">

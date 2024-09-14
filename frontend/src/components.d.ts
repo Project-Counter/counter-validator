@@ -14,7 +14,9 @@ declare module 'vue' {
     ChangePassword: typeof import('./components/ChangePassword.vue')['default']
     ChangePasswordForm: typeof import('./components/ChangePasswordForm.vue')['default']
     DateTooltip: typeof import('./components/DateTooltip.vue')['default']
+    FilePicker: typeof import('./components/FilePicker.vue')['default']
     FileUpload: typeof import('./components/FileUpload.vue')['default']
+    FileUploader: typeof import('./components/FileUploader.vue')['default']
     FileValidation: typeof import('./components/FileValidation.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     LoginPage: typeof import('./components/LoginPage.vue')['default']
@@ -26,5 +28,6 @@ declare module 'vue' {
     TextAreaDialog: typeof import('./components/TextAreaDialog.vue')['default']
     TextTooltip: typeof import('./components/TextTooltip.vue')['default']
     UserForm: typeof import('./components/UserForm.vue')['default']
+    ValidationStatus: typeof import('./components/ValidationStatus.vue')['default']
   }
 }

@@ -1,6 +1,6 @@
 import { useAppStore } from "@/stores/app"
-import { wfetch } from "./util"
-import { User } from "../definitions/User"
+import { jsonFetch, wrapFetch } from "./util"
+import { ApiKey, User } from "../definitions/api"
 
 export const urls = {
 	user: "user/",
@@ -17,12 +17,12 @@ export async function checkUser(reset = false) {
 	}
 
 	try {
-		store.user = await wfetch(urls.user)
+		store.user = await jsonFetch<User>(urls.user)
 	}
 	catch (err) {
 		store.loggedIn = false
 		if (![401, 403].includes(err?.res?.status)) {
-			// TODO: handling??
+			// TODO: 500 -> show error instead of login
 		}
 		return
 	}
@@ -31,9 +31,9 @@ export async function checkUser(reset = false) {
 
 export async function updateUser(obj: User) {
 	try {
-		await wfetch(urls.user, {
+		await wrapFetch(urls.user, {
 			method: "PATCH",
-			body: obj,
+			json: obj,
 		})
 	}
 	finally {
@@ -43,9 +43,9 @@ export async function updateUser(obj: User) {
 
 export async function login(email: string, password: string) {
 	try {
-		await wfetch(urls.login, {
+		await wrapFetch(urls.login, {
 			method: "POST",
-			body: { email, password },
+			json: { email, password },
 		})
 	}
 	finally {
@@ -55,7 +55,7 @@ export async function login(email: string, password: string) {
 
 export async function logout() {
 	try {
-		await wfetch(urls.logout, {
+		await wrapFetch(urls.logout, {
 			method: "POST",
 		})
 	}
@@ -66,9 +66,9 @@ export async function logout() {
 
 export async function signup(email: string, password1: string, password2: string) {
 	try {
-		await wfetch(urls.signup, {
+		await wrapFetch(urls.signup, {
 			method: "POST",
-			body: { email, password1, password2 },
+			json: { email, password1, password2 },
 		})
 	}
 	finally {
@@ -77,18 +77,18 @@ export async function signup(email: string, password1: string, password2: string
 }
 
 export async function loadApiKeys() {
-	return wfetch(urls.apiKey)
+	return jsonFetch<ApiKey[]>(urls.apiKey)
 }
 
 export async function createApiKey(name: string, expiryDate: Date | null) {
-	return wfetch(urls.apiKey, {
+	return jsonFetch<ApiKey>(urls.apiKey, {
 		method: "POST",
-		body: { name, expiry_date: expiryDate },
+		json: { name, expiry_date: expiryDate },
 	})
 }
 
 export async function revokeApiKey(prefix: string) {
-	return wfetch(urls.apiKey + prefix + "/", {
+	return jsonFetch(urls.apiKey + prefix + "/", {
 		method: "DELETE",
 	})
 }
