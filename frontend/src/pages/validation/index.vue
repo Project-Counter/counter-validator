@@ -1,16 +1,9 @@
 <template>
-	<v-card
-		color="primary"
-		loading
-		max-width="330"
-		variant="tonal"
-	>
-		<template #text />
-	</v-card>
 	<v-data-table
 		:headers="headers"
 		:items="items"
 		:mobile="null"
+		no-data-text="No validations in your history"
 	>
 		<template #item.status="{ value }">
 			<validation-status :value="value" />
@@ -51,6 +44,5 @@ const headers = [
 async function load() {
 	items.value = await getValidations()
 }
-// setInterval(load, 500)
 load().then()
 </script>

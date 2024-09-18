@@ -68,7 +68,7 @@ class ValidationViewSet(ReadOnlyModelViewSet):
 			raise ValidationError(
 				detail=(
 					f"Max file size exceeded: "
-					f"{request.data["file"].size} > {settings.MAX_FILE_SIZE} bytes"
+					f"{request.data['file'].size} > {settings.MAX_FILE_SIZE} bytes"
 				)
 			)
 

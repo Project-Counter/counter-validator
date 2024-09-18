@@ -41,7 +41,8 @@ addopts = "--reuse-db"
 [tool.ruff]
 line-length = 100
 lint.ignore = [
-	"W191",  # ignore tabs
+	"W191",    # ignore tabs
+	"ISC001",  # warns about not working with the formatter
 ]
 lint.select = [
     "A",   # flake8-builtins

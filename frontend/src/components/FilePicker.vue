@@ -72,15 +72,20 @@
 							prepend-inner-icon="mdi-magnify"
 							clearable
 							persistent-clear
-							persistent-hint
-							hint="(optional) type to search or write a custom text for yourself"
+							hide-details
 							item-title="name"
 							item-subtitle="abbrev"
 							auto-select-first="exact"
 							item-value="name"
+							append-inner-icon="mdi-content-copy"
 							:return-object="false"
 							:loading
+							@click:append-inner="copyPlatform(item.platform)"
 						/>
+						<ul class="ml-4 text-caption text-medium-emphasis" v-if="index == 0">
+							<li>optional, type to search or write custom text for yourself</li>
+							<li>click <v-icon icon="mdi-content-copy"/> to copy to all other files</li>
+						</ul>
 					</v-col>
 				</v-row>
 			</v-sheet>
@@ -121,6 +126,11 @@ function onPick(e: Event) {
 function onDrop(e: DragEvent) {
 	overlay.value = false
 	addFiles(e.dataTransfer?.files ?? [])
+}
+function copyPlatform(platform?: string) {
+	for (const i of model.value) {
+		i.platform = platform
+	}
 }
 
 load().then()
