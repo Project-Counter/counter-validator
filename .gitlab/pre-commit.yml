@@ -2,8 +2,17 @@ lints:pre_commit:
   stage: lints
   needs: []
   image: python:3.10
+  services:
+    - postgres
+    - redis
   variables:
     DJANGO_SETTINGS_MODULE: config.settings.base
+    POSTGRES_DB: coval
+    POSTGRES_USER: coval
+    POSTGRES_PASSWORD: coval
+    POSTGRES_HOST: postgres
+    DB_HOST: postgres
+    DB_PASSWORD: coval
   before_script:
     - apt-get update && apt-get install -y curl nodejs npm
     - curl -sSL https://install.python-poetry.org | python
