@@ -12,6 +12,7 @@ tests:run_tests:
     POSTGRES_PASSWORD: coval
     POSTGRES_HOST: postgres
     DB_HOST: postgres
+    DB_PASSWORD: coval
   before_script:
     - apt-get update && apt-get install -y curl
     - curl -sSL https://install.python-poetry.org | python
