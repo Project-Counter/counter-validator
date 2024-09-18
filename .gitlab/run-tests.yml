@@ -7,6 +7,11 @@ tests:run_tests:
     - redis
   variables:
     DJANGO_SETTINGS_MODULE: config.settings.base
+    POSTGRES_DB: coval
+    POSTGRES_USER: coval
+    POSTGRES_PASSWORD: coval
+    POSTGRES_HOST: postgres
+    DB_HOST: postgres
   before_script:
     - apt-get update && apt-get install -y curl
     - curl -sSL https://install.python-poetry.org | python

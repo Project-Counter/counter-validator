@@ -2,8 +2,6 @@ lints:pre_commit:
   stage: lints
   needs: []
   image: python:3.10
-  services:
-    - postgres
   variables:
     DJANGO_SETTINGS_MODULE: config.settings.base
   before_script:
