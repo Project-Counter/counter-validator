@@ -19,6 +19,14 @@
     <template #item.id="{ item }">
       <date-tooltip :date="item.created" />
     </template>
+
+    <template #item.filename="{ item }">
+      <router-link
+        :to="item.id + '/'"
+      >
+        {{ item.filename }}
+      </router-link>
+    </template>
   </v-data-table>
 </template>
 

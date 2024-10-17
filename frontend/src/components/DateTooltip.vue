@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip :text="date">
+  <v-tooltip :text="dateHuman">
     <template #activator="{ props }">
       <span v-bind="props">{{ relative }}</span>
     </template>
@@ -16,6 +16,15 @@ const p = defineProps<{
 const relative = computed(() => {
   try {
     return intlFormatDistance(p.date, Date.now())
+  }
+  catch {
+    return "N/A"
+  }
+})
+
+const dateHuman = computed(() => {
+  try {
+    return new Date(p.date).toLocaleString()
   }
   catch {
     return "N/A"

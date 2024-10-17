@@ -9,7 +9,7 @@
       prepend-icon="mdi-magnify"
       value="details"
     >
-      Details
+      Info
     </v-tab>
 
     <v-tab
@@ -118,5 +118,6 @@ load().then()
 .json {
   white-space: pre-wrap;
   font-family: monospace;
+	font-size: 0.875em;
 }
 </style>
