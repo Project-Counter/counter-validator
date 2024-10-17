@@ -8,6 +8,6 @@ export type FUpload = {
 
 export type ValidatedFile = {
   filename: string
-  id?: number
+  id?: string // uuid
   status?: Status
 } & ValidationBase

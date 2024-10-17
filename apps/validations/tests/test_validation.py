@@ -4,6 +4,7 @@ File and SUSHI validation tests.
 
 import re
 from unittest.mock import patch
+from uuid import UUID
 
 import pytest
 import requests_mock
@@ -67,13 +68,13 @@ class TestValidationAPI:
                 data={"file": file, "platform_name": "test"},
                 format="multipart",
             )
-            p.assert_called_once_with(res.json()["id"])
+            p.assert_called_once_with(UUID(res.json()["id"]))
         assert res.status_code == 201
         assert res.json()["filename"] == filename
         val = Validation.objects.select_related("core").get()
         assert val.filename == filename
         assert val.core.platform_name == "test"
-        assert val.pk == res.json()["id"]
+        assert str(val.pk) == res.json()["id"]
 
     def test_api_empty(self, client_authenticated_user):
         file = SimpleUploadedFile("tr.json", content=b"")
@@ -132,7 +133,7 @@ class TestValidationAPI:
                 data={"file": file, **pl_data},
                 format="multipart",
             )
-            p.assert_called_once_with(res.json()["id"])
+            p.assert_called_once_with(UUID(res.json()["id"]))
         assert res.status_code == 201
         val = Validation.objects.select_related("core").get()
         assert val.core.platform_name == exp_name

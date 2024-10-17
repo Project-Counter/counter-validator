@@ -10,9 +10,9 @@ class ValidationSerializer(serializers.ModelSerializer):
     api_key = serializers.PrimaryKeyRelatedField(read_only=True)
     file = serializers.FileField(write_only=True)
     validation_result = serializers.CharField(
-        read_only=True, source="get_validation_result_display"
+        read_only=True, source="core.get_validation_result_display"
     )
-    status = serializers.CharField(read_only=True, source="core.status")
+    status = serializers.IntegerField(read_only=True, source="core.status")
     created = serializers.DateTimeField(read_only=True, source="core.created")
     platform = serializers.SlugRelatedField(
         read_only=True, slug_field="name", source="core.platform"

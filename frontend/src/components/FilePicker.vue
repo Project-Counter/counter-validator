@@ -80,7 +80,7 @@
               append-inner-icon="mdi-content-copy"
               return-object
               :loading
-              @click:append-inner="copyPlatform(item.platform)"
+              @click:append-inner="copyPlatform(item)"
             />
             <ul
               v-if="index == 0"
@@ -130,9 +130,9 @@ function onDrop(e: DragEvent) {
   overlay.value = false
   addFiles(e.dataTransfer?.files ?? [])
 }
-function copyPlatform(platform?: number) {
+function copyPlatform(item: FUpload) {
   for (const rec of model.value) {
-    rec.platform = platform
+    rec.platform = item.platform
   }
 }
 

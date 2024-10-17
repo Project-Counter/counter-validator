@@ -63,7 +63,7 @@ export type ValidationBase = {
 }
 
 export type Validation = {
-  id: number
+  id: string // uuid
   api_key?: number
   status: Status
   created: string

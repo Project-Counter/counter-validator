@@ -2,7 +2,7 @@ import os
 import string
 from typing import IO
 
-from core.mixins import CreatedUpdatedMixin
+from core.mixins import CreatedUpdatedMixin, UUIDPkMixin
 from core.models import User, UserApiKey
 from counter.models import Platform
 from django.conf import settings
@@ -22,7 +22,7 @@ def validation_upload_to(instance: "Validation", filename):
     return f"file_validations/{ts}-{random_suffix}{ext}"
 
 
-class ValidationCore(CreatedUpdatedMixin, models.Model):
+class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     """
     This stores the core information about the validation, without the result data
     and with only the stuff that can be retained for a long time.
@@ -86,7 +86,7 @@ class ValidationCore(CreatedUpdatedMixin, models.Model):
         return f"{self.pk}: {self.created} - {self.get_status_display()}"
 
 
-class Validation(models.Model):
+class Validation(UUIDPkMixin, models.Model):
     core = models.OneToOneField(ValidationCore, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     api_key = models.ForeignKey(UserApiKey, null=True, on_delete=models.CASCADE)

@@ -1,6 +1,7 @@
 import os
 import time
 import urllib.parse
+import uuid
 
 import celery
 import requests
@@ -28,7 +29,7 @@ def update_registry_models(cls=None):
 
 
 @celery.shared_task(base=ValidationTask)
-def validate_file(pk):
+def validate_file(pk: uuid.UUID):
     start = time.monotonic()
     obj = Validation.objects.select_related("core").get(pk=pk)
     obj.core.status = ValidationStatus.RUNNING

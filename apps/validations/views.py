@@ -1,6 +1,7 @@
 # Create your views here.
 from core.tasks import validate_file, validate_sushi
 from counter.serializers import Credentials
+from django.db.transaction import atomic
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -31,6 +32,7 @@ class ValidationViewSet(ReadOnlyModelViewSet):
         return qs
 
     @action(detail=False, methods=("POST",), url_path="file")
+    @atomic
     def file(self, request):
         serializer = FileValidationCreateSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
