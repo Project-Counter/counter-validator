@@ -48,21 +48,13 @@
 </template>
 
 <script setup lang="ts">
+import { levelColorMap as colorMap } from "@/lib/definitions/api"
+
 const p = defineProps<{
   messages: Record<string, object>[]
 }>()
 
 // constants
-const colorMap = new Map<string, string>([
-  ["Passed", "success"],
-  ["Notice", "info"],
-  ["Warning", "warning"],
-  ["Error", "error"],
-  ["Critical error", "error"],
-  ["Fatal error", "error"],
-],
-)
-
 const headers = [
   { key: "color", title: "", sortable: false },
   { key: "l", title: "Level" },

@@ -128,6 +128,23 @@ def validation_upload_to(instance: "Validation", filename):
     return f"file_validations/{ts}-{random_suffix}{ext}"
 
 
+class ResultEnum(models.IntegerChoices):
+    UNKNOWN = 0, ""
+    PASSED = 10, "Passed"
+    NOTICE = 20, "Notice"
+    WARNING = 30, "Warning"
+    ERROR = 40, "Error"
+    CRITICAL_ERROR = 50, "Critical error"
+    FATAL_ERROR = 60, "Fatal error"
+
+    @classmethod
+    def by_label(cls, label):
+        for member in cls:
+            if member.label == label:
+                return member
+        return cls.UNKNOWN
+
+
 class Validation(models.Model):
     class StatusEnum(models.IntegerChoices):
         WAITING = 0
@@ -153,6 +170,12 @@ class Validation(models.Model):
     filename = models.CharField(max_length=100, blank=True)
     file = models.FileField(upload_to=validation_upload_to, null=True)
     result = models.JSONField(null=True)
+    validation_result = models.PositiveSmallIntegerField(
+        choices=ResultEnum,
+        default=ResultEnum.UNKNOWN,
+        help_text="The worst result of all the results in the validation",
+    )
+
     memory = models.PositiveBigIntegerField(null=True)
     time = models.FloatField(null=True)
 
@@ -166,4 +189,15 @@ class Validation(models.Model):
         )
 
     def __str__(self):
+        if self.result:
+            print(self.result.get("result"))
         return self.filename
+
+    def save(self, *args, **kwargs):
+        self.validation_result = self.extract_validation_result()
+        super().save(*args, **kwargs)
+
+    def extract_validation_result(self) -> int:
+        if self.result:
+            return self.result.get("result", ResultEnum.UNKNOWN)
+        return ResultEnum.UNKNOWN

@@ -8,6 +8,16 @@
     <template #item.status="{ value }">
       <validation-status :value="value" />
     </template>
+
+    <template #item.validation_result="{ item }">
+      <v-chip
+        v-if="item.validation_result"
+        :color="levelColorMap.get(item.validation_result)"
+      >
+        {{ item.validation_result }}
+      </v-chip>
+    </template>
+
     <template #item.detail="{ item }">
       <v-btn
         v-if="item.status == 2"
@@ -31,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { Validation } from "@/lib/definitions/api"
+import { levelColorMap, Validation } from "@/lib/definitions/api"
 import { getValidations } from "@/lib/http/validation"
 
 const compare = new Intl.Collator().compare
@@ -39,6 +49,7 @@ const compare = new Intl.Collator().compare
 const items = ref<Validation[]>([])
 const headers = [
   { key: "status", title: "Status", align: "center", width: 1 },
+  { key: "validation_result", title: "Validation Result" },
   { key: "filename", title: "Filename" },
   { key: "platform", title: "Platform", sortRaw(a: Validation, b: Validation) {
     const platformA = a.platform ?? a.platform_name

@@ -49,7 +49,18 @@ export type Validation = {
   filename?: string
   platform: string
   platform_name: string
+  validation_result: number
 }
+
+export const levelColorMap = new Map<string, string>([
+  ["Passed", "success"],
+  ["Notice", "info"],
+  ["Warning", "warning"],
+  ["Error", "error"],
+  ["Critical error", "error"],
+  ["Fatal error", "error"],
+],
+)
 
 export type ValidationDetail = Validation & {
   result: Result

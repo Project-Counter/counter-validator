@@ -79,6 +79,9 @@ class ValidationSerializer(serializers.ModelSerializer):
     api_key = serializers.PrimaryKeyRelatedField(read_only=True)
     platform = serializers.SlugRelatedField(read_only=True, slug_field="name")
     file = serializers.FileField(write_only=True)
+    validation_result = serializers.CharField(
+        read_only=True, source="get_validation_result_display"
+    )
 
     class Meta:
         model = models.Validation
@@ -91,6 +94,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "filename",
             "platform",
             "platform_name",
+            "validation_result",
         )
         read_only_fields = (
             "api_key",

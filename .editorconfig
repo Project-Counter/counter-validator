@@ -2,5 +2,4 @@ root = true
 
 [*]
 charset = utf-8
-indent_style = tab
 max_line_length = 100
