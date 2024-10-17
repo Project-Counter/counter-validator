@@ -40,7 +40,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         blank=True,
         help_text="Code of the report as reported by the validation module",
     )
-    status = models.SmallIntegerField(choices=ValidationStatus)
+    status = models.SmallIntegerField(choices=ValidationStatus, default=ValidationStatus.WAITING)
     user_email_checksum = models.CharField(max_length=2 * settings.HASHING_DIGEST_SIZE)
 
     platform = models.ForeignKey(
@@ -63,12 +63,14 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     )
 
     file_checksum = models.CharField(max_length=2 * settings.HASHING_DIGEST_SIZE, blank=True)
-    file_size = models.PositiveBigIntegerField(help_text="Size of the validated file in bytes")
+    file_size = models.PositiveBigIntegerField(
+        help_text="Size of the validated file in bytes", default=0
+    )
     used_memory = models.PositiveBigIntegerField(
-        null=True, help_text="Memory in bytes used by the validation module"
+        help_text="Memory in bytes used by the validation module", default=0
     )
     duration = models.FloatField(
-        null=True, help_text="Time in seconds used by the validation module"
+        default=0, help_text="Time in seconds used by the validation module"
     )
     stats = models.JSONField(
         default=dict,
