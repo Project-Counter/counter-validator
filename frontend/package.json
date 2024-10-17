@@ -48,5 +48,5 @@
     "vue-router": "^4.4.3",
     "vue-tsc": "^2.0.29"
   },
-  "packageManager": "yarn@4.4.0"
+  "packageManager": "yarn@4.5.0"
 }

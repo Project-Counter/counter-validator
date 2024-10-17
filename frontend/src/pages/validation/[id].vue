@@ -29,7 +29,11 @@
       <h3 class="mb-5">
         Basic information
       </h3>
-      <ValidationBasicInfo :validation="validation" />
+      <!-- ts need the v-if bellow to narrow down the type -->
+      <ValidationBasicInfo
+        v-if="validation"
+        :validation="validation"
+      />
 
       <section v-if="header">
         <h3 class="my-5">
@@ -100,7 +104,9 @@ const route = useRoute()
 const header = computed(() => validation.value?.result?.header)
 
 async function load() {
-  validation.value = await getValidationDetail(route.params.path)
+  if ("id" in route.params) { // check needed for TS to narrow down the type
+    validation.value = await getValidationDetail(route.params.id)
+  }
 }
 load().then()
 </script>

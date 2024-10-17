@@ -12,8 +12,7 @@
       <tr>
         <th>Task status</th>
         <td>
-          {{ validation && "status" in validation ? statusMap.get(validation.status) : "Unknown"
-          }}
+          {{ validation && (statusMap.get(validation.status) ?? "Unknown") }}
         </td>
       </tr>
       <tr>

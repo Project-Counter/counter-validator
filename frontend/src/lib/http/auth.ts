@@ -1,5 +1,5 @@
 import { useAppStore } from "@/stores/app"
-import { jsonFetch, wrapFetch } from "./util"
+import { HttpStatusError, jsonFetch, wrapFetch } from "./util"
 import { ApiKey, User } from "../definitions/api"
 
 export const urls = {
@@ -19,10 +19,12 @@ export async function checkUser(reset = false) {
   try {
     store.user = await jsonFetch<User>(urls.user)
   }
-  catch (err) {
+  catch (err: unknown) {
     store.loggedIn = false
-    if (![401, 403].includes(err?.res?.status)) {
-      // TODO: 500 -> show error instead of login
+    if (err instanceof HttpStatusError) {
+      if (![401, 403].includes(err?.res?.status)) {
+        // TODO: 500 -> show error instead of login
+      }
     }
     return
   }
@@ -81,7 +83,9 @@ export async function loadApiKeys() {
 }
 
 export async function createApiKey(name: string, expiryDate: Date | null) {
-  return jsonFetch<ApiKey>(urls.apiKey, {
+  // the post reply is not a serialized key, but just an object
+  // with the new key as a string
+  return jsonFetch<{ key: string }>(urls.apiKey, {
     method: "POST",
     json: { name, expiry_date: expiryDate },
   })

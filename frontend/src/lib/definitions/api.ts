@@ -5,6 +5,7 @@ export type ApiKey = {
   revoked: boolean
   expiry_date: string
   has_expired: boolean
+  key?: string
 }
 
 export type User = {
@@ -18,8 +19,17 @@ export type Report = {
   report_id: string
 }
 
+export type SeverityLevel =
+  "Passed"
+  | "Notice"
+  | "Warning"
+  | "Error"
+  | "Critical error"
+  | "Fatal error"
+  | ""
+
 export type Message = {
-  l: string // level
+  l: SeverityLevel // level
   s: string // summary
   m: string // message
   p: number // position
@@ -48,6 +58,10 @@ export const statusMap = new Map<Status, string>([
   [Status.FAILURE, "Failure"],
 ])
 
+export type ValidationBase = {
+  validation_result: SeverityLevel
+}
+
 export type Validation = {
   id: number
   api_key?: number
@@ -56,10 +70,9 @@ export type Validation = {
   filename?: string
   platform: string
   platform_name: string
-  validation_result: number
-}
+} & ValidationBase
 
-export const levelColorMap = new Map<string, string>([
+export const levelColorMap = new Map<SeverityLevel, string>([
   ["Passed", "success"],
   ["Notice", "info"],
   ["Warning", "warning"],

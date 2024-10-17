@@ -48,10 +48,10 @@
 </template>
 
 <script setup lang="ts">
-import { levelColorMap as colorMap } from "@/lib/definitions/api"
+import { levelColorMap as colorMap, Message, SeverityLevel } from "@/lib/definitions/api"
 
 const p = defineProps<{
-  messages: Record<string, object>[]
+  messages: Message[]
 }>()
 
 // constants
@@ -64,28 +64,32 @@ const headers = [
 ]
 
 // variables
-let selectedLevels: Array<string> = ref([...colorMap.keys()])
+let selectedLevels = ref([...colorMap.keys()])
 
 // computed
 let filteredMessages = computed(() => {
   return p.messages.filter(m => selectedLevels.value.includes(m.l))
 })
 
-let severityMap: Record<string, number> = computed(() => {
-  let map = new Map()
+let severityMap = computed(() => {
+  let map = new Map<SeverityLevel, number>()
   p.messages.forEach((m) => {
-    if (!map.has(m.l)) map.set(m.l, 0)
-    map.set(m.l, map.get(m.l) + 1)
+    if (map.has(m.l)) {
+      map.set(m.l, (map.get(m.l) ?? 0) + 1)
+    }
+    else {
+      map.set(m.l, 1)
+    }
   })
-  let out = new Map() // we want sorting by level from `colorMap`
+  let out = new Map<SeverityLevel, number>() // we want sorting by level from `colorMap`
   colorMap.forEach((value, k) => {
-    if (map.has(k)) out.set(k, map.get(k))
+    if (map.has(k)) out.set(k, map.get(k) ?? 0)
   })
   return out
 })
 
 // methods
-function toggleLevelVisibility(level: string) {
+function toggleLevelVisibility(level: SeverityLevel) {
   if (selectedLevels.value.includes(level)) {
     selectedLevels.value = selectedLevels.value.filter(l => l !== level)
   }

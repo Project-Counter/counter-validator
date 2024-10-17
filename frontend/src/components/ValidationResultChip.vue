@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import { levelColorMap } from "@/lib/definitions/api"
+import { levelColorMap, ValidationBase } from "@/lib/definitions/api"
 
-const p = defineProps<{
-  item?: object
+defineProps<{
+  item?: ValidationBase
 }>()
 
 </script>

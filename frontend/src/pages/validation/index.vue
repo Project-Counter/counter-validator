@@ -36,7 +36,7 @@ const compare = new Intl.Collator().compare
 
 const items = ref<Validation[]>([])
 const headers = [
-  { key: "status", title: "Status", align: "center", width: 1 },
+  { key: "status", title: "Status", width: 1 },
   { key: "validation_result", title: "Validation Result" },
   { key: "filename", title: "Filename" },
   { key: "platform", title: "Platform", sortRaw(a: Validation, b: Validation) {

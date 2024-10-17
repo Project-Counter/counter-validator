@@ -110,25 +110,24 @@
 </template>
 
 <script setup lang="ts">
-import { Credentials, SushiService } from "@/lib/definitions/api"
+import { Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
-import { validateSushi } from "@/lib/http/validation"
 
 const stepper = ref(0)
 const formValid = ref(false)
 const platforms = shallowRef()
 const platform = ref(null)
-const sushiService = reactive<SushiService>({
-  id: "",
-  counter_release: "",
-  url: "",
-  ip_address_authorization: undefined,
-  api_key_required: undefined,
-  platform_attr_required: undefined,
-  requestor_id_required: undefined,
-  deprecated: false,
-})
+// const sushiService = reactive<SushiService>({
+//   id: "",
+//   counter_release: "",
+//   url: "",
+//   ip_address_authorization: undefined,
+//   api_key_required: undefined,
+//   platform_attr_required: undefined,
+//   requestor_id_required: undefined,
+//   deprecated: false,
+// })
 const loading = ref(false)
 const loadingPlatforms = ref(true)
 
@@ -154,9 +153,9 @@ async function load() {
   loadingPlatforms.value = false
 }
 
-async function submit() {
-  await validateSushi(credentials)
-}
+// async function submit() {
+//   await validateSushi(credentials)
+// }
 
 // watch(stepper, submit)
 

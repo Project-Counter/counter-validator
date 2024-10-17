@@ -153,7 +153,7 @@ async function upload(file: FUpload) {
 if (props.files.length) {
   fileHistory.value.length = 0
   for (const file of props.files) {
-    fileHistory.value.push({ filename: file.file.name })
+    fileHistory.value.push({ filename: file.file.name, validation_result: "" })
     uploading.add(file.file.name)
   }
   for (const file of props.files) {
