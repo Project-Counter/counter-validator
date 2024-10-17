@@ -29,6 +29,8 @@ declare module 'vue' {
     TextTooltip: typeof import('./components/TextTooltip.vue')['default']
     UserForm: typeof import('./components/UserForm.vue')['default']
     ValidationMessagesTable: typeof import('./components/ValidationMessagesTable.vue')['default']
+    ValidationResult: typeof import('./components/ValidationResultChip.vue')['default']
+    ValidationResultChip: typeof import('./components/ValidationResultChip.vue')['default']
     ValidationStatus: typeof import('./components/ValidationStatus.vue')['default']
   }
 }

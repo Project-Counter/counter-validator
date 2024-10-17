@@ -102,9 +102,9 @@ watch(() => store.darkTheme, (v) => {
 
 <style>
 .v-snackbar--vertical .v-snackbar__wrapper .v-snackbar__actions {
-	width: 100%;
-	padding-left: 8px;
-	padding-right: 8px;
-	margin-inline-end: 0;
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-inline-end: 0;
 }
 </style>

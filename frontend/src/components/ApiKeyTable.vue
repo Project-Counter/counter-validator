@@ -99,7 +99,7 @@ load().then()
 
 <style>
 tjson {
-	hyphens: auto;
-	word-break: break-word;
+  hyphens: auto;
+  word-break: break-word;
 }
 </style>

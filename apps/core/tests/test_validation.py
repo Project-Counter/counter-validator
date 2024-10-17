@@ -1,9 +1,9 @@
 """
 File and SUSHI validation tests.
 """
+
 import re
 from pathlib import Path
-from typing import Optional
 from unittest.mock import patch
 
 import pytest
@@ -13,7 +13,7 @@ from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from core.models import Validation, ResultEnum
+from core.models import ResultEnum, Validation
 from core.tasks import validate_file
 from core.tests.fake_data import UserFactory
 
@@ -125,7 +125,9 @@ class TestValidationTask:
             file=file,
         )
         with requests_mock.Mocker() as m:
-            with open(Path(__file__).parent / "test_data/validation_results/test1.json") as datafile:
+            with open(
+                Path(__file__).parent / "test_data/validation_results/test1.json"
+            ) as datafile:
                 m.post(
                     re.compile(".*"),
                     text=datafile.read(),

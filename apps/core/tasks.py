@@ -33,6 +33,7 @@ def validate_file(pk):
     obj = Validation.objects.get(pk=pk)
     obj.status = Validation.StatusEnum.RUNNING
     obj.save()
+    # time.sleep(5)
 
     with obj.file.open("rb") as fp:
         req = requests.post(

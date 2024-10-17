@@ -13,6 +13,7 @@
     </v-tab>
 
     <v-tab
+      v-if="validation?.result?.messages"
       prepend-icon="mdi-receipt-text"
       value="result"
     >
@@ -25,91 +26,107 @@
   >
     <v-tabs-window-item value="details">
       <h3 class="mb-5">
-        Validation info
+        Basic information
       </h3>
-      <v-row
-        v-for="(v, k, n) in info"
-        :key="k"
-        :class="n % 2 ? 'bg-surface-light' : ''"
-      >
-        <v-col
-          cols="12"
-          md="2"
-        >
-          {{ k }}
-        </v-col>
-        <v-col
-          cols="12"
-          md="10"
-        >
-          {{ v }}
-        </v-col>
-      </v-row>
-      <h3 class="my-5">
-        Report Header
-      </h3>
-      <v-row v-if="items?.result?.header?.result">
-        <v-col
-          cols="12"
-          md="2"
-        >
-          Result
-        </v-col>
+      <table class="overview">
+        <tbody>
+          <tr>
+            <th>Filename</th>
+            <td>{{ validation?.filename }}</td>
+          </tr>
+          <tr>
+            <th>Created</th>
+            <td>{{ validation?.created }} ({{ relCreated }})</td>
+          </tr>
+          <tr>
+            <th>Task status</th>
+            <td>{{ validation && "status" in validation ? statusMap.get(validation.status) : "Unknown" }}</td>
+          </tr>
+          <tr>
+            <th>Validation result</th>
+            <td>
+              <ValidationResultChip :item="validation" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-        <v-col>
-          <div
-            v-for="(line, idx) in items.result.header.result"
-            :key="idx"
+      <section v-if="header">
+        <h3 class="my-5">
+          Report Header
+        </h3>
+        <v-row v-if="header.result">
+          <v-col
+            cols="12"
+            md="2"
           >
-            {{ line }}
-          </div>
-        </v-col>
-      </v-row>
-      <v-row
-        v-if="items?.result?.header?.report"
-      >
-        <v-col
-          cols="12"
-          md="2"
+            Result
+          </v-col>
+
+          <v-col>
+            <div
+              v-for="(line, idx) in (header.result ?? [])"
+              :key="idx"
+            >
+              {{ line }}
+            </div>
+          </v-col>
+        </v-row>
+        <v-row
+          v-if="header.report"
         >
-          Report header
-        </v-col>
-        <v-col
-          cols="12"
-          md="10"
-        >
-          <div
-            v-for="(line, key) in items.result.header.report"
-            :key="key"
-            class="json"
+          <v-col
+            cols="12"
+            md="2"
           >
-            {{ line }}
-          </div>
-        </v-col>
-      </v-row>
+            Report header
+          </v-col>
+          <v-col
+            cols="12"
+            md="10"
+          >
+            <div
+              v-for="(line, key) in (header.report ?? [])"
+              :key="key"
+              class="json"
+            >
+              {{ line }}
+            </div>
+          </v-col>
+        </v-row>
+      </section>
     </v-tabs-window-item>
-    <v-tabs-window-item value="result">
-      <ValidationMessagesTable :messages="items?.result.messages" />
+    <v-tabs-window-item
+      v-if="validation?.result?.messages"
+      value="result"
+    >
+      <ValidationMessagesTable :messages="validation.result.messages" />
     </v-tabs-window-item>
   </v-tabs-window>
 </template>
 
 <script setup lang="ts">
-import { ValidationDetail } from "@/lib/definitions/api"
+import { statusMap, ValidationDetail } from "@/lib/definitions/api"
 import { getValidationDetail } from "@/lib/http/validation"
 import ValidationMessagesTable from "@/components/ValidationMessagesTable.vue"
+import { intlFormatDistance } from "date-fns"
 
 const tab = ref(null)
 
-const items = ref<ValidationDetail>()
+const validation = ref<ValidationDetail>()
 const route = useRoute()
-const info = computed(() => ({
-  "File name": items.value?.filename,
-  "Created": items.value?.created,
-}))
+
+// computed
+const header = computed(() => validation.value?.result?.header)
+
+const relCreated = computed(() => {
+  if (validation.value && validation.value.created)
+    return intlFormatDistance(validation.value.created, Date.now())
+  return ""
+})
 
 async function load() {
-  items.value = await getValidationDetail(route.params.path)
+  validation.value = await getValidationDetail(route.params.path)
 }
 load().then()
 </script>
@@ -118,6 +135,6 @@ load().then()
 .json {
   white-space: pre-wrap;
   font-family: monospace;
-	font-size: 0.875em;
+  font-size: 0.875em;
 }
 </style>

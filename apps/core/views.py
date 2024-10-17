@@ -14,7 +14,6 @@ from .models import Platform, SushiService, UserApiKey, Validation
 from .serializers import Credentials
 from .tasks import validate_file, validate_sushi
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -43,6 +42,11 @@ class UserApiKeyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generi
 class ValidationViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ValidationSerializer
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ValidationSerializer
+        return serializers.ValidationDetailSerializer
 
     def get_queryset(self):
         qs = self.request.user.validation_set.defer("result")
@@ -92,17 +96,7 @@ class ValidationViewSet(ReadOnlyModelViewSet):
         validate_file.delay_on_commit(obj.pk)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(
-        detail=True,
-    )
-    def details(self, request, pk):
-        serializer = serializers.ValidationDetailSerializer(self.get_object())
-        return Response(serializer.data)
-
-    @action(
-        detail=False,
-        methods=("POST",),
-    )
+    @action(detail=False, methods=("POST",))
     def sushi(self, request):
         obj = Validation.objects.create(
             user=request.user,

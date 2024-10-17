@@ -15,7 +15,7 @@ export async function getValidation(id: string) {
 }
 
 export async function getValidationDetail(id: string) {
-  const url = `${urls.list}${id}/details/`
+  const url = `${urls.list}${id}/`
 
   return jsonFetch<ValidationDetail>(url)
 }

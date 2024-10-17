@@ -41,6 +41,13 @@ export enum Status {
   FAILURE = 3,
 }
 
+export const statusMap = new Map<Status, string>([
+  [Status.WAITING, "Waiting"],
+  [Status.RUNNING, "Running"],
+  [Status.SUCCESS, "Success"],
+  [Status.FAILURE, "Failure"],
+])
+
 export type Validation = {
   id: number
   api_key?: number

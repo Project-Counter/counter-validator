@@ -22,8 +22,16 @@
       :key="i"
       :title="file.filename"
     >
+      <template #title>
+        <router-link
+          :to="`/validation/${file.id}/`"
+        >
+          {{ file.filename }}
+        </router-link>
+      </template>
+
       <template #subtitle>
-        Uploading
+        Uploading:
         <v-progress-circular
           v-if="uploading.has(file.filename)"
           color="grey"
@@ -31,13 +39,13 @@
           indeterminate
         />
         <template v-else-if="file.id !== undefined">
-          done <v-icon
+          <v-icon
             icon="mdi-check"
             color="success"
           />
         </template>
         <template v-else>
-          failed <v-icon
+          <v-icon
             icon="mdi-alert"
             color="error"
           />
@@ -47,7 +55,11 @@
           v-if="file.status !== undefined"
           class="ml-2"
         >
-          Status: <validation-status :value="file.status" />
+          Validation: <validation-status :value="file.status" />
+        </span>
+
+        <span v-if="file.validation_result">
+          Result: <ValidationResultChip :item="file" />
         </span>
       </template>
     </v-list-item>
@@ -112,7 +124,9 @@ async function checkValidation() {
       continue
     }
     try {
-      file.status = (await getValidation(file.id.toString())).status
+      const res = await getValidation(file.id.toString())
+      file.status = res.status
+      file.validation_result = res.validation_result
     }
     catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return
@@ -135,6 +149,7 @@ async function upload(file: FUpload) {
     uploading.delete(file.file.name)
   }
 }
+
 if (props.files.length) {
   fileHistory.value.length = 0
   for (const file of props.files) {

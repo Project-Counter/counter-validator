@@ -15,7 +15,7 @@
   <template v-else-if="value == Status.SUCCESS">
     <v-icon
       color="success"
-      icon="mdi-checkbox-marked"
+      icon="mdi-check"
     />
   </template>
   <template v-else>

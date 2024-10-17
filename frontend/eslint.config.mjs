@@ -17,8 +17,8 @@ const compat = new FlatCompat({
 
 export default [
   ...compat.extends(
-    // 	'vuetify',
-    // 	// '@vue/eslint-config-typescript',
+    // "vuetify",
+    "@vue/eslint-config-typescript",
     "./.eslintrc-auto-import.json",
   ),
   js.configs.recommended,

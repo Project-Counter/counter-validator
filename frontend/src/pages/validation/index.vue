@@ -10,22 +10,9 @@
     </template>
 
     <template #item.validation_result="{ item }">
-      <v-chip
-        v-if="item.validation_result"
-        :color="levelColorMap.get(item.validation_result)"
-      >
-        {{ item.validation_result }}
-      </v-chip>
+      <ValidationResult :item="item" />
     </template>
 
-    <template #item.detail="{ item }">
-      <v-btn
-        v-if="item.status == 2"
-        icon="mdi-open-in-app"
-        :to="item.id + '/'"
-        variant="text"
-      />
-    </template>
     <template #item.id="{ item }">
       <date-tooltip :date="item.created" />
     </template>
@@ -41,8 +28,9 @@
 </template>
 
 <script setup lang="ts">
-import { levelColorMap, Validation } from "@/lib/definitions/api"
+import { Validation } from "@/lib/definitions/api"
 import { getValidations } from "@/lib/http/validation"
+import ValidationResult from "@/components/ValidationResultChip.vue"
 
 const compare = new Intl.Collator().compare
 
@@ -56,7 +44,6 @@ const headers = [
     const platformB = b.platform ?? b.platform_name
     return compare(platformA, platformB)
   } },
-  { key: "detail", title: "Detail", sortable: false },
   { key: "id", title: "Time" },
 ]
 
