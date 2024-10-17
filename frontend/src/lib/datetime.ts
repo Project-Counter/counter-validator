@@ -1,18 +1,18 @@
 export function sleep(ms: number) {
-	return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export class Timer {
-	protected timeoutId: number | undefined
+  protected timeoutId: number | undefined
 
-	sleep(ms: number, clear: boolean = true) {
-		if (clear) this.clear()
-		return new Promise((resolve) => {
-			this.timeoutId = setTimeout(resolve, ms)
-		})
-	}
+  sleep(ms: number, clear: boolean = true) {
+    if (clear) this.clear()
+    return new Promise((resolve) => {
+      this.timeoutId = setTimeout(resolve, ms)
+    })
+  }
 
-	clear() {
-		if (this.timeoutId) clearTimeout(this.timeoutId)
-	}
+  clear() {
+    if (this.timeoutId) clearTimeout(this.timeoutId)
+  }
 }

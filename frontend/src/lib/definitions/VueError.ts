@@ -1,4 +1,4 @@
 export type VueError = {
-	err: Error
-	info: string
+  err: Error
+  info: string
 }

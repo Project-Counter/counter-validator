@@ -3,92 +3,92 @@ import { jsonFetch, wrapFetch } from "./util"
 import { ApiKey, User } from "../definitions/api"
 
 export const urls = {
-	user: "user/",
-	login: "login/",
-	logout: "logout/",
-	signup: "registration/",
-	apiKey: "api-key/",
+  user: "user/",
+  login: "login/",
+  logout: "logout/",
+  signup: "registration/",
+  apiKey: "api-key/",
 }
 
 export async function checkUser(reset = false) {
-	const store = useAppStore()
-	if (reset) {
-		store.loggedIn = null
-	}
+  const store = useAppStore()
+  if (reset) {
+    store.loggedIn = null
+  }
 
-	try {
-		store.user = await jsonFetch<User>(urls.user)
-	}
-	catch (err) {
-		store.loggedIn = false
-		if (![401, 403].includes(err?.res?.status)) {
-			// TODO: 500 -> show error instead of login
-		}
-		return
-	}
-	store.loggedIn = true
+  try {
+    store.user = await jsonFetch<User>(urls.user)
+  }
+  catch (err) {
+    store.loggedIn = false
+    if (![401, 403].includes(err?.res?.status)) {
+      // TODO: 500 -> show error instead of login
+    }
+    return
+  }
+  store.loggedIn = true
 }
 
 export async function updateUser(obj: User) {
-	try {
-		await wrapFetch(urls.user, {
-			method: "PATCH",
-			json: obj,
-		})
-	}
-	finally {
-		await checkUser()
-	}
+  try {
+    await wrapFetch(urls.user, {
+      method: "PATCH",
+      json: obj,
+    })
+  }
+  finally {
+    await checkUser()
+  }
 }
 
 export async function login(email: string, password: string) {
-	try {
-		await wrapFetch(urls.login, {
-			method: "POST",
-			json: { email, password },
-		})
-	}
-	finally {
-		await checkUser()
-	}
+  try {
+    await wrapFetch(urls.login, {
+      method: "POST",
+      json: { email, password },
+    })
+  }
+  finally {
+    await checkUser()
+  }
 }
 
 export async function logout() {
-	try {
-		await wrapFetch(urls.logout, {
-			method: "POST",
-		})
-	}
-	finally {
-		await checkUser(true)
-	}
+  try {
+    await wrapFetch(urls.logout, {
+      method: "POST",
+    })
+  }
+  finally {
+    await checkUser(true)
+  }
 }
 
 export async function signup(email: string, password1: string, password2: string) {
-	try {
-		await wrapFetch(urls.signup, {
-			method: "POST",
-			json: { email, password1, password2 },
-		})
-	}
-	finally {
-		await checkUser()
-	}
+  try {
+    await wrapFetch(urls.signup, {
+      method: "POST",
+      json: { email, password1, password2 },
+    })
+  }
+  finally {
+    await checkUser()
+  }
 }
 
 export async function loadApiKeys() {
-	return jsonFetch<ApiKey[]>(urls.apiKey)
+  return jsonFetch<ApiKey[]>(urls.apiKey)
 }
 
 export async function createApiKey(name: string, expiryDate: Date | null) {
-	return jsonFetch<ApiKey>(urls.apiKey, {
-		method: "POST",
-		json: { name, expiry_date: expiryDate },
-	})
+  return jsonFetch<ApiKey>(urls.apiKey, {
+    method: "POST",
+    json: { name, expiry_date: expiryDate },
+  })
 }
 
 export async function revokeApiKey(prefix: string) {
-	return jsonFetch(urls.apiKey + prefix + "/", {
-		method: "DELETE",
-	})
+  return jsonFetch(urls.apiKey + prefix + "/", {
+    method: "DELETE",
+  })
 }

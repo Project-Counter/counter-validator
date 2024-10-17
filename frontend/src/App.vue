@@ -1,70 +1,70 @@
 <template>
-	<router-view v-if="store.loggedIn" />
-	<v-app v-else>
-		<div
-			class="d-flex align-center justify-center"
-			style="height: 100vh"
-		>
-			<login-page v-if="store.loggedIn === false" />
-			<v-sheet
-				v-else
-				class="mx-auto pa-4"
-				rounded
-			>
-				<v-progress-circular
-					indeterminate
-				/>
-			</v-sheet>
-		</div>
-	</v-app>
-	<v-snackbar
-		v-model="errorShow"
-		color="error"
-		:timeout="-1"
-		vertical
-	>
-		<div class="text-subtitle-1 pb-2">
-			<v-icon class="mr-2">
-				mdi-alert
-			</v-icon>Error!
-		</div>
+  <router-view v-if="store.loggedIn" />
+  <v-app v-else>
+    <div
+      class="d-flex align-center justify-center"
+      style="height: 100vh"
+    >
+      <login-page v-if="store.loggedIn === false" />
+      <v-sheet
+        v-else
+        class="mx-auto pa-4"
+        rounded
+      >
+        <v-progress-circular
+          indeterminate
+        />
+      </v-sheet>
+    </div>
+  </v-app>
+  <v-snackbar
+    v-model="errorShow"
+    color="error"
+    :timeout="-1"
+    vertical
+  >
+    <div class="text-subtitle-1 pb-2">
+      <v-icon class="mr-2">
+        mdi-alert
+      </v-icon>Error!
+    </div>
 
-		<p>Sorry, there was an error. You may need to reload the app.</p>
+    <p>Sorry, there was an error. You may need to reload the app.</p>
 
-		<template #actions>
-			<v-btn>
-				See details
-				<msg-dialog title="Error log">
-					<v-expansion-panels>
-						<v-expansion-panel
-							v-for="(err, i) in store.errors"
-							:key="i"
-							:title="err.err.toString()"
-						>
-							<template #text>
-								<div>name: {{ err.err.name }}</div>
-								<div>message: {{ err.err.message }}</div>
-								<div>info: {{ err.info }}</div>
-								<pre
-									class="py-4 text-caption"
-									style="overflow: scroll;"
-								>{{ err.err.stack }}</pre>
-							</template>
-						</v-expansion-panel>
-					</v-expansion-panels>
-				</msg-dialog>
-			</v-btn>
-			<v-spacer />
-			<v-btn
-				text="Ignore"
-				@click="errorShow = false"
-			/>
-			<v-btn
-				text="Reload"
-				@click="reload"
-			/>
-		</template>
-	</v-snackbar>
+    <template #actions>
+      <v-btn>
+        See details
+        <msg-dialog title="Error log">
+          <v-expansion-panels>
+            <v-expansion-panel
+              v-for="(err, i) in store.errors"
+              :key="i"
+              :title="err.err.toString()"
+            >
+              <template #text>
+                <div>name: {{ err.err.name }}</div>
+                <div>message: {{ err.err.message }}</div>
+                <div>info: {{ err.info }}</div>
+                <pre
+                  class="py-4 text-caption"
+                  style="overflow: scroll;"
+                >{{ err.err.stack }}</pre>
+              </template>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </msg-dialog>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        text="Ignore"
+        @click="errorShow = false"
+      />
+      <v-btn
+        text="Reload"
+        @click="reload"
+      />
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -77,13 +77,13 @@ const store = useAppStore()
 const errorShow = ref(false)
 
 function handleErr(
-	err: Error,
-	_: unknown,
-	info: string,
+  err: Error,
+  _: unknown,
+  info: string,
 ) {
-	store.errors.push({ err, info })
-	errorShow.value = true
-	return true
+  store.errors.push({ err, info })
+  errorShow.value = true
+  return true
 }
 
 onErrorCaptured(handleErr)
@@ -91,12 +91,12 @@ onErrorCaptured(handleErr)
 checkUser().then()
 
 function reload() {
-	window.location.reload()
+  window.location.reload()
 }
 
 const theme = useTheme()
 watch(() => store.darkTheme, (v) => {
-	theme.global.name.value = v ? "dark" : "light"
+  theme.global.name.value = v ? "dark" : "light"
 }, { immediate: true })
 </script>
 
