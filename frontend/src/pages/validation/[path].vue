@@ -1,5 +1,6 @@
 <template>
   <v-tabs
+    v-if="validation"
     v-model="tab"
     align-tabs="center"
     color="primary"
@@ -28,28 +29,7 @@
       <h3 class="mb-5">
         Basic information
       </h3>
-      <table class="overview">
-        <tbody>
-          <tr>
-            <th>Filename</th>
-            <td>{{ validation?.filename }}</td>
-          </tr>
-          <tr>
-            <th>Created</th>
-            <td>{{ validation?.created }} ({{ relCreated }})</td>
-          </tr>
-          <tr>
-            <th>Task status</th>
-            <td>{{ validation && "status" in validation ? statusMap.get(validation.status) : "Unknown" }}</td>
-          </tr>
-          <tr>
-            <th>Validation result</th>
-            <td>
-              <ValidationResultChip :item="validation" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ValidationBasicInfo :validation="validation" />
 
       <section v-if="header">
         <h3 class="my-5">
@@ -106,10 +86,10 @@
 </template>
 
 <script setup lang="ts">
-import { statusMap, ValidationDetail } from "@/lib/definitions/api"
+import { ValidationDetail } from "@/lib/definitions/api"
 import { getValidationDetail } from "@/lib/http/validation"
 import ValidationMessagesTable from "@/components/ValidationMessagesTable.vue"
-import { intlFormatDistance } from "date-fns"
+import ValidationBasicInfo from "@/components/ValidationBasicInfo.vue"
 
 const tab = ref(null)
 
@@ -118,12 +98,6 @@ const route = useRoute()
 
 // computed
 const header = computed(() => validation.value?.result?.header)
-
-const relCreated = computed(() => {
-  if (validation.value && validation.value.created)
-    return intlFormatDistance(validation.value.created, Date.now())
-  return ""
-})
 
 async function load() {
   validation.value = await getValidationDetail(route.params.path)
