@@ -177,7 +177,7 @@ STATIC_URL = "static/"
 
 # our own settings
 
-CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8080/")
+CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8180/")
 REGISTRY_URL = config("REGISTRY_URL", default="https://registry.countermetrics.org")
 UPLOAD_ROOT = config("UPLOAD_ROOT", cast=lambda s: BASE_DIR / s, default="upload/")
 RANDOM_FILENAME_LENGTH = config("RANDOM_FILENAME_LENGTH", cast=int, default=60)
