@@ -6,16 +6,16 @@ from .fake_data import UserFactory
 
 @pytest.fixture
 def normal_user():
-	return UserFactory()
+    return UserFactory()
 
 
 @pytest.fixture
 def client_unauthenticated():
-	return APIClient()
+    return APIClient()
 
 
 @pytest.fixture
 def client_authenticated_user(normal_user):
-	client = APIClient()
-	client.force_login(normal_user)
-	return client
+    client = APIClient()
+    client.force_login(normal_user)
+    return client

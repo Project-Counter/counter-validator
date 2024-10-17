@@ -16,95 +16,95 @@ from core.tests.fake_data import UserFactory
 
 
 class ResponseMock:
-	@staticmethod
-	def raise_for_status():
-		pass
+    @staticmethod
+    def raise_for_status():
+        pass
 
-	@staticmethod
-	def json():
-		return {
-			"result": {
-				"messages": [
-					{
-						"data": "",
-						"level": 2,
-						"header": "Row 1",
-						"number": 1,
-						"message": "some warning",
-					},
-				],
-			},
-			"memory": 4194304,
-		}
+    @staticmethod
+    def json():
+        return {
+            "result": {
+                "messages": [
+                    {
+                        "data": "",
+                        "level": 2,
+                        "header": "Row 1",
+                        "number": 1,
+                        "message": "some warning",
+                    },
+                ],
+            },
+            "memory": 4194304,
+        }
 
 
 def post_mock(pk, status):
-	def mock(*args, **kwargs):
-		assert Validation.objects.filter(pk=pk, status=status).count() == 1
+    def mock(*args, **kwargs):
+        assert Validation.objects.filter(pk=pk, status=status).count() == 1
 
-		assert args[0] == settings.CTOOLS_URL + "file.php"
-		assert kwargs["params"]["extension"] == "csv"
-		assert isinstance(kwargs["data"], File)
+        assert args[0] == settings.CTOOLS_URL + "file.php"
+        assert kwargs["params"]["extension"] == "csv"
+        assert isinstance(kwargs["data"], File)
 
-		return ResponseMock()
+        return ResponseMock()
 
-	return mock
+    return mock
 
 
 @pytest.mark.django_db
 class TestValidation:
-	def test_api_okay(self, client_authenticated_user):
-		filename = "tr.json"
-		with patch("core.tasks.validate_file.delay_on_commit") as p:
-			res = client_authenticated_user.post(
-				reverse("validation-file", kwargs={"filename": filename}),
-				data="xxx",
-				content_type="application/octet-stream",
-			)
-			p.assert_called_once_with(res.json()["id"])
-		assert res.status_code == 201
-		assert res.json()["filename"] == filename
-		assert Validation.objects.filter(id=res.json()["id"], filename=filename).count() == 1
+    def test_api_okay(self, client_authenticated_user):
+        filename = "tr.json"
+        with patch("core.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file", kwargs={"filename": filename}),
+                data="xxx",
+                content_type="application/octet-stream",
+            )
+            p.assert_called_once_with(res.json()["id"])
+        assert res.status_code == 201
+        assert res.json()["filename"] == filename
+        assert Validation.objects.filter(id=res.json()["id"], filename=filename).count() == 1
 
-	def test_api_empty(self, client_authenticated_user):
-		filename = "tr.json"
-		with patch("core.tasks.validate_file.delay_on_commit") as p:
-			res = client_authenticated_user.post(
-				reverse("validation-file", kwargs={"filename": filename}),
-				data="",
-				content_type="application/octet-stream",
-			)
-			p.assert_not_called()
-		assert res.status_code == 400
-		assert "Empty files" in res.json()[0]
+    def test_api_empty(self, client_authenticated_user):
+        filename = "tr.json"
+        with patch("core.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file", kwargs={"filename": filename}),
+                data="",
+                content_type="application/octet-stream",
+            )
+            p.assert_not_called()
+        assert res.status_code == 400
+        assert "Empty files" in res.json()[0]
 
-	def test_api_large(self, settings, client_authenticated_user):
-		settings.MAX_FILE_SIZE = 1023
-		filename = "tr.json"
-		with patch("core.tasks.validate_file.delay_on_commit") as p:
-			res = client_authenticated_user.post(
-				reverse("validation-file", kwargs={"filename": filename}),
-				data="X" * (settings.MAX_FILE_SIZE + 1),
-				content_type="application/octet-stream",
-			)
-			p.assert_not_called()
-		assert res.status_code == 400
-		assert "Max file size exceeded" in res.json()[0]
+    def test_api_large(self, settings, client_authenticated_user):
+        settings.MAX_FILE_SIZE = 1023
+        filename = "tr.json"
+        with patch("core.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file", kwargs={"filename": filename}),
+                data="X" * (settings.MAX_FILE_SIZE + 1),
+                content_type="application/octet-stream",
+            )
+            p.assert_not_called()
+        assert res.status_code == 400
+        assert "Max file size exceeded" in res.json()[0]
 
-	def test_task(self):
-		file = SimpleUploadedFile("tr.csv", b"test data")
-		obj = Validation.objects.create(
-			user=UserFactory(),
-			status=Validation.StatusEnum.WAITING,
-			filename=file.name,
-			file=file,
-		)
-		insert_assert = post_mock(obj.pk, Validation.StatusEnum.RUNNING)
-		with patch("requests.post", wraps=insert_assert) as p:
-			validate_file(obj.pk)
-			p.assert_called_once()
-		obj.refresh_from_db()
-		assert obj.status == Validation.StatusEnum.SUCCESS
-		json = ResponseMock.json()
-		assert "messages" in json["result"]
-		assert obj.memory == json["memory"]
+    def test_task(self):
+        file = SimpleUploadedFile("tr.csv", b"test data")
+        obj = Validation.objects.create(
+            user=UserFactory(),
+            status=Validation.StatusEnum.WAITING,
+            filename=file.name,
+            file=file,
+        )
+        insert_assert = post_mock(obj.pk, Validation.StatusEnum.RUNNING)
+        with patch("requests.post", wraps=insert_assert) as p:
+            validate_file(obj.pk)
+            p.assert_called_once()
+        obj.refresh_from_db()
+        assert obj.status == Validation.StatusEnum.SUCCESS
+        json = ResponseMock.json()
+        assert "messages" in json["result"]
+        assert obj.memory == json["memory"]

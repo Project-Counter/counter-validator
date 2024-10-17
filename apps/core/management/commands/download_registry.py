@@ -4,7 +4,7 @@ from core.tasks import update_registry_models
 
 
 class Command(BaseCommand):
-	help = "Download data containing counter registry info"
+    help = "Download data containing counter registry info"
 
-	def handle(self, *args, **options):
-		update_registry_models()
+    def handle(self, *args, **options):
+        update_registry_models()
