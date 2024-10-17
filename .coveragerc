@@ -1,0 +1,10 @@
+[report]
+precision = 1
+show_missing = true
+skip_covered = true
+
+[run]
+omit =
+  */migrations/*
+  */management/*
+  config/settings/devel.py

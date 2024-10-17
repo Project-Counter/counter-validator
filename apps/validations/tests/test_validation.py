@@ -17,6 +17,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from validations.enums import SeverityLevel, ValidationStatus
+from validations.fake_data import ValidationFactory
 from validations.models import Validation
 
 
@@ -141,6 +142,51 @@ class TestValidationAPI:
             assert str(val.core.platform_id) == platform_id
         else:
             assert val.core.platform_id is None
+
+    def test_validation_list(
+        self, client_authenticated_user, normal_user, django_assert_max_num_queries
+    ):
+        ValidationFactory.create_batch(10, user=normal_user)
+        with django_assert_max_num_queries(9):
+            res = client_authenticated_user.get(reverse("validation-list"))
+            assert res.status_code == 200
+            assert len(res.json()) == 10
+            first = res.json()[0]
+            assert "id" in first
+            assert "filename" in first
+            assert "status" in first
+            assert "platform_name" in first
+            assert "validation_result" in first
+            assert "created" in first
+            assert "platform" in first
+            assert "result_data" not in first
+
+    def test_validation_list_other_users(
+        self, client_authenticated_user, normal_user, django_assert_max_num_queries
+    ):
+        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create_batch(5)  # new users will be created for those
+        with django_assert_max_num_queries(9):
+            res = client_authenticated_user.get(reverse("validation-list"))
+            assert res.status_code == 200
+            assert len(res.json()) == 3
+
+    def test_validation_detail(
+        self, client_authenticated_user, normal_user, django_assert_max_num_queries
+    ):
+        v = ValidationFactory(user=normal_user)
+        with django_assert_max_num_queries(9):
+            res = client_authenticated_user.get(reverse("validation-detail", args=[v.pk]))
+            assert res.status_code == 200
+            data = res.json()
+            assert "id" in data
+            assert "filename" in data
+            assert "status" in data
+            assert "platform_name" in data
+            assert "validation_result" in data
+            assert "created" in data
+            assert "platform" in data
+            assert "result_data" in data
 
 
 @pytest.mark.django_db

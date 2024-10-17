@@ -25,3 +25,11 @@ class TestValidation:
 
         assert not ValidationCore.objects.filter(pk=core.pk).exists()
         assert not Validation.objects.filter(pk=validation.pk).exists()
+
+    def test_str(self):
+        """
+        Test that the __str__ method does not raise an exception
+        """
+        validation = ValidationFactory()
+        str(validation)
+        str(validation.core)
