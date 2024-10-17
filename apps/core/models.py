@@ -1,12 +1,15 @@
+import os
+import string
+
 from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.crypto import get_random_string
+from django.utils.timezone import now
 from rest_framework_api_key.crypto import KeyGenerator
 from rest_framework_api_key.models import AbstractAPIKey, BaseAPIKeyManager
-
-from core.classes.storage import upload_storage
 
 
 class UserManager(BaseUserManager):
@@ -118,6 +121,13 @@ class SushiService(models.Model):
 		return f"{self.url or ''} (C{self.counter_release})"
 
 
+def validation_upload_to(instance: "Validation", filename):
+	_root, ext = os.path.splitext(filename)
+	random_suffix = get_random_string(8, string.ascii_letters + string.digits)
+	ts = now().strftime("%Y%m%d-%H%M%S.%f")
+	return f"file_validations/{ts}-{random_suffix}{ext}"
+
+
 class Validation(models.Model):
 	class StatusEnum(models.IntegerChoices):
 		WAITING = 0
@@ -141,7 +151,7 @@ class Validation(models.Model):
 	platform_name = models.CharField(max_length=150, blank=True)
 
 	filename = models.CharField(max_length=100, blank=True)
-	file = models.FileField(upload_to="file_validations", storage=upload_storage, null=True)
+	file = models.FileField(upload_to=validation_upload_to, null=True)
 	result = models.JSONField(null=True)
 	memory = models.PositiveBigIntegerField(null=True)
 	time = models.FloatField(null=True)

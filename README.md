@@ -34,9 +34,7 @@ it, you need to start the docker container with the following command:
 ```docker compose up```
 
 It will start a container with the c5tools server which will listen to port 8180 by default.
-You can pass this port to the backend using an env variable `CTOOLS_URL` in the .env file in the 
+You can pass this port to the backend using an env variable `CTOOLS_URL` in the .env file in the
 root of the project. For example like this:
 
 ```CTOOLS_URL=http://localhost:8180```
-
-
