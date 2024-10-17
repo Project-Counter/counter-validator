@@ -38,3 +38,11 @@ You can pass this port to the backend using an env variable `CTOOLS_URL` in the 
 root of the project. For example like this:
 
 ```CTOOLS_URL=http://localhost:8180```
+
+
+### Registry data
+
+To enable selection of platform from the COUNTER registry, the data must be loaded into the database
+first. To do this, run the following command:
+
+```python manage.py download_registry```

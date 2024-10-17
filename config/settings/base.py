@@ -173,12 +173,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 WSGI_APPLICATION = "config.wsgi.application"
 STATIC_URL = "static/"
-
+MEDIA_URL = "/media/"
+MEDIA_ROOT = config("MEDIA_ROOT", default=str(BASE_DIR / "media/"))
 
 # our own settings
-
 CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8180/")
 REGISTRY_URL = config("REGISTRY_URL", default="https://registry.countermetrics.org")
-UPLOAD_ROOT = config("UPLOAD_ROOT", cast=lambda s: BASE_DIR / s, default="upload/")
 RANDOM_FILENAME_LENGTH = config("RANDOM_FILENAME_LENGTH", cast=int, default=60)
 MAX_FILE_SIZE = config("MAX_FILE_SIZE", cast=int, default=20 * (1024**2))

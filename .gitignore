@@ -13,4 +13,4 @@ media/*
 /venv
 error.log
 .DS_Store
-/upload
+/media
