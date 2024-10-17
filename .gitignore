@@ -4,7 +4,6 @@ __pycache__
 config/settings/secret_settings.json
 .cache
 .coverage
-locale/*/LC_MESSAGES/django.mo
 celerybeat-schedule
 /.pytest_cache
 .~*
@@ -14,3 +13,4 @@ media/*
 error.log
 .DS_Store
 /media
+/*.json
