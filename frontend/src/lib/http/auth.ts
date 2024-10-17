@@ -3,11 +3,11 @@ import { HttpStatusError, jsonFetch, wrapFetch } from "./util"
 import { ApiKey, User } from "../definitions/api"
 
 export const urls = {
-  user: "user/",
-  login: "login/",
-  logout: "logout/",
-  signup: "registration/",
-  apiKey: "api-key/",
+  user: "auth/user/",
+  login: "auth/login/",
+  logout: "auth/logout/",
+  signup: "auth/registration/",
+  apiKey: "core/api-key/",
 }
 
 export async function checkUser(reset = false) {

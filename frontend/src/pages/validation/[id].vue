@@ -14,7 +14,7 @@
     </v-tab>
 
     <v-tab
-      v-if="validation?.result?.messages"
+      v-if="validation?.result_data?.messages"
       prepend-icon="mdi-receipt-text"
       value="result"
     >
@@ -81,10 +81,10 @@
       </section>
     </v-tabs-window-item>
     <v-tabs-window-item
-      v-if="validation?.result?.messages"
+      v-if="validation?.result_data?.messages"
       value="result"
     >
-      <ValidationMessagesTable :messages="validation.result.messages" />
+      <ValidationMessagesTable :messages="validation.result_data.messages" />
     </v-tabs-window-item>
   </v-tabs-window>
 </template>
@@ -101,7 +101,7 @@ const validation = ref<ValidationDetail>()
 const route = useRoute()
 
 // computed
-const header = computed(() => validation.value?.result?.header)
+const header = computed(() => validation.value?.result_data?.header)
 
 async function load() {
   if ("id" in route.params) { // check needed for TS to narrow down the type

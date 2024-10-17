@@ -2,8 +2,8 @@ import { Platform, PlatformDetail, SushiService } from "../definitions/api"
 import { jsonFetch } from "./util"
 
 export const urls = {
-  platform: "platform/",
-  sushi: "sushi/",
+  platform: "counter/platform/",
+  sushi: "counter/sushi/",
 }
 
 export async function loadPlatform(id: string) {

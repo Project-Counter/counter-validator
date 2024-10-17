@@ -6,31 +6,30 @@ import json
 from pathlib import Path
 
 import pytest
-
-from core.classes.registry import RegistrySync
-from core.models import Platform, Report, ReportToPlatform, SushiService
-from core.serializers import PlatformSerializer, SushiServiceSerializer
 from core.tasks import update_registry_models
 
-folder = Path(__file__).resolve().parent
+from counter.classes.registry import RegistrySync
+from counter.models import Platform, Report, ReportToPlatform, SushiService
+from counter.serializers import PlatformSerializer, SushiServiceSerializer
 
 
 class RegistrySyncMock(RegistrySync):
-    def __init__(self, platform_file):
+    def __init__(self, base_dir: Path, platform_file):
         self.platform_file = platform_file
+        self.base_dir = base_dir
         self.platform_data = None
         self.sushi_data = {}
 
     def get_platforms(self):
         if not self.platform_data:
-            with open(folder / "test_data" / self.platform_file) as fp:
+            with open(self.base_dir / "test_data/platforms" / self.platform_file) as fp:
                 self.platform_data = json.load(fp)
         return self.platform_data
 
     def get_sushi(self, url):
         uuid = url.split("/")[-2]
         if uuid not in self.sushi_data:
-            path = folder / "test_data" / "sushi_service" / (uuid + ".json")
+            path = self.base_dir / "test_data/sushi_service" / (uuid + ".json")
             with open(path) as fp:
                 self.sushi_data[uuid] = json.load(fp)
         return self.sushi_data[uuid]
@@ -61,12 +60,12 @@ class RegistrySyncMock(RegistrySync):
 
 @pytest.mark.django_db
 class TestRegistry:
-    def test_task(self):
-        mock = RegistrySyncMock("platform1.json")
+    def test_task(self, settings):
+        mock = RegistrySyncMock(settings.BASE_DIR, "platform1.json")
         update_registry_models(mock)
         mock.check()
 
-        mock = RegistrySyncMock("platform2.json")
+        mock = RegistrySyncMock(settings.BASE_DIR, "platform2.json")
         update_registry_models(mock)
         mock.check()
 

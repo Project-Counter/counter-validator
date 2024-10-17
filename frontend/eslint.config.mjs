@@ -59,4 +59,7 @@ export default [
       }],
     },
   },
+  {
+    ignores: ["dist/*"],
+  },
 ]

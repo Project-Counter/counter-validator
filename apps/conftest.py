@@ -1,7 +1,6 @@
 import pytest
+from core.fake_data import UserFactory
 from rest_framework.test import APIClient
-
-from .fake_data import UserFactory
 
 
 @pytest.fixture

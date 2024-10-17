@@ -1,6 +1,5 @@
-from django.core.management.base import BaseCommand
-
 from core.tasks import update_registry_models
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):

@@ -3,19 +3,18 @@ File and SUSHI validation tests.
 """
 
 import re
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 import requests_mock
-from django.conf import settings
+from core.fake_data import UserFactory
+from core.tasks import validate_file
+from django.conf import settings as django_settings
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from core.models import ResultEnum, Validation
-from core.tasks import validate_file
-from core.tests.fake_data import UserFactory
+from validations.models import ResultEnum, Validation
 
 
 class ResponseMock:
@@ -46,7 +45,7 @@ def post_mock(pk, status):
     def mock(*args, **kwargs):
         assert Validation.objects.filter(pk=pk, status=status).count() == 1
 
-        assert args[0] == settings.CTOOLS_URL + "file.php"
+        assert args[0] == django_settings.CTOOLS_URL + "file.php"
         assert kwargs["params"]["extension"] == "csv"
         assert isinstance(kwargs["data"], File)
 
@@ -116,7 +115,7 @@ class TestValidationTask:
         assert "messages" in json["result"]
         assert obj.memory == json["memory"]
 
-    def test_task_test1(self):
+    def test_task_test1(self, settings):
         file = SimpleUploadedFile("test1.json", b"test data")
         obj = Validation.objects.create(
             user=UserFactory(),
@@ -125,9 +124,7 @@ class TestValidationTask:
             file=file,
         )
         with requests_mock.Mocker() as m:
-            with open(
-                Path(__file__).parent / "test_data/validation_results/test1.json"
-            ) as datafile:
+            with open(settings.BASE_DIR / "test_data/validation_results/test1.json") as datafile:
                 m.post(
                     re.compile(".*"),
                     text=datafile.read(),

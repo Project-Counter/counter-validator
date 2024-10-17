@@ -5,11 +5,10 @@ import urllib.parse
 import celery
 import requests
 from celery.contrib.django.task import DjangoTask
+from counter.classes.registry import RegistrySync
 from django.conf import settings
 from django.db import transaction
-
-from core.classes.registry import RegistrySync
-from core.models import Validation
+from validations.models import Validation
 
 
 class ValidationTask(DjangoTask):
@@ -45,7 +44,7 @@ def validate_file(pk):
 
     end = time.monotonic()
     json = req.json()
-    obj.result = json["result"]
+    obj.result_data = json["result"]
     obj.memory = json["memory"]
     obj.time = end - start
     obj.status = Validation.StatusEnum.SUCCESS
@@ -69,6 +68,6 @@ def validate_sushi(pk, credentials: dict):
     req.raise_for_status()
 
     json = req.json()
-    obj.result = json["result"]
+    obj.result_data = json["result"]
     obj.status = Validation.StatusEnum.SUCCESS
     obj.save()

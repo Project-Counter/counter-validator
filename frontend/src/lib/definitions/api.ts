@@ -83,7 +83,7 @@ export const levelColorMap = new Map<SeverityLevel, string>([
 )
 
 export type ValidationDetail = Validation & {
-  result: Result
+  result_data: Result
 }
 
 export type Credentials = {

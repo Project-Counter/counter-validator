@@ -3,9 +3,9 @@ import { FUpload } from "../definitions/upload"
 import { jsonFetch, wrapFetch } from "./util"
 
 export const urls = {
-  list: "validation/",
-  file: "validation/file/",
-  sushi: "validation/sushi/",
+  list: "validations/validation/",
+  file: "validations/validation/file/",
+  sushi: "validations/validation/sushi/",
 }
 
 export async function getValidation(id: string) {

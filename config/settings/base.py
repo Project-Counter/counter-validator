@@ -112,7 +112,6 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_api_key",
-    "core",
     "django_celery_results",
     "dj_rest_auth",
     "django.contrib.sites",
@@ -120,6 +119,9 @@ INSTALLED_APPS = (
     "allauth.account",
     "allauth.socialaccount",
     "dj_rest_auth.registration",
+    "core",
+    "counter",
+    "validations",
 )
 
 SITE_ID = 1
@@ -175,6 +177,23 @@ WSGI_APPLICATION = "config.wsgi.application"
 STATIC_URL = "static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = config("MEDIA_ROOT", default=str(BASE_DIR / "media/"))
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "colored"},
+    },
+    "loggers": {
+        "django.db": {"level": "INFO"},
+        "requests": {"level": "INFO"},
+    },
+    "formatters": {
+        "colored": {"()": "colorlog.ColoredFormatter", "format": "%(log_color)s%(message)s"}
+    },
+    "root": {"level": "DEBUG", "handlers": ["console"]},
+}
 
 # our own settings
 CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8180/")

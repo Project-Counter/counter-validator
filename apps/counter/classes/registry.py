@@ -1,9 +1,13 @@
+import logging
+
 import requests
 from django.conf import settings
 from django.db import models
 
-from ..models import Platform, Report, SushiService
-from ..serializers import PlatformSerializer, ReportSerializer, SushiServiceSerializer
+from counter.models import Platform, Report, SushiService
+from counter.serializers import PlatformSerializer, ReportSerializer, SushiServiceSerializer
+
+logger = logging.getLogger(__name__)
 
 
 def get_or_none(model_class: type[models.Model], *args, **kwargs):
@@ -35,7 +39,10 @@ class RegistrySync:
         seen_platform_ids = set()
         seen_sushi_service_ids = set()
 
-        for platform_data in self.get_platforms():
+        logger.debug("Getting platform list")
+        platforms = self.get_platforms()
+        for i, platform_data in enumerate(platforms):
+            logger.debug("Processing platform %d/%d", i + 1, len(platforms))
             serializer = PlatformSerializer(
                 get_or_none(Platform, pk=platform_data["id"]), data=platform_data
             )

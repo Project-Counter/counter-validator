@@ -23,6 +23,7 @@ djangorestframework-api-key = "^3.0.0"
 requests = "^2.32.3"
 dj-rest-auth = {extras = ["with-social"], version = "^6.0.0"}
 requests-mock = "^1.12.1"
+colorlog = "^6.8.2"
 
 [tool.poetry.group.dev.dependencies]
 django-debug-toolbar = "^4.4.6"
