@@ -197,7 +197,8 @@ class Validation(models.Model):
         self.validation_result = self.extract_validation_result()
         super().save(*args, **kwargs)
 
-    def extract_validation_result(self) -> int:
+    def extract_validation_result(self) -> ResultEnum:
         if self.result:
-            return self.result.get("result", ResultEnum.UNKNOWN)
+            value = self.result.get("result", ResultEnum.UNKNOWN.value)
+            return ResultEnum.by_label(value)
         return ResultEnum.UNKNOWN

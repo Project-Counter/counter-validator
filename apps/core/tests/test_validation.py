@@ -1,16 +1,19 @@
 """
 File and SUSHI validation tests.
 """
-
+import re
+from pathlib import Path
+from typing import Optional
 from unittest.mock import patch
 
 import pytest
+import requests_mock
 from django.conf import settings
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from core.models import Validation
+from core.models import Validation, ResultEnum
 from core.tasks import validate_file
 from core.tests.fake_data import UserFactory
 
@@ -24,6 +27,7 @@ class ResponseMock:
     def json():
         return {
             "result": {
+                "result": "Warning",
                 "messages": [
                     {
                         "data": "",
@@ -52,7 +56,7 @@ def post_mock(pk, status):
 
 
 @pytest.mark.django_db
-class TestValidation:
+class TestValidationAPI:
     def test_api_okay(self, client_authenticated_user):
         filename = "tr.json"
         with patch("core.tasks.validate_file.delay_on_commit") as p:
@@ -91,7 +95,10 @@ class TestValidation:
         assert res.status_code == 400
         assert "Max file size exceeded" in res.json()[0]
 
-    def test_task(self):
+
+@pytest.mark.django_db
+class TestValidationTask:
+    def test_task_simple(self):
         file = SimpleUploadedFile("tr.csv", b"test data")
         obj = Validation.objects.create(
             user=UserFactory(),
@@ -108,3 +115,24 @@ class TestValidation:
         json = ResponseMock.json()
         assert "messages" in json["result"]
         assert obj.memory == json["memory"]
+
+    def test_task_test1(self):
+        file = SimpleUploadedFile("test1.json", b"test data")
+        obj = Validation.objects.create(
+            user=UserFactory(),
+            status=Validation.StatusEnum.WAITING,
+            filename=file.name,
+            file=file,
+        )
+        with requests_mock.Mocker() as m:
+            with open(Path(__file__).parent / "test_data/validation_results/test1.json") as datafile:
+                m.post(
+                    re.compile(".*"),
+                    text=datafile.read(),
+                    status_code=200,
+                )
+            validate_file(obj.pk)
+            assert m.called_once
+        obj.refresh_from_db()
+        assert obj.status == Validation.StatusEnum.SUCCESS
+        assert obj.validation_result == ResultEnum.WARNING

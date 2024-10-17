@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -11,6 +13,9 @@ from . import serializers
 from .models import Platform, SushiService, UserApiKey, Validation
 from .serializers import Credentials
 from .tasks import validate_file, validate_sushi
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserApiKeyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
@@ -65,6 +70,7 @@ class ValidationViewSet(ReadOnlyModelViewSet):
 
         if "file" not in request.data:
             raise ValidationError(detail="Empty files are not supported")
+        logger.info("File size: %d", request.data["file"].size)
         if request.data["file"].size > settings.MAX_FILE_SIZE:
             raise ValidationError(
                 detail=(
