@@ -3,7 +3,6 @@ build:vue:
   needs:
     - job: "tests:run_tests"
       optional: true
-  image: node:18.19
   before_script:
     - export "BUILD=yes"
     - export "GIT_VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}"

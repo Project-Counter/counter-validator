@@ -1,7 +1,6 @@
 lints:pre_commit:
   stage: lints
   needs: []
-  image: python:3.10
   services:
     - postgres
     - redis
@@ -15,7 +14,6 @@ lints:pre_commit:
     DB_PASSWORD: coval
   before_script:
     - apt-get update && apt-get install -y curl nodejs npm
-    - curl -sSL https://install.python-poetry.org | python
     - export PATH="$PATH:/root/.local/bin"
     - poetry install --no-root
     - cp .env.example .env

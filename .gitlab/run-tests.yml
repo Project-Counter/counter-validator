@@ -1,7 +1,6 @@
 tests:run_tests:
   stage: tests
   needs: []
-  image: python:3.10
   services:
     - postgres
     - redis
@@ -15,7 +14,6 @@ tests:run_tests:
     DB_PASSWORD: coval
   before_script:
     - apt-get update && apt-get install -y curl
-    - curl -sSL https://install.python-poetry.org | python
     - export PATH="$PATH:/root/.local/bin"
     - poetry install --no-root
   script:

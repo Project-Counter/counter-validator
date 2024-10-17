@@ -1,7 +1,16 @@
+image: beda42/validation-tool-ci:02
+
 stages:
   - lints
   - tests
   - build
+
+cache:
+  untracked: true
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - frontend/node_modules/
+    - .venv/
 
 include:
   - local: /.gitlab/pre-commit.yml
