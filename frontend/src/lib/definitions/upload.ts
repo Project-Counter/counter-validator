@@ -1,9 +1,9 @@
-import type { ValidationBase, Status } from "@/lib/definitions/api"
+import type { ValidationBase, Status, Platform } from "@/lib/definitions/api"
 
 export type FUpload = {
   file: File
   err?: string
-  platform?: string
+  platform?: string | Platform
 }
 
 export type ValidatedFile = {

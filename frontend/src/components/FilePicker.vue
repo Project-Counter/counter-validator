@@ -76,9 +76,9 @@
               item-title="name"
               item-subtitle="abbrev"
               auto-select-first="exact"
-              item-value="name"
+              item-value="id"
               append-inner-icon="mdi-content-copy"
-              :return-object="false"
+              return-object
               :loading
               @click:append-inner="copyPlatform(item.platform)"
             />
@@ -130,9 +130,9 @@ function onDrop(e: DragEvent) {
   overlay.value = false
   addFiles(e.dataTransfer?.files ?? [])
 }
-function copyPlatform(platform?: string) {
-  for (const i of model.value) {
-    i.platform = platform
+function copyPlatform(platform?: number) {
+  for (const rec of model.value) {
+    rec.platform = platform
   }
 }
 

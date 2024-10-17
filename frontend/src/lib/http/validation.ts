@@ -25,13 +25,23 @@ export async function getValidations() {
 }
 
 export async function validateFile(file: FUpload) {
-  const params = new URLSearchParams()
-  if (file.platform) {
-    params.append("platform_name", file.platform)
+  // we need to send the data in a multipart form
+  const form = new FormData()
+  form.append("file", file.file)
+
+  if (typeof file.platform === "string") {
+    form.append("platform_name", file.platform)
   }
-  return jsonFetch<Validation>(urls.file + encodeURIComponent(file.file.name) + "/?" + params.toString(), {
+  else if (file.platform === undefined) {
+    form.append("platform_name", "")
+  }
+  else {
+    form.append("platform", file.platform.id)
+  }
+
+  return jsonFetch<Validation>(urls.file, {
     method: "POST",
-    body: file.file,
+    body: form,
   })
 }
 

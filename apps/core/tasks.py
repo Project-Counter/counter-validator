@@ -8,13 +8,14 @@ from celery.contrib.django.task import DjangoTask
 from counter.classes.registry import RegistrySync
 from django.conf import settings
 from django.db import transaction
+from validations.enums import ValidationStatus
 from validations.models import Validation
 
 
 class ValidationTask(DjangoTask):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         obj = Validation.objects.get(pk=args[0])
-        obj.status = Validation.StatusEnum.FAILURE
+        obj.status = ValidationStatus.FAILURE
         obj.save()
 
 
@@ -29,9 +30,9 @@ def update_registry_models(cls=None):
 @celery.shared_task(base=ValidationTask)
 def validate_file(pk):
     start = time.monotonic()
-    obj = Validation.objects.get(pk=pk)
-    obj.status = Validation.StatusEnum.RUNNING
-    obj.save()
+    obj = Validation.objects.select_related("core").get(pk=pk)
+    obj.core.status = ValidationStatus.RUNNING
+    obj.core.save()
     # time.sleep(5)
 
     with obj.file.open("rb") as fp:
@@ -45,16 +46,17 @@ def validate_file(pk):
     end = time.monotonic()
     json = req.json()
     obj.result_data = json["result"]
-    obj.memory = json["memory"]
-    obj.time = end - start
-    obj.status = Validation.StatusEnum.SUCCESS
+    obj.core.used_memory = json["memory"]
+    obj.core.duration = end - start
+    obj.core.status = ValidationStatus.SUCCESS
+    obj.core.save()
     obj.save()
 
 
 @celery.shared_task(base=ValidationTask)
 def validate_sushi(pk, credentials: dict):
     obj = Validation.objects.get(pk=pk)
-    obj.status = Validation.StatusEnum.RUNNING
+    obj.status = ValidationStatus.RUNNING
     obj.save()
 
     url = credentials.pop("url")
@@ -69,5 +71,5 @@ def validate_sushi(pk, credentials: dict):
 
     json = req.json()
     obj.result_data = json["result"]
-    obj.status = Validation.StatusEnum.SUCCESS
+    obj.status = ValidationStatus.SUCCESS
     obj.save()
