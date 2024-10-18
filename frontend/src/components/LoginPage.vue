@@ -4,9 +4,7 @@
     rounded
     width="480"
   >
-    <h2 class="mb-3">
-      COUNTER Validation Tool
-    </h2>
+    <h2 class="mb-3">COUNTER Validation Tool</h2>
     <v-form
       validate-on="invalid-input"
       @submit.prevent="doLogin"
@@ -72,33 +70,33 @@
       />
       <v-btn
         block
-        :text="page"
         class="mt-4"
         color="primary"
         :disabled="loading"
         :loading="loading"
+        :text="page"
         type="submit"
       />
 
       <div class="d-flex justify-space-between mt-3">
         <v-btn
           v-if="page != Page.Login"
-          :text="Page.Login"
           color="primary"
+          :text="Page.Login"
           variant="outlined"
           @click="page = Page.Login"
         />
         <v-btn
           v-if="page != Page.Signup"
-          :text="Page.Signup"
           color="primary"
+          :text="Page.Signup"
           variant="outlined"
           @click="page = Page.Signup"
         />
         <v-btn
           v-if="page != Page.Forgotten"
-          :text="Page.Forgotten"
           color="primary"
+          :text="Page.Forgotten"
           variant="text"
           @click="page = Page.Forgotten"
         />
@@ -141,8 +139,7 @@ async function doLogin() {
         await signup(email.value, password.value, password.value)
         break
     }
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }

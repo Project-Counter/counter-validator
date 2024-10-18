@@ -21,12 +21,10 @@ router.onError((err, to) => {
       console.log("Reloading page to fix dynamic import error")
       localStorage.setItem("vuetify:dynamic-reload", "true")
       location.assign(to.fullPath)
-    }
-    else {
+    } else {
       console.error("Dynamic import error, reloading page did not fix it", err)
     }
-  }
-  else {
+  } else {
     console.error(err)
   }
 })

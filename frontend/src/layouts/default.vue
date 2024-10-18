@@ -29,8 +29,8 @@
         />
         <v-list-item
           prepend-icon="mdi-lan-connect"
-          title="COUNTER API"
           subtitle="formerly SUSHI"
+          title="COUNTER API"
           to="/validation/sushi/"
         />
         <v-list-item
@@ -50,9 +50,9 @@
         </v-list>
         <v-btn
           block
-          text="Log out"
           class="flex-grow-1"
           prepend-icon="mdi-logout-variant"
+          text="Log out"
           tile
           variant="tonal"
           @click="logout"
@@ -73,5 +73,4 @@ import { useAppStore } from "@/stores/app"
 const store = useAppStore()
 
 const drawer: Ref<boolean | null | undefined> = ref(null)
-
 </script>

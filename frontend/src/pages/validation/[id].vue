@@ -26,9 +26,7 @@
     class="mt-5 pa-1"
   >
     <v-tabs-window-item value="details">
-      <h3 class="mb-5">
-        Basic information
-      </h3>
+      <h3 class="mb-5">Basic information</h3>
       <!-- ts need the v-if bellow to narrow down the type -->
       <ValidationBasicInfo
         v-if="validation"
@@ -36,9 +34,7 @@
       />
 
       <section v-if="header">
-        <h3 class="my-5">
-          Report Header
-        </h3>
+        <h3 class="my-5">Report Header</h3>
         <v-row v-if="header.result">
           <v-col
             cols="12"
@@ -49,16 +45,14 @@
 
           <v-col>
             <div
-              v-for="(line, idx) in (header.result ?? [])"
+              v-for="(line, idx) in header.result ?? []"
               :key="idx"
             >
               {{ line }}
             </div>
           </v-col>
         </v-row>
-        <v-row
-          v-if="header.report"
-        >
+        <v-row v-if="header.report">
           <v-col
             cols="12"
             md="2"
@@ -70,7 +64,7 @@
             md="10"
           >
             <div
-              v-for="(line, key) in (header.report ?? [])"
+              v-for="(line, key) in header.report ?? []"
               :key="key"
               class="json"
             >
@@ -104,7 +98,8 @@ const route = useRoute()
 const header = computed(() => validation.value?.result_data?.header)
 
 async function load() {
-  if ("id" in route.params) { // check needed for TS to narrow down the type
+  if ("id" in route.params) {
+    // check needed for TS to narrow down the type
     validation.value = await getValidationDetail(route.params.id)
   }
 }

@@ -41,8 +41,8 @@
     <v-btn
       :disabled="!form || saved"
       :loading="loading"
-      type="submit"
       text="Save"
+      type="submit"
     />
   </v-form>
 </template>

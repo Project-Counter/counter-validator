@@ -5,10 +5,9 @@
  */
 
 // https://vuetifyjs.com/features/sass-variables/
-@use 'vuetify/settings' with (
-	$color-pack: false,
+@use "vuetify/settings" with (
+  $color-pack: false
 );
-
 
 table.overview {
   border-collapse: collapse;
@@ -18,13 +17,14 @@ table.overview {
   font-weight: 300;
   font-size: 0.9rem;
 
-  th, td {
+  th,
+  td {
     text-align: left;
     padding: 0.25rem 1rem 0.25rem 0.5rem;
   }
 
-  th.right, td.right {
+  th.right,
+  td.right {
     text-align: right;
   }
-
 }

@@ -18,8 +18,7 @@ export async function checkUser(reset = false) {
 
   try {
     store.user = await jsonFetch<User>(urls.user)
-  }
-  catch (err: unknown) {
+  } catch (err: unknown) {
     store.loggedIn = false
     if (err instanceof HttpStatusError) {
       if (![401, 403].includes(err?.res?.status)) {
@@ -37,8 +36,7 @@ export async function updateUser(obj: User) {
       method: "PATCH",
       json: obj,
     })
-  }
-  finally {
+  } finally {
     await checkUser()
   }
 }
@@ -49,8 +47,7 @@ export async function login(email: string, password: string) {
       method: "POST",
       json: { email, password },
     })
-  }
-  finally {
+  } finally {
     await checkUser()
   }
 }
@@ -60,8 +57,7 @@ export async function logout() {
     await wrapFetch(urls.logout, {
       method: "POST",
     })
-  }
-  finally {
+  } finally {
     await checkUser(true)
   }
 }
@@ -72,8 +68,7 @@ export async function signup(email: string, password1: string, password2: string
       method: "POST",
       json: { email, password1, password2 },
     })
-  }
-  finally {
+  } finally {
     await checkUser()
   }
 }

@@ -1,4 +1,4 @@
-default_stages: [push, commit, manual]
+default_stages: [pre-push, pre-commit, manual]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.4.0
@@ -37,9 +37,16 @@ repos:
         types: [python]
         pass_filenames: false
 
+      - id: prettier
+        name: Prettier formatter
+        entry: bash -c 'cd frontend && yarn prettier --write .'
+        language: system
+        files: frontend/.*
+        pass_filenames: false
+
       - id: eslint
         name: ESLint linter
-        stages: [push, commit]
+        stages: [pre-push, pre-commit]
         entry: bash -c 'cd frontend && yarn lint'
         language: system
         types_or: [javascript, ts, vue]

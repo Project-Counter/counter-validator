@@ -1,30 +1,35 @@
 <template>
   <v-data-table
-    :items="filteredMessages"
+    :cell-props="
+      ({ item, column }) =>
+        column.key == 'color'
+          ? { class: 'bg-' + colorMap.get(item.l), style: { minHeight: '4px' } }
+          : {}
+    "
+    density="compact"
     :headers="headers"
+    :items="filteredMessages"
     :items-per-page="25"
     :mobile="null"
-    density="compact"
-    :cell-props="({item, column}) => (column.key == 'color' ? {class: 'bg-' + colorMap.get(item.l), style: {minHeight: '4px'}} : {})"
   >
     <template #top>
       <v-row>
         <v-col
-          cols="auto"
           class="align-self-center"
+          cols="auto"
         >
           <v-chip
-            v-for="([level, count]) in severityMap.entries()"
+            v-for="[level, count] in severityMap.entries()"
             :key="level"
-            :color="selectedLevels.includes(level) ? colorMap.get(level) : 'grey'"
             class="ps-0 pe-1"
+            :color="selectedLevels.includes(level) ? colorMap.get(level) : 'grey'"
             size="large"
             @click="toggleLevelVisibility(level)"
           >
             <template #append>
               <v-avatar
-                :class="'bg-'+(selectedLevels.includes(level) ? colorMap.get(level) : 'grey')"
                 class="ms-2"
+                :class="'bg-' + (selectedLevels.includes(level) ? colorMap.get(level) : 'grey')"
               >
                 {{ count }}
               </v-avatar>
@@ -32,10 +37,10 @@
             <template #prepend>
               <v-checkbox
                 v-model="selectedLevels"
-                :value="level"
-                hide-details
                 class="pa-0 ma-0"
+                hide-details
                 multiple
+                :value="level"
               />
             </template>
 
@@ -64,24 +69,23 @@ const headers = [
 ]
 
 // variables
-let selectedLevels = ref([...colorMap.keys()])
+const selectedLevels = ref([...colorMap.keys()])
 
 // computed
-let filteredMessages = computed(() => {
-  return p.messages.filter(m => selectedLevels.value.includes(m.l))
+const filteredMessages = computed(() => {
+  return p.messages.filter((m) => selectedLevels.value.includes(m.l))
 })
 
-let severityMap = computed(() => {
-  let map = new Map<SeverityLevel, number>()
+const severityMap = computed(() => {
+  const map = new Map<SeverityLevel, number>()
   p.messages.forEach((m) => {
     if (map.has(m.l)) {
       map.set(m.l, (map.get(m.l) ?? 0) + 1)
-    }
-    else {
+    } else {
       map.set(m.l, 1)
     }
   })
-  let out = new Map<SeverityLevel, number>() // we want sorting by level from `colorMap`
+  const out = new Map<SeverityLevel, number>() // we want sorting by level from `colorMap`
   colorMap.forEach((value, k) => {
     if (map.has(k)) out.set(k, map.get(k) ?? 0)
   })
@@ -91,9 +95,8 @@ let severityMap = computed(() => {
 // methods
 function toggleLevelVisibility(level: SeverityLevel) {
   if (selectedLevels.value.includes(level)) {
-    selectedLevels.value = selectedLevels.value.filter(l => l !== level)
-  }
-  else {
+    selectedLevels.value = selectedLevels.value.filter((l) => l !== level)
+  } else {
     selectedLevels.value = [...selectedLevels.value, level]
   }
 }

@@ -2,8 +2,8 @@
   <v-dialog max-width="500">
     <template #activator="{ props: activatorProps }">
       <v-btn
-        text="Change password"
         class="ml-2"
+        text="Change password"
         v-bind="activatorProps"
       />
     </template>
@@ -11,15 +11,9 @@
     <template #default="{ isActive }">
       <v-card title="Dialog">
         <v-card-text class="d-flex flex-column ga-1">
-          <v-text-field
-            label="Old password"
-          />
-          <v-text-field
-            label="New password"
-          />
-          <v-text-field
-            label="New password (again)"
-          />
+          <v-text-field label="Old password" />
+          <v-text-field label="New password" />
+          <v-text-field label="New password (again)" />
         </v-card-text>
 
         <v-card-actions>

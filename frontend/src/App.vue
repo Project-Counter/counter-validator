@@ -11,9 +11,7 @@
         class="mx-auto pa-4"
         rounded
       >
-        <v-progress-circular
-          indeterminate
-        />
+        <v-progress-circular indeterminate />
       </v-sheet>
     </div>
   </v-app>
@@ -23,11 +21,7 @@
     :timeout="-1"
     vertical
   >
-    <div class="text-subtitle-1 pb-2">
-      <v-icon class="mr-2">
-        mdi-alert
-      </v-icon>Error!
-    </div>
+    <div class="text-subtitle-1 pb-2"><v-icon class="mr-2"> mdi-alert </v-icon>Error!</div>
 
     <p>Sorry, there was an error. You may need to reload the app.</p>
 
@@ -47,8 +41,9 @@
                 <div>info: {{ err.info }}</div>
                 <pre
                   class="py-4 text-caption"
-                  style="overflow: scroll;"
-                >{{ err.err.stack }}</pre>
+                  style="overflow: scroll"
+                  >{{ err.err.stack }}</pre
+                >
               </template>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -76,11 +71,7 @@ const store = useAppStore()
 
 const errorShow = ref(false)
 
-function handleErr(
-  err: Error,
-  _: unknown,
-  info: string,
-) {
+function handleErr(err: Error, _: unknown, info: string) {
   store.errors.push({ err, info })
   errorShow.value = true
   return true
@@ -95,9 +86,13 @@ function reload() {
 }
 
 const theme = useTheme()
-watch(() => store.darkTheme, (v) => {
-  theme.global.name.value = v ? "dark" : "light"
-}, { immediate: true })
+watch(
+  () => store.darkTheme,
+  (v) => {
+    theme.global.name.value = v ? "dark" : "light"
+  },
+  { immediate: true },
+)
 </script>
 
 <style>

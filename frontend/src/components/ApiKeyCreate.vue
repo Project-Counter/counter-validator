@@ -64,11 +64,12 @@
             ref="codeRef"
             class="bg-surface-light pa-2 rounded"
             @click="select"
-          >{{ okKey }}</code>
+            >{{ okKey }}</code
+          >
           <v-btn
-            text="Copy"
             color="primary"
             :prepend-icon="icon ? 'mdi-check' : 'mdi-content-copy'"
+            text="Copy"
             variant="outlined"
             @click="copy"
           />

@@ -14,14 +14,16 @@
     <span>Drag and drop</span>
     <span class="text-caption mb-1 text-medium-emphasis">or</span>
     <v-btn
-      text="add files"
       prepend-icon="mdi-plus"
       size="small"
+      text="add files"
       variant="tonal"
       @click="inputRef.click()"
     />
 
-    <span class="text-caption mt-2 text-medium-emphasis">Supported formats: json, csv, tsv, ods, xlsx, xls</span>
+    <span class="text-caption mt-2 text-medium-emphasis"
+      >Supported formats: json, csv, tsv, ods, xlsx, xls</span
+    >
 
     <input
       ref="inputRef"
@@ -29,7 +31,7 @@
       multiple
       type="file"
       @change="onPick"
-    >
+    />
     <v-overlay
       contained
       :model-value="overlay"
@@ -52,9 +54,9 @@
           >
             <div class="text-truncate mb-2 pr-2">
               <v-btn
+                density="comfortable"
                 icon="mdi-close"
                 variant="text"
-                density="comfortable"
                 @click="removeFile(index)"
               />
               {{ item.file.name }}
@@ -66,20 +68,20 @@
           >
             <v-combobox
               v-model="item.platform"
+              append-inner-icon="mdi-content-copy"
+              auto-select-first="exact"
+              clearable
+              density="compact"
+              hide-details
+              item-subtitle="abbrev"
+              item-title="name"
+              item-value="id"
               :items="platforms"
               label="Platform"
-              density="compact"
-              prepend-inner-icon="mdi-magnify"
-              clearable
-              persistent-clear
-              hide-details
-              item-title="name"
-              item-subtitle="abbrev"
-              auto-select-first="exact"
-              item-value="id"
-              append-inner-icon="mdi-content-copy"
-              return-object
               :loading
+              persistent-clear
+              prepend-inner-icon="mdi-magnify"
+              return-object
               @click:append-inner="copyPlatform(item)"
             />
             <ul
@@ -114,7 +116,7 @@ async function load() {
 }
 function addFiles(files: Iterable<File>) {
   for (const file of files) {
-    if (!model.value.some(f => f.file.name === file.name)) {
+    if (!model.value.some((f) => f.file.name === file.name)) {
       model.value.push({ file })
     }
   }

@@ -13,5 +13,4 @@ import { levelColorMap, ValidationBase } from "@/lib/definitions/api"
 defineProps<{
   item?: ValidationBase
 }>()
-
 </script>

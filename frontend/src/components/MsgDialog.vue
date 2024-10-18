@@ -22,12 +22,10 @@
 </template>
 
 <script setup lang="ts">
-
 defineProps<{
   title: string
   maxWidth?: number
 }>()
 
 const dialog = ref(false)
-
 </script>

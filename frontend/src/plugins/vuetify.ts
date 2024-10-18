@@ -14,8 +14,8 @@ import { createVuetify, type ThemeDefinition } from "vuetify"
 const light: ThemeDefinition = {
   variables: {
     "high-emphasis-opacity": 1,
-    "medium-emphasis-opacity": 0.70,
-    "disabled-opacity": 0.50,
+    "medium-emphasis-opacity": 0.7,
+    "disabled-opacity": 0.5,
   },
 }
 const dark: ThemeDefinition = {

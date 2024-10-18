@@ -12,10 +12,10 @@
   </div>
 
   <v-list
-    lines="two"
-    class="my-6"
-    max-height="55vh"
     border
+    class="my-6"
+    lines="two"
+    max-height="55vh"
   >
     <v-list-item
       v-for="(file, i) in fileHistory"
@@ -23,9 +23,7 @@
       :title="file.filename"
     >
       <template #title>
-        <router-link
-          :to="`/validation/${file.id}/`"
-        >
+        <router-link :to="`/validation/${file.id}/`">
           {{ file.filename }}
         </router-link>
       </template>
@@ -35,19 +33,19 @@
         <v-progress-circular
           v-if="uploading.has(file.filename)"
           color="grey"
-          :size="18"
           indeterminate
+          :size="18"
         />
         <template v-else-if="file.id !== undefined">
           <v-icon
-            icon="mdi-check"
             color="success"
+            icon="mdi-check"
           />
         </template>
         <template v-else>
           <v-icon
-            icon="mdi-alert"
             color="error"
+            icon="mdi-alert"
           />
         </template>
 
@@ -58,9 +56,7 @@
           Validation: <validation-status :value="file.status" />
         </span>
 
-        <span v-if="file.validation_result">
-          Result: <ValidationResultChip :item="file" />
-        </span>
+        <span v-if="file.validation_result"> Result: <ValidationResultChip :item="file" /> </span>
       </template>
     </v-list-item>
   </v-list>
@@ -71,8 +67,8 @@
         v-if="progress == 100"
         class="mb-3"
         color="primary"
-        text="New validation"
         prepend-icon="mdi-plus"
+        text="New validation"
         @click="back"
       />
     </v-slide-x-transition>
@@ -111,7 +107,9 @@ const props = defineProps<{
   files: FUpload[]
 }>()
 const uploading = reactive(new Set())
-const progress = computed(() => (fileHistory.value.length - uploading.size) / fileHistory.value.length * 100)
+const progress = computed(
+  () => ((fileHistory.value.length - uploading.size) / fileHistory.value.length) * 100,
+)
 
 function back() {
   fileHistory.value.length = 0
@@ -127,8 +125,7 @@ async function checkValidation() {
       const res = await getValidation(file.id.toString())
       file.status = res.status
       file.validation_result = res.validation_result
-    }
-    catch (err) {
+    } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return
       throw err
     }
@@ -138,14 +135,12 @@ async function checkValidation() {
 async function upload(file: FUpload) {
   try {
     const res = await validateFile(file)
-    const fh = fileHistory.value.find(el => el.filename == file.file.name)
+    const fh = fileHistory.value.find((el) => el.filename == file.file.name)
     fh!.id = res.id
     fh!.status = res.status
-  }
-  catch (err) {
+  } catch (err) {
     // TODO: ...
-  }
-  finally {
+  } finally {
     uploading.delete(file.file.name)
   }
 }
@@ -168,5 +163,4 @@ if (fileHistory.value.length == 0) {
 useTimeoutPoll(checkValidation, 1000, {
   immediate: true,
 })
-
 </script>

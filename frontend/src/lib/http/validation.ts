@@ -31,11 +31,9 @@ export async function validateFile(file: FUpload) {
 
   if (typeof file.platform === "string") {
     form.append("platform_name", file.platform)
-  }
-  else if (file.platform === undefined) {
+  } else if (file.platform === undefined) {
     form.append("platform_name", "")
-  }
-  else {
+  } else {
     form.append("platform", file.platform.id)
   }
 

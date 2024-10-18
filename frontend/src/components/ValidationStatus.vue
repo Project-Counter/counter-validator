@@ -8,8 +8,8 @@
   <template v-else-if="value == Status.RUNNING">
     <v-progress-circular
       color="grey"
-      :size="18"
       indeterminate
+      :size="18"
     />
   </template>
   <template v-else-if="value == Status.SUCCESS">

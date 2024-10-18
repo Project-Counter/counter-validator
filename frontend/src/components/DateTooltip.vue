@@ -16,8 +16,7 @@ const p = defineProps<{
 const relative = computed(() => {
   try {
     return intlFormatDistance(p.date, Date.now())
-  }
-  catch {
+  } catch {
     return "N/A"
   }
 })
@@ -25,8 +24,7 @@ const relative = computed(() => {
 const dateHuman = computed(() => {
   try {
     return new Date(p.date).toLocaleString()
-  }
-  catch {
+  } catch {
     return "N/A"
   }
 })

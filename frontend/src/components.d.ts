@@ -26,5 +26,7 @@ declare module 'vue' {
     ValidationMessagesTable: typeof import('./components/ValidationMessagesTable.vue')['default']
     ValidationResultChip: typeof import('./components/ValidationResultChip.vue')['default']
     ValidationStatus: typeof import('./components/ValidationStatus.vue')['default']
+    ValidationTable: typeof import('./components/ValidationTable.vue')['default']
+    'ValidationTable.vue': typeof import('./components/ValidationTable.vue')['default']
   }
 }

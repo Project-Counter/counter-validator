@@ -7,7 +7,11 @@
     <template #default="{ isActive }">
       <v-card title="API key revocation">
         <v-card-text>
-          <p>Are you sure you want to <strong>revoke</strong> the API key beggining with <code class="bg-surface-light pa-1 rounded">{{ props.prefix }}</code>?</p>
+          <p>
+            Are you sure you want to <strong>revoke</strong> the API key beggining with
+            <code class="bg-surface-light pa-1 rounded">{{ props.prefix }}</code
+            >?
+          </p>
           <p class="mt-3 text-caption">
             This cannot be undone and the API key will never work again!
           </p>

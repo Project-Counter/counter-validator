@@ -1,10 +1,15 @@
 export function getCookie(key: string) {
-  return document.cookie.split(";").find(row => row.trim().startsWith(key + "="))?.split("=")[1]
+  return document.cookie
+    .split(";")
+    .find((row) => row.trim().startsWith(key + "="))
+    ?.split("=")[1]
 }
 
-export type RequestOptions = undefined | (RequestInit & {
-  json?: unknown
-})
+export type RequestOptions =
+  | undefined
+  | (RequestInit & {
+      json?: unknown
+    })
 
 export class HttpStatusError extends Error {
   res
@@ -18,7 +23,10 @@ export class HttpStatusError extends Error {
 
 export class NoResponseError extends Error {}
 
-export async function wrapFetch(resource: string, options: RequestOptions = undefined): Promise<Response> {
+export async function wrapFetch(
+  resource: string,
+  options: RequestOptions = undefined,
+): Promise<Response> {
   if (!options) {
     options = {}
   }
@@ -48,7 +56,10 @@ export async function wrapFetch(resource: string, options: RequestOptions = unde
   return res
 }
 
-export async function jsonFetch<T>(resource: string, options: RequestOptions = undefined): Promise<T> {
+export async function jsonFetch<T>(
+  resource: string,
+  options: RequestOptions = undefined,
+): Promise<T> {
   const res = await wrapFetch(resource, options)
   if (Number(res.headers.get("Content-Length")) == 0) {
     throw NoResponseError

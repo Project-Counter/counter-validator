@@ -7,8 +7,8 @@
         <v-slide-x-transition>
           <v-btn
             v-if="files.length > 0"
-            text="Validate"
             color="primary"
+            text="Validate"
             @click="window = 1"
           />
         </v-slide-x-transition>
@@ -35,5 +35,4 @@ function back() {
   files.value.length = 0
   window.value = 0
 }
-
 </script>

@@ -1,31 +1,29 @@
 <template>
   <v-stepper
     v-model="stepper"
-    :mobile="null"
     :disabled="!formValid"
     :items="['Server selection', 'Report selection', 'Download & validation']"
+    :mobile="null"
   >
     <template #item.1>
       <v-form
         v-model="formValid"
         :disabled="loading"
       >
-        <h2 class="mb-3">
-          Server
-        </h2>
+        <h2 class="mb-3">Server</h2>
         <v-autocomplete
           v-model="platform"
+          clearable
           hint="Type to search in the COUNTER Registry"
+          item-subtitle="abbrev"
+          item-title="name"
+          item-value="id"
+          :items="platforms"
           label="Search in platforms"
+          :loading="loadingPlatforms"
+          persistent-clear
           persistent-hint
           prepend-inner-icon="mdi-magnify"
-          :loading="loadingPlatforms"
-          :items="platforms"
-          item-title="name"
-          item-subtitle="abbrev"
-          item-value="id"
-          clearable
-          persistent-clear
           @update:model-value="update"
         />
         <div class="my-3">
@@ -54,9 +52,7 @@
           </v-col>
         </v-row>
 
-        <h2 class="mt-4 mb-3">
-          Credentials
-        </h2>
+        <h2 class="mt-4 mb-3">Credentials</h2>
         <v-row dense>
           <v-col
             cols="12"
@@ -74,8 +70,8 @@
           >
             <v-text-field
               v-model="credentials.requestor_id"
-              label="Requestor ID"
               hint="Fill only if required by the server"
+              label="Requestor ID"
             />
           </v-col>
           <v-col
@@ -84,8 +80,8 @@
           >
             <v-text-field
               v-model="credentials.api_key"
-              label="API key"
               hint="Fill only if required by the server"
+              label="API key"
             />
           </v-col>
         </v-row>

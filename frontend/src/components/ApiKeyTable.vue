@@ -5,11 +5,13 @@
     :mobile="null"
     mobile-breakpoint="sm"
     must-sort
-    :sort-by="[{key: 'created', order: 'desc'}]"
+    :sort-by="[{ key: 'created', order: 'desc' }]"
   >
     <template #top>
       <v-sheet class="bg-surface-light d-flex align-center pa-4">
-        <span class="text-caption">Your API keys<v-icon class="ml-4">mdi-key</v-icon> {{ data.length }}</span>
+        <span class="text-caption"
+          >Your API keys<v-icon class="ml-4">mdi-key</v-icon> {{ data.length }}</span
+        >
         <v-spacer />
         <v-btn size="small">
           Create a key
@@ -28,21 +30,25 @@
       <span
         v-else
         class="text-disabled"
-      >never</span>
+        >never</span
+      >
     </template>
     <template #item.status="{ item }">
       <span
         v-if="item.revoked"
         class="text-error"
-      >Revoked</span>
+        >Revoked</span
+      >
       <span
         v-else-if="item.has_expired"
         class="text-warning"
-      >Expired</span>
+        >Expired</span
+      >
       <span
         v-else
         class="text-success"
-      >OK</span>
+        >OK</span
+      >
     </template>
     <template #item.actions="{ item }">
       <v-btn

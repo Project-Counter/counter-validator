@@ -20,7 +20,7 @@ export type Report = {
 }
 
 export type SeverityLevel =
-  "Passed"
+  | "Passed"
   | "Notice"
   | "Warning"
   | "Error"
@@ -79,8 +79,7 @@ export const levelColorMap = new Map<SeverityLevel, string>([
   ["Error", "error"],
   ["Critical error", "error"],
   ["Fatal error", "error"],
-],
-)
+])
 
 export type ValidationDetail = Validation & {
   result_data: Result

@@ -1,4 +1,4 @@
-import type { ValidationBase, Status, Platform } from "@/lib/definitions/api"
+import type { Platform, Status, ValidationBase } from "@/lib/definitions/api"
 
 export type FUpload = {
   file: File
