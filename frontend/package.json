@@ -12,6 +12,7 @@
     "@vueuse/core": "^11.0.3",
     "core-js": "^3.38.1",
     "date-fns": "^3.6.0",
+    "filesize": "^10.1.6",
     "roboto-fontface": "^0.10.0",
     "vue": "^3.4.38",
     "vuetify": "^3.7.3"

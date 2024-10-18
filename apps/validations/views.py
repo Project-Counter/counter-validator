@@ -1,4 +1,5 @@
 # Create your views here.
+
 from core.tasks import validate_file, validate_sushi
 from counter.serializers import Credentials
 from django.db.transaction import atomic
@@ -24,7 +25,11 @@ class ValidationViewSet(ReadOnlyModelViewSet):
         return validations.serializers.ValidationDetailSerializer
 
     def get_queryset(self):
-        qs = self.request.user.validation_set.select_related("core").defer("result_data")
+        qs = (
+            self.request.user.validation_set.select_related("core")
+            .defer("result_data")
+            .order_by("-core__created")
+        )
         if self.action not in ("sushi", "file"):
             qs = qs.select_related("core__platform")
         if self.action == "detail":
@@ -39,6 +44,7 @@ class ValidationViewSet(ReadOnlyModelViewSet):
         obj = serializer.save()
         validate_file.delay_on_commit(obj.pk)
         out_serializer = self.get_serializer(obj)
+        # sleep(2)
         return Response(out_serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=("POST",))

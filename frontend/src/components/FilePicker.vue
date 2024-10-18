@@ -18,6 +18,7 @@
       size="small"
       text="add files"
       variant="tonal"
+      :disabled="uploading"
       @click="inputRef.click()"
     />
 
@@ -47,19 +48,38 @@
         class="pa-3"
         rounded
       >
-        <v-row no-gutters>
+        <v-row>
           <v-col
             :cols="12"
             :sm="6"
           >
-            <div class="text-truncate mb-2 pr-2">
+            <div class="text-truncate">
               <v-btn
                 density="comfortable"
                 icon="mdi-close"
                 variant="text"
+                :disabled="uploading"
                 @click="removeFile(index)"
               />
               {{ item.file.name }}
+              <v-chip
+                size="small"
+                variant="plain"
+                >{{ filesize(item.file.size) }}</v-chip
+              >
+            </div>
+            <v-progress-linear
+              v-if="justUploading === item"
+              color="primary"
+              height="4"
+              indeterminate
+            />
+            <div
+              v-if="item.err"
+              class="text-caption text-error"
+            >
+              <v-icon>mdi-alert-circle-outline</v-icon>
+              {{ item.err }}
             </div>
           </v-col>
           <v-col
@@ -82,6 +102,7 @@
               persistent-clear
               prepend-inner-icon="mdi-magnify"
               return-object
+              :disabled="uploading"
               @click:append-inner="copyPlatform(item)"
             />
             <ul
@@ -95,12 +116,39 @@
         </v-row>
       </v-sheet>
     </v-slide-x-transition>
+
+    <div class="text-end">
+      <v-slide-x-transition>
+        <v-btn
+          v-if="model.length > 0"
+          color="primary"
+          text="Validate"
+          :disabled="uploading"
+          @click="startUploading"
+        />
+      </v-slide-x-transition>
+    </div>
+    <div v-if="anyError && !justUploading">
+      <v-alert type="error">
+        There were errors during the data upload. Files for which errors occurred will not be shown
+        amongst your validations.
+      </v-alert>
+      <div class="text-end pt-4">
+        <v-btn
+          :to="{ name: '/validation/' }"
+          color="secondary"
+          >Go to validations</v-btn
+        >
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { FUpload } from "@/lib/definitions/upload"
 import { loadPlatforms } from "@/lib/http/platform"
+import { validateFile } from "@/lib/http/validation"
+import { filesize } from "filesize"
 
 const model = defineModel<FUpload[]>({ required: true })
 
@@ -108,6 +156,10 @@ const inputRef = ref()
 const overlay = ref(false)
 const platforms = shallowRef()
 const loading = ref(true)
+const uploading = ref(false)
+const justUploading = ref<FUpload | null>(null)
+const router = useRouter()
+const anyError = ref(false)
 
 async function load() {
   loading.value = true
@@ -135,6 +187,31 @@ function onDrop(e: DragEvent) {
 function copyPlatform(item: FUpload) {
   for (const rec of model.value) {
     rec.platform = item.platform
+  }
+}
+
+async function upload(file: FUpload) {
+  try {
+    await validateFile(file)
+  } catch (err) {
+    console.error(err)
+    file.err = `${err}`
+    anyError.value = true
+  }
+}
+
+async function startUploading() {
+  uploading.value = true
+  try {
+    for (const file of model.value) {
+      justUploading.value = file
+      await upload(file)
+      justUploading.value = null
+    }
+  } finally {
+    if (!anyError.value) {
+      await router.push({ name: "/validation/" })
+    }
   }
 }
 

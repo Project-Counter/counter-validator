@@ -10,9 +10,10 @@
         <v-col>
           <v-btn
             color="primary"
-            @click="showUploadDialog = true"
+            size="large"
+            :to="{ name: '/validation/file' }"
           >
-            <v-icon class="me-1"> mdi-file-cog-outline </v-icon>
+            <v-icon class="me-2"> mdi-file-cog-outline </v-icon>
             Validate a file
           </v-btn>
         </v-col>
@@ -45,7 +46,6 @@ import { getValidations } from "@/lib/http/validation"
 import ValidationResult from "@/components/ValidationResultChip.vue"
 
 const items = ref<Validation[]>([])
-const showUploadDialog = ref(false)
 
 const headers = [
   { key: "status", title: "Status", width: 1 },
