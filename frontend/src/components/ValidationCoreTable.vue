@@ -25,6 +25,26 @@
     </template>
 
     <template #item.duration="{ item }"> {{ Math.round(1000 * item.duration) }} ms </template>
+
+    <template #item.platform_name="{ item }">
+      <span v-if="item.platform">
+        <a
+          :href="'https://registry.countermetrics.org/platform/' + item.platform"
+          target="_blank"
+          >{{ item.platform_name }}
+        </a>
+        <v-icon
+          size="x-small"
+          class="ps-1"
+          >mdi-open-in-new</v-icon
+        >
+      </span>
+      <span v-else>{{ item.platform_name }}</span>
+    </template>
+
+    <template #item.stats="{ item }">
+      <StatsChip :item="item" />
+    </template>
   </v-data-table>
 </template>
 
@@ -33,10 +53,9 @@ import { ValidationCore } from "@/lib/definitions/api"
 import { getValidationCores } from "@/lib/http/validation"
 import ValidationResult from "@/components/ValidationResultChip.vue"
 import { filesize } from "filesize"
+import type { VDataTable } from "vuetify/components"
 
 const items = ref<ValidationCore[]>([])
-
-import type { VDataTable } from "vuetify/components"
 
 type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
@@ -45,7 +64,6 @@ const headers: ReadonlyHeaders = [
   { key: "status", title: "Status", width: 1 },
   { key: "cop_version", title: "COP version" },
   { key: "report_code", title: "Report code" },
-  { key: "platform", title: "Registry platform" },
   { key: "platform_name", title: "Platform" },
   { key: "validation_result", title: "Validation Result" },
   { key: "file_size", title: "File size", align: "end" },

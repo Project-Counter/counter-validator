@@ -92,6 +92,15 @@ export const levelColorMap = new Map<SeverityLevel, string>([
   ["Fatal error", "error"],
 ])
 
+export const levelIconMap = new Map<SeverityLevel, string>([
+  ["Passed", "check"],
+  ["Notice", "information-outline"],
+  ["Warning", "alert"],
+  ["Error", "alert-circle"],
+  ["Critical error", "alert-circle"],
+  ["Fatal error", "alert-circle"],
+])
+
 export type ValidationDetail = Validation & {
   result_data: Result
 }

@@ -113,6 +113,7 @@ class TestValidationAPI:
             assert "platform" in first
             assert "result_data" not in first
             assert "error_message" in first
+            assert "file_size" in first
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -141,6 +142,7 @@ class TestValidationAPI:
             assert "platform" in data
             assert "result_data" in data
             assert "error_message" in data
+            assert "file_size" in data
 
     def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):
         """

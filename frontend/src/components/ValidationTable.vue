@@ -37,6 +37,10 @@
         {{ item.filename }}
       </router-link>
     </template>
+
+    <template #item.file_size="{ item }">
+      {{ filesize(item.file_size) }}
+    </template>
   </v-data-table>
 </template>
 
@@ -44,14 +48,19 @@
 import { Validation } from "@/lib/definitions/api"
 import { getValidations } from "@/lib/http/validation"
 import ValidationResult from "@/components/ValidationResultChip.vue"
+import { filesize } from "filesize"
+import type { VDataTable } from "vuetify/components"
 
 const items = ref<Validation[]>([])
 
-const headers = [
+type ReadonlyHeaders = VDataTable["$props"]["headers"]
+
+const headers: ReadonlyHeaders = [
   { key: "status", title: "Status", width: 1 },
   { key: "filename", title: "Filename" },
+  { key: "file_size", title: "File size", align: "end" },
   { key: "platform_name", title: "Platform" },
-  { key: "validation_result", title: "Validation Result" },
+  { key: "validation_result", title: "Validation result" },
   { key: "created", title: "Time" },
 ]
 
