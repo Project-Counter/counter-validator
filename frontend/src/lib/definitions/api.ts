@@ -59,32 +59,28 @@ export const statusMap = new Map<Status, string>([
 ])
 
 export type ValidationBase = {
-  validation_result: SeverityLevel
-}
-
-export type ValidationCore = {
   id: string // uuid
-  status: Status
   cop_version: string
   report_code: string
+  validation_result: SeverityLevel
+  status: Status
   created: string
   platform: string
   platform_name: string
-  validation_result: SeverityLevel
+  error_message: string
+}
+
+export type ValidationCore = {
   file_size: number
   used_memory: number
   duration: number
   stats: Record<string, number>
-}
+} & ValidationBase
 
 export type Validation = {
-  id: string // uuid
   api_key?: number
-  status: Status
-  created: string
   filename?: string
-  platform: string
-  platform_name: string
+  file_size: number
 } & ValidationBase
 
 export const levelColorMap = new Map<SeverityLevel, string>([

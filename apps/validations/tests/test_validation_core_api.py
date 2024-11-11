@@ -34,6 +34,12 @@ class TestValidationCoreAPI:
             assert "used_memory" in first
             assert "duration" in first
             assert "stats" in first
+            assert "error_message" in first
             # stuff that should not be there - it is in Validation only
             assert "filename" not in first
             assert "result_data" not in first
+
+    def test_delete_not_allowed(self, admin_client):
+        v = ValidationCoreFactory()
+        res = admin_client.delete(reverse("validation-core-detail", args=[v.pk]))
+        assert res.status_code == 405

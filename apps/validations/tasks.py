@@ -27,23 +27,28 @@ def validate_file(pk: uuid.UUID):
     obj.core.save()
     # time.sleep(5)
 
-    with obj.file.open("rb") as fp:
-        req = requests.post(
-            settings.CTOOLS_URL + "file.php",
-            params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
-            data=fp,
-        )
-    req.raise_for_status()
-
-    end = time.monotonic()
-    json = req.json()
-    obj.result_data = json["result"]
-    obj.core.used_memory = json["memory"]
-    obj.core.duration = end - start
-    obj.core.status = ValidationStatus.SUCCESS
-    obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
-    obj.core.save()
-    obj.save()
+    try:
+        with obj.file.open("rb") as fp:
+            req = requests.post(
+                settings.CTOOLS_URL + "file.php",
+                params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
+                data=fp,
+            )
+        req.raise_for_status()
+    except Exception as e:
+        obj.core.status = ValidationStatus.FAILURE
+        obj.core.error_message = str(e)
+    else:
+        json = req.json()
+        obj.result_data = json["result"]
+        obj.core.used_memory = json["memory"]
+        obj.core.status = ValidationStatus.SUCCESS
+        obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
+    finally:
+        end = time.monotonic()
+        obj.core.duration = end - start
+        obj.core.save()
+        obj.save()
 
 
 @celery.shared_task(base=ValidationTask)

@@ -80,6 +80,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     sushi_credentials_checksum = models.CharField(
         max_length=2 * settings.HASHING_DIGEST_SIZE, blank=True
     )
+    error_message = models.TextField(blank=True)
 
     class Meta:
         ordering = ["pk"]

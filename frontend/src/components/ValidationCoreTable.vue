@@ -8,8 +8,8 @@
       <IsoDateTime :date-string="item.created" />
     </template>
 
-    <template #item.status="{ value }">
-      <validation-status :value="value" />
+    <template #item.status="{ item }">
+      <validation-status :validation="item" />
     </template>
 
     <template #item.validation_result="{ item }">

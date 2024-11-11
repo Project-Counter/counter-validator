@@ -18,6 +18,7 @@ class ValidationSerializer(serializers.ModelSerializer):
         read_only=True, slug_field="name", source="core.platform"
     )
     platform_name = serializers.CharField(read_only=True, source="core.platform_name")
+    error_message = serializers.CharField(read_only=True, source="core.error_message")
 
     class Meta:
         model = Validation
@@ -31,6 +32,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "platform",
             "platform_name",
             "validation_result",
+            "error_message",
         )
         read_only_fields = (
             "api_key",
@@ -99,5 +101,6 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
             "used_memory",
             "duration",
             "stats",
+            "error_message",
         )
         read_only_fields = fields
