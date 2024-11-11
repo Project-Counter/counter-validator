@@ -35,15 +35,24 @@ let props = withDefaults(
 
 // let sizeSum: number = computed(() => props.parts.map((item) => item.size).reduce((x, y) => x + y))
 
+type Chunk = {
+  startX: number
+  startY: number
+  endX: number
+  endY: number
+  longArc: number
+  color: string
+}
+
 let paths = computed(() => {
-  let out = []
+  let out: Chunk[] = []
   if (props.parts.length === 0) {
     return out
   }
   let i = 0
   let startSize = 0
   let sizeSum = props.parts.map((item) => item.size).reduce((x, y) => x + y, 0)
-  const sizeToRel = (size) => (size / sizeSum) * Math.PI * 2
+  const sizeToRel = (size: number) => (size / sizeSum) * Math.PI * 2
   for (let item of props.parts) {
     let startX = Math.cos(sizeToRel(startSize))
     let startY = Math.sin(sizeToRel(startSize))

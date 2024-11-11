@@ -33,20 +33,21 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue"
-import { ValidationCore, levelColorMap, levelIconMap } from "@/lib/definitions/api"
+import { ValidationBase, levelColorMap } from "@/lib/definitions/api"
 import SimplePie from "@/components/SimplePie.vue"
 import { useTheme } from "vuetify"
+import type { Entries } from "type-fest"
 
 const vTheme = useTheme()
 
 let p = defineProps<{
-  item: ValidationCore
+  item: ValidationBase
 }>()
 
 const statParts = computed(() =>
-  Object.entries(p.item.stats).map(([level, value]) => ({
+  (Object.entries(p.item.stats) as Entries<typeof p.item.stats>).map(([level, value]) => ({
     size: value,
-    color: vTheme.current.value.colors[levelColorMap.get(level)],
+    color: vTheme.current.value.colors[levelColorMap.get(level) ?? "grey"],
   })),
 )
 </script>
