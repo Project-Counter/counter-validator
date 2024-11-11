@@ -46,12 +46,13 @@
 
 <script setup lang="ts">
 import { Status, Validation } from "@/lib/definitions/api"
-import { getValidations } from "@/lib/http/validation"
+import { getValidation, getValidations } from "@/lib/http/validation"
 import ValidationResult from "@/components/ValidationResultChip.vue"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 
 const items = ref<Validation[]>([])
+let loading = ref(true)
 
 type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
@@ -66,12 +67,26 @@ const headers: ReadonlyHeaders = [
   { key: "created", title: "Time" },
 ]
 
-let unfinished = computed(() =>
-  items.value.filter((v) => v.status === Status.RUNNING || v.status === Status.WAITING),
-)
-
-async function load() {
+try {
   items.value = await getValidations()
+} finally {
+  loading.value = false
 }
-load().then()
+
+async function checkUnfinished() {
+  let unfinished = items.value.filter(
+    (v) => v.status === Status.RUNNING || v.status === Status.WAITING,
+  )
+  let fetchers = unfinished.map((v) => getValidation(v.id))
+  for (let result of await Promise.all(fetchers)) {
+    let index = items.value.findIndex((v) => v.id === result.id)
+    items.value[index] = result
+  }
+  unfinished = items.value.filter((v) => v.status === Status.RUNNING || v.status === Status.WAITING)
+  if (unfinished.length > 0) {
+    setTimeout(checkUnfinished, 1000)
+  }
+}
+
+await checkUnfinished()
 </script>
