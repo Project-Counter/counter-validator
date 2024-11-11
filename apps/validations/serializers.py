@@ -3,7 +3,7 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import Validation
+from .models import Validation, ValidationCore
 
 
 class ValidationSerializer(serializers.ModelSerializer):
@@ -76,3 +76,28 @@ class FileValidationCreateSerializer(serializers.Serializer):
             platform_name=platform.name if platform else validated_data.get("platform_name", ""),
             user_note=validated_data.get("user_note", ""),
         )
+
+
+class ValidationCoreSerializer(serializers.ModelSerializer):
+    platform_name = serializers.CharField(source="platform.name", read_only=True)
+    validation_result = serializers.CharField(
+        read_only=True, source="get_validation_result_display"
+    )
+
+    class Meta:
+        model = ValidationCore
+        fields = (
+            "id",
+            "cop_version",
+            "report_code",
+            "status",
+            "platform",
+            "platform_name",
+            "validation_result",
+            "created",
+            "file_size",
+            "used_memory",
+            "duration",
+            "stats",
+        )
+        read_only_fields = fields

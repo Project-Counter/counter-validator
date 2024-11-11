@@ -1,4 +1,4 @@
-import { Credentials, Validation, ValidationDetail } from "../definitions/api"
+import { Credentials, Validation, ValidationCore, ValidationDetail } from "../definitions/api"
 import { FUpload } from "../definitions/upload"
 import { jsonFetch, wrapFetch } from "./util"
 
@@ -6,6 +6,7 @@ export const urls = {
   list: "validations/validation/",
   file: "validations/validation/file/",
   sushi: "validations/validation/sushi/",
+  coreList: "validations/validation-core/",
 }
 
 export async function getValidation(id: string) {
@@ -22,6 +23,10 @@ export async function getValidationDetail(id: string) {
 
 export async function getValidations() {
   return jsonFetch<Validation[]>(urls.list)
+}
+
+export async function getValidationCores() {
+  return jsonFetch<ValidationCore[]>(urls.coreList)
 }
 
 export async function validateFile(file: FUpload) {

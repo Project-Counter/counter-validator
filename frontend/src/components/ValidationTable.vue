@@ -28,12 +28,12 @@
       <ValidationResult :item="item" />
     </template>
 
-    <template #item.id="{ item }">
+    <template #item.created="{ item }">
       <date-tooltip :date="item.created" />
     </template>
 
     <template #item.filename="{ item }">
-      <router-link :to="item.id + '/'">
+      <router-link :to="'validation/' + item.id + '/'">
         {{ item.filename }}
       </router-link>
     </template>
@@ -52,15 +52,11 @@ const headers = [
   { key: "filename", title: "Filename" },
   { key: "platform_name", title: "Platform" },
   { key: "validation_result", title: "Validation Result" },
-  { key: "id", title: "Time" },
+  { key: "created", title: "Time" },
 ]
 
 async function load() {
   items.value = await getValidations()
-  // postprocess validations to put name into platform_name for all cases
-  items.value.forEach((val) => {
-    val.platform_name = val.platform_name ?? val.platform
-  })
 }
 load().then()
 </script>

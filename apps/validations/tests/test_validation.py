@@ -18,7 +18,7 @@ from django.urls import reverse
 
 from validations.enums import SeverityLevel, ValidationStatus
 from validations.fake_data import ValidationFactory
-from validations.models import Validation
+from validations.models import Validation, ValidationCore
 
 
 class ResponseMock:
@@ -187,6 +187,21 @@ class TestValidationAPI:
             assert "created" in data
             assert "platform" in data
             assert "result_data" in data
+
+    def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):
+        """
+        Test that when deleting a validation through the API, the core is preserved.
+        """
+        v = ValidationFactory(user=normal_user)
+        core_id = v.core_id
+        assert core_id is not None
+        assert Validation.objects.filter(pk=v.pk).exists()
+
+        res = client_authenticated_user.delete(reverse("validation-detail", args=[v.pk]))
+        assert res.status_code == 204
+
+        assert not Validation.objects.filter(pk=v.pk).exists()
+        assert ValidationCore.objects.filter(pk=core_id).exists()
 
 
 @pytest.mark.django_db

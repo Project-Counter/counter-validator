@@ -1,4 +1,6 @@
-<template>test</template>
+<template>
+  <ValidationTable />
+</template>
 
 <script setup lang="ts">
 //

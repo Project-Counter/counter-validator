@@ -13,7 +13,7 @@
       >
         <v-list-item
           prepend-icon="mdi-home"
-          title="Home"
+          title="My validations"
           to="/"
         />
         <v-list-item
@@ -21,23 +21,12 @@
           title="Settings"
           to="/settings/"
         />
-        <v-list-subheader>Validate</v-list-subheader>
+        <v-list-subheader>Admin</v-list-subheader>
         <v-list-item
-          prepend-icon="mdi-file"
-          title="Files"
-          to="/validation/file/"
-        />
-        <v-list-item
-          prepend-icon="mdi-lan-connect"
-          subtitle="formerly SUSHI"
-          title="COUNTER API"
-          to="/validation/sushi/"
-        />
-        <v-list-item
-          exact
           prepend-icon="mdi-clock"
-          title="History"
-          to="/validation/"
+          subtitle="Past validations by all users"
+          title="Validation history"
+          to="/history"
         />
       </v-list>
       <template #append>

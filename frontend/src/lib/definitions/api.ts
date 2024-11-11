@@ -62,6 +62,21 @@ export type ValidationBase = {
   validation_result: SeverityLevel
 }
 
+export type ValidationCore = {
+  id: string // uuid
+  status: Status
+  cop_version: string
+  report_code: string
+  created: string
+  platform: string
+  platform_name: string
+  validation_result: SeverityLevel
+  file_size: number
+  used_memory: number
+  duration: number
+  stats: Record<string, number>
+}
+
 export type Validation = {
   id: string // uuid
   api_key?: number
