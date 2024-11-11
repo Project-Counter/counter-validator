@@ -2,7 +2,6 @@
 
 module.exports = {
   excludeFiles: "*.d.ts",
-
   overrides: [
     {
       files: "*.{js,ts,vue,mts}",
