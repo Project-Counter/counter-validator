@@ -13,7 +13,6 @@ declare module 'vue' {
     ChangePassword: typeof import('./components/ChangePassword.vue')['default']
     DateTooltip: typeof import('./components/DateTooltip.vue')['default']
     FilePicker: typeof import('./components/FilePicker.vue')['default']
-    FileUploader: typeof import('./components/FileUploader.vue')['default']
     IsoDateTime: typeof import('./components/IsoDateTime.vue')['default']
     LoginPage: typeof import('./components/LoginPage.vue')['default']
     MsgDialog: typeof import('./components/MsgDialog.vue')['default']

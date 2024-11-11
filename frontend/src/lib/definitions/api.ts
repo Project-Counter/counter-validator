@@ -74,7 +74,7 @@ export type ValidationCore = {
   file_size: number
   used_memory: number
   duration: number
-  stats: Record<string, number>
+  stats: Record<SeverityLevel, number>
 } & ValidationBase
 
 export type Validation = {

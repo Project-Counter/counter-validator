@@ -1,7 +1,7 @@
 <template>
   <span>
     <v-tooltip
-      v-for="[level, value] in Object.entries(item.stats)"
+      v-for="[level, value] in statEntries"
       :key="level"
     >
       <template #activator="{ props }">
@@ -24,10 +24,13 @@
 <script setup lang="ts">
 import { defineProps } from "vue"
 import { ValidationCore, levelColorMap, levelIconMap } from "@/lib/definitions/api"
+import type { Entries } from "type-fest"
 
-defineProps<{
+let p = defineProps<{
   item: ValidationCore
 }>()
+
+const statEntries = computed(() => Object.entries(p.item.stats) as Entries<typeof p.item.stats>)
 </script>
 
 <style scoped></style>
