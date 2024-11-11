@@ -41,6 +41,10 @@
     <template #item.file_size="{ item }">
       {{ filesize(item.file_size) }}
     </template>
+
+    <template #item.stats="{ item }">
+      <StatsPie :item="item" />
+    </template>
   </v-data-table>
 </template>
 
@@ -64,6 +68,7 @@ const headers: ReadonlyHeaders = [
   { key: "cop_version", title: "COP version" },
   { key: "report_code", title: "Report code" },
   { key: "validation_result", title: "Validation result" },
+  { key: "stats", title: "Stats" },
   { key: "created", title: "Time" },
 ]
 

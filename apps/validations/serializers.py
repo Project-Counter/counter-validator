@@ -22,6 +22,7 @@ class ValidationSerializer(serializers.ModelSerializer):
     file_size = serializers.IntegerField(read_only=True, source="core.file_size")
     cop_version = serializers.CharField(read_only=True, source="core.cop_version")
     report_code = serializers.CharField(read_only=True, source="core.report_code")
+    stats = serializers.JSONField(read_only=True, source="core.stats")
 
     class Meta:
         model = Validation
@@ -39,6 +40,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "file_size",
             "cop_version",
             "report_code",
+            "stats",
         )
         read_only_fields = (
             "api_key",

@@ -43,7 +43,8 @@
     </template>
 
     <template #item.stats="{ item }">
-      <StatsChip :item="item" />
+      <StatsPie :item="item" />
+      <!--      <StatsChip :item="item" />-->
     </template>
   </v-data-table>
 </template>
@@ -54,6 +55,7 @@ import { getValidationCores } from "@/lib/http/validation"
 import ValidationResult from "@/components/ValidationResultChip.vue"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
+import StatsPie from "@/components/StatsPie.vue"
 
 const items = ref<ValidationCore[]>([])
 

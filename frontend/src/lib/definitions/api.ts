@@ -68,13 +68,13 @@ export type ValidationBase = {
   platform: string
   platform_name: string
   error_message: string
+  stats: Record<SeverityLevel, number>
 }
 
 export type ValidationCore = {
   file_size: number
   used_memory: number
   duration: number
-  stats: Record<SeverityLevel, number>
 } & ValidationBase
 
 export type Validation = {
