@@ -36,7 +36,11 @@ import { filesize } from "filesize"
 
 const items = ref<ValidationCore[]>([])
 
-const headers = [
+import type { VDataTable } from "vuetify/components"
+
+type ReadonlyHeaders = VDataTable["$props"]["headers"]
+
+const headers: ReadonlyHeaders = [
   { key: "created", title: "Time" },
   { key: "status", title: "Status", width: 1 },
   { key: "cop_version", title: "COP version" },
