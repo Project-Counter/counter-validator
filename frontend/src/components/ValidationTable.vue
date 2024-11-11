@@ -60,6 +60,8 @@ const headers: ReadonlyHeaders = [
   { key: "filename", title: "Filename" },
   { key: "file_size", title: "File size", align: "end" },
   { key: "platform_name", title: "Platform" },
+  { key: "cop_version", title: "COP version" },
+  { key: "report_code", title: "Report code" },
   { key: "validation_result", title: "Validation result" },
   { key: "created", title: "Time" },
 ]

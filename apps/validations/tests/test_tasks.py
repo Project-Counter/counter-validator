@@ -27,6 +27,17 @@ class ResponseMock:
         return {
             "result": {
                 "result": "Warning",
+                "header": {
+                    "report": {"A1": "Foobar"},
+                    "result": ["This is a report", 'for "Foobar"'],
+                    "cop_version": "5",
+                    "report_id": "TR",
+                    "created": "2021-09-30T14:00:00",
+                    "institution_name": "FooBar",
+                    "created_by": "XYZ",
+                    "begin_date": "2024-09-01",
+                    "end_date": "2024-09-30",
+                },
                 "messages": [
                     {
                         "data": "",
@@ -68,6 +79,10 @@ class TestValidationTask:
         json = ResponseMock.json()
         assert "messages" in json["result"]
         assert obj.core.used_memory == json["memory"]
+        assert obj.core.cop_version == "5"
+        assert obj.core.cop_version == json["result"]["header"]["cop_version"]
+        assert obj.core.report_code == "TR"
+        assert obj.core.report_code == json["result"]["header"]["report_id"]
 
     def test_task_success(self, settings):
         file = SimpleUploadedFile("test1.json", b"test data")

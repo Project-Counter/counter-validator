@@ -20,6 +20,8 @@ class ValidationSerializer(serializers.ModelSerializer):
     platform_name = serializers.CharField(read_only=True, source="core.platform_name")
     error_message = serializers.CharField(read_only=True, source="core.error_message")
     file_size = serializers.IntegerField(read_only=True, source="core.file_size")
+    cop_version = serializers.CharField(read_only=True, source="core.cop_version")
+    report_code = serializers.CharField(read_only=True, source="core.report_code")
 
     class Meta:
         model = Validation
@@ -35,6 +37,8 @@ class ValidationSerializer(serializers.ModelSerializer):
             "validation_result",
             "error_message",
             "file_size",
+            "cop_version",
+            "report_code",
         )
         read_only_fields = (
             "api_key",

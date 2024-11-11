@@ -44,6 +44,8 @@ def validate_file(pk: uuid.UUID):
         obj.core.used_memory = json["memory"]
         obj.core.status = ValidationStatus.SUCCESS
         obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
+        obj.core.cop_version = json["result"]["header"].get("cop_version", "")
+        obj.core.report_code = json["result"]["header"].get("report_id", "")
     finally:
         end = time.monotonic()
         obj.core.duration = end - start
