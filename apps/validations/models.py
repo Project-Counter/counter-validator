@@ -10,7 +10,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 
-from validations.enums import SeverityLevel, ValidationStatus
+from validations.enums import MessageKeys, SeverityLevel, ValidationStatus
 from validations.hashing import checksum_fileobj, checksum_string
 
 
@@ -86,6 +86,14 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
 
     def __str__(self):
         return f"{self.pk}: {self.created} - {self.get_status_display()}"
+
+    @classmethod
+    def extract_stats(cls, messages: [dict]) -> dict:
+        stats = {}
+        for message in messages:
+            level = SeverityLevel.by_label(message[MessageKeys.level.value])
+            stats[level.label] = stats.get(level.label, 0) + 1
+        return stats
 
 
 class Validation(UUIDPkMixin, models.Model):

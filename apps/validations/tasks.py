@@ -6,11 +6,10 @@ import uuid
 import celery
 import requests
 from celery.contrib.django.task import DjangoTask
-from counter.classes.registry import RegistrySync
 from django.conf import settings
-from django.db import transaction
+
 from validations.enums import ValidationStatus
-from validations.models import Validation
+from validations.models import Validation, ValidationCore
 
 
 class ValidationTask(DjangoTask):
@@ -18,14 +17,6 @@ class ValidationTask(DjangoTask):
         obj = Validation.objects.get(pk=args[0])
         obj.status = ValidationStatus.FAILURE
         obj.save()
-
-
-@celery.shared_task
-@transaction.atomic
-def update_registry_models(cls=None):
-    if cls is None:
-        cls = RegistrySync()
-    cls.sync()
 
 
 @celery.shared_task(base=ValidationTask)
@@ -50,6 +41,7 @@ def validate_file(pk: uuid.UUID):
     obj.core.used_memory = json["memory"]
     obj.core.duration = end - start
     obj.core.status = ValidationStatus.SUCCESS
+    obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
     obj.core.save()
     obj.save()
 

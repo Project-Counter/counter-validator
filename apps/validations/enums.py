@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.db import models
 
 
@@ -23,3 +25,7 @@ class ValidationStatus(models.IntegerChoices):
     RUNNING = 1
     SUCCESS = 2
     FAILURE = 3
+
+
+class MessageKeys(Enum):
+    level = "l"

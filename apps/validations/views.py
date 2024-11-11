@@ -1,5 +1,4 @@
 # Create your views here.
-from core.tasks import validate_file, validate_sushi
 from counter.serializers import Credentials
 from django.db.transaction import atomic
 from rest_framework import status
@@ -13,6 +12,7 @@ import validations.serializers
 from validations.enums import ValidationStatus
 from validations.models import Validation, ValidationCore
 from validations.serializers import FileValidationCreateSerializer
+from validations.tasks import validate_file, validate_sushi
 
 
 class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):

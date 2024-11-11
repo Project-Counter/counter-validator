@@ -9,7 +9,6 @@ from uuid import UUID
 import pytest
 import requests_mock
 from core.fake_data import UserFactory
-from core.tasks import validate_file
 from counter.fake_data import PlatformFactory
 from django.conf import settings as django_settings
 from django.core.files import File
@@ -19,6 +18,7 @@ from django.urls import reverse
 from validations.enums import SeverityLevel, ValidationStatus
 from validations.fake_data import ValidationFactory
 from validations.models import Validation, ValidationCore
+from validations.tasks import validate_file
 
 
 class ResponseMock:

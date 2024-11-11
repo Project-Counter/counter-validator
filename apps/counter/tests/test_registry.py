@@ -6,11 +6,11 @@ import json
 from pathlib import Path
 
 import pytest
-from core.tasks import update_registry_models
 
 from counter.classes.registry import RegistrySync
 from counter.models import Platform, Report, ReportToPlatform, SushiService
 from counter.serializers import PlatformSerializer, SushiServiceSerializer
+from counter.tasks import update_registry_models
 
 
 class RegistrySyncMock(RegistrySync):
