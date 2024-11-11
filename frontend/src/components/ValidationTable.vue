@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { Validation } from "@/lib/definitions/api"
+import { Status, Validation } from "@/lib/definitions/api"
 import { getValidations } from "@/lib/http/validation"
 import ValidationResult from "@/components/ValidationResultChip.vue"
 import { filesize } from "filesize"
@@ -65,6 +65,10 @@ const headers: ReadonlyHeaders = [
   { key: "validation_result", title: "Validation result" },
   { key: "created", title: "Time" },
 ]
+
+let unfinished = computed(() =>
+  items.value.filter((v) => v.status === Status.RUNNING || v.status === Status.WAITING),
+)
 
 async function load() {
   items.value = await getValidations()

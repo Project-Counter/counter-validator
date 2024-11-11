@@ -163,8 +163,12 @@ const anyError = ref(false)
 
 async function load() {
   loading.value = true
-  platforms.value = await loadPlatforms()
-  loading.value = false
+  try {
+    let recs = await loadPlatforms()
+    platforms.value = recs.sort((a, b) => a.name.localeCompare(b.name))
+  } finally {
+    loading.value = false
+  }
 }
 function addFiles(files: Iterable<File>) {
   for (const file of files) {

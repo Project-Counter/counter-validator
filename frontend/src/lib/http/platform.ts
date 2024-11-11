@@ -11,7 +11,7 @@ export async function loadPlatform(id: string) {
 }
 
 export async function loadPlatforms() {
-  return jsonFetch<Platform>(urls.platform)
+  return jsonFetch<Platform[]>(urls.platform)
 }
 
 export async function loadSushiService(id: string) {

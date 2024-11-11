@@ -17,7 +17,7 @@
   />
   <v-icon
     v-else-if="validation.status == Status.SUCCESS"
-    color="success"
+    color="grey"
     icon="mdi-check"
   />
   <v-tooltip v-else>
