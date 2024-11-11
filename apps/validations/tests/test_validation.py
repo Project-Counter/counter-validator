@@ -63,7 +63,7 @@ class TestValidationAPI:
     def test_api_okay(self, client_authenticated_user):
         filename = "tr.json"
         file = SimpleUploadedFile(filename, content=b"xxx")
-        with patch("core.tasks.validate_file.delay_on_commit") as p:
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("validation-file"),
                 data={"file": file, "platform_name": "test"},
@@ -79,7 +79,7 @@ class TestValidationAPI:
 
     def test_api_empty(self, client_authenticated_user):
         file = SimpleUploadedFile("tr.json", content=b"")
-        with patch("core.tasks.validate_file.delay_on_commit") as p:
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("validation-file"),
                 data={"file": file},
@@ -92,7 +92,7 @@ class TestValidationAPI:
     def test_api_large(self, settings, client_authenticated_user):
         settings.MAX_FILE_SIZE = 1023
         file = SimpleUploadedFile("tr.json", content=b"X" * (settings.MAX_FILE_SIZE + 1))
-        with patch("core.tasks.validate_file.delay_on_commit") as p:
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("validation-file"),
                 data={"file": file},
@@ -128,7 +128,7 @@ class TestValidationAPI:
         pl_data = {"platform_name": platform_name}
         if platform_id:
             pl_data["platform"] = platform_id
-        with patch("core.tasks.validate_file.delay_on_commit") as p:
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("validation-file"),
                 data={"file": file, **pl_data},

@@ -91,8 +91,9 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     def extract_stats(cls, messages: [dict]) -> dict:
         stats = {}
         for message in messages:
-            level = SeverityLevel.by_label(message[MessageKeys.level.value])
-            stats[level.label] = stats.get(level.label, 0) + 1
+            if lvl := message.get(MessageKeys.level.value):
+                level = SeverityLevel.by_label(lvl)
+                stats[level.label] = stats.get(level.label, 0) + 1
         return stats
 
 
