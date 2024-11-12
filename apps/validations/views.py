@@ -1,4 +1,4 @@
-# Create your views here.
+from core.permissions import HasUserAPIKey
 from counter.serializers import Credentials
 from django.db.transaction import atomic
 from rest_framework import status
@@ -16,7 +16,7 @@ from validations.tasks import validate_file, validate_sushi
 
 
 class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated | HasUserAPIKey]
     serializer_class = validations.serializers.ValidationSerializer
 
     def get_serializer_class(self):

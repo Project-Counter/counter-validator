@@ -3,12 +3,13 @@ import string
 from typing import IO
 
 from core.mixins import CreatedUpdatedMixin, UUIDPkMixin
-from core.models import User, UserApiKey
+from core.models import User
 from counter.models import Platform
 from django.conf import settings
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
+from rest_framework_api_key.models import APIKey
 
 from validations.enums import MessageKeys, SeverityLevel, ValidationStatus
 from validations.hashing import checksum_fileobj, checksum_string
@@ -101,7 +102,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
 class Validation(UUIDPkMixin, models.Model):
     core = models.OneToOneField(ValidationCore, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    api_key = models.ForeignKey(UserApiKey, null=True, on_delete=models.CASCADE)
+    api_key_prefix = models.CharField(max_length=8, blank=True)
 
     task_id = models.CharField(
         max_length=getattr(settings, "DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH", 255),
@@ -140,8 +141,10 @@ class Validation(UUIDPkMixin, models.Model):
         platform: Platform | None = None,
         platform_name: str = "",
         user_note: str = "",
+        api_key: APIKey | None = None,
     ) -> "Validation":
         file_checksum, file_size = checksum_fileobj(file)
+        api_key_prefix = api_key.prefix if api_key else ""
         core = ValidationCore.objects.create(
             status=ValidationStatus.WAITING,
             platform=platform,
@@ -156,5 +159,6 @@ class Validation(UUIDPkMixin, models.Model):
             filename=file.name,
             file=file,
             user_note=user_note,
+            api_key_prefix=api_key_prefix,
         )
         return validation

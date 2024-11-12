@@ -162,3 +162,28 @@ class TestValidationAPI:
 
         assert not Validation.objects.filter(pk=v.pk).exists()
         assert ValidationCore.objects.filter(pk=core_id).exists()
+
+    def test_validation_list_with_api_key(self, client_with_api_key, normal_user):
+        ValidationFactory.create_batch(10, user=normal_user)
+        res = client_with_api_key.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 10
+
+    def test_create_with_api_key(self, client_with_api_key, normal_user):
+        filename = "tr.json"
+        file = SimpleUploadedFile(filename, content=b"xxx")
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_with_api_key.post(
+                reverse("validation-file"),
+                data={"file": file, "platform_name": "test"},
+                format="multipart",
+            )
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        assert res.status_code == 201
+        assert res.json()["filename"] == filename
+        val = Validation.objects.select_related("core").get()
+        assert val.filename == filename
+        assert val.core.platform_name == "test"
+        assert str(val.pk) == res.json()["id"]
+        assert val.user == normal_user
+        assert val.api_key_prefix == client_with_api_key.api_key_prefix_

@@ -79,12 +79,14 @@ class FileValidationCreateSerializer(serializers.Serializer):
 
     def create(self, validated_data) -> Validation:
         platform = validated_data.get("platform")
+        api_key = getattr(self.context["request"], "api_key", None)
         return Validation.create_from_file(
             user=self.context["request"].user,
             file=validated_data["file"],
             platform=platform,
             platform_name=platform.name if platform else validated_data.get("platform_name", ""),
             user_note=validated_data.get("user_note", ""),
+            api_key=api_key,
         )
 
 
