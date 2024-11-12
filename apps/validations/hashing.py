@@ -1,4 +1,5 @@
 import hashlib
+import json
 from typing import IO
 
 from django.conf import settings
@@ -37,3 +38,10 @@ def checksum_string(string: str) -> str:
     hasher = create_hasher()
     hasher.update(string.encode("utf-8"))
     return hasher.hexdigest()
+
+
+def checksum_dict(data: dict) -> str:
+    """
+    Calculate the checksum of a dictionary based on its JSON representation.
+    """
+    return checksum_string(json.dumps(data, sort_keys=True, ensure_ascii=False))

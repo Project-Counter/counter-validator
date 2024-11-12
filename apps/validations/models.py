@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from rest_framework_api_key.models import APIKey
 
 from validations.enums import MessageKeys, SeverityLevel, ValidationStatus
-from validations.hashing import checksum_fileobj, checksum_string
+from validations.hashing import checksum_dict, checksum_fileobj, checksum_string
 
 
 # Create your models here.
@@ -162,3 +162,18 @@ class Validation(UUIDPkMixin, models.Model):
             user_note=user_note,
         )
         return validation
+
+
+class CounterAPIValidation(Validation):
+    """
+    This is a special validation for the Counter API (SUSHI).
+    """
+
+    credentials = models.JSONField(
+        help_text="Credentials for the SUSHI service used for the validation"
+    )
+
+    def save(self, *args, **kwargs):
+        self.core.sushi_credentials_checksum = checksum_dict(self.credentials)
+        self.core.save()
+        super().save(*args, **kwargs)
