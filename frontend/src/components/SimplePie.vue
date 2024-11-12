@@ -14,6 +14,14 @@
         :fill="path.color"
       ></path>
     </g>
+    <!-- white transparent foreground to lighten the colors -->
+    <rect
+      x="-1"
+      y="-1"
+      width="2"
+      height="2"
+      fill="#ffffff4f"
+    />
   </svg>
 </template>
 
@@ -32,8 +40,6 @@ let props = withDefaults(
     size: 32,
   },
 )
-
-// let sizeSum: number = computed(() => props.parts.map((item) => item.size).reduce((x, y) => x + y))
 
 type Chunk = {
   startX: number

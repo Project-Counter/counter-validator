@@ -1,32 +1,30 @@
 <template>
   <span>
-    <v-tooltip>
+    <v-tooltip v-if="Object.keys(p.item.stats).length > 0">
       <template #activator="{ props }">
         <span v-bind="props">
           <SimplePie :parts="statParts" />
         </span>
       </template>
-      <span>
-        <table>
-          <tbody>
-            <tr
-              v-for="(value, level) in p.item.stats"
-              :key="level"
-            >
-              <td class="me-3 text-caption text-right">{{ value }}</td>
+      <table>
+        <tbody>
+          <tr
+            v-for="(value, level) in p.item.stats"
+            :key="level"
+          >
+            <td class="me-3 text-caption text-right">{{ value }}</td>
 
-              <td>
-                <v-icon
-                  :color="levelColorMap.get(level)"
-                  size="16"
-                  >mdi-circle</v-icon
-                >
-              </td>
-              <td>{{ level }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </span>
+            <td>
+              <v-icon
+                :color="levelColorMap.get(level)"
+                size="16"
+                >mdi-circle</v-icon
+              >
+            </td>
+            <td>{{ level }}</td>
+          </tr>
+        </tbody>
+      </table>
     </v-tooltip>
   </span>
 </template>
