@@ -7,7 +7,6 @@ from .models import Validation, ValidationCore
 
 
 class ValidationSerializer(serializers.ModelSerializer):
-    api_key = serializers.PrimaryKeyRelatedField(read_only=True)
     file = serializers.FileField(write_only=True)
     validation_result = serializers.CharField(
         read_only=True, source="core.get_validation_result_display"
@@ -23,12 +22,12 @@ class ValidationSerializer(serializers.ModelSerializer):
     cop_version = serializers.CharField(read_only=True, source="core.cop_version")
     report_code = serializers.CharField(read_only=True, source="core.report_code")
     stats = serializers.JSONField(read_only=True, source="core.stats")
+    api_key_prefix = serializers.CharField(read_only=True)
 
     class Meta:
         model = Validation
         fields = (
             "id",
-            "api_key",
             "file",
             "status",
             "created",
@@ -41,11 +40,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "cop_version",
             "report_code",
             "stats",
-        )
-        read_only_fields = (
-            "api_key",
-            "status",
-            "created",
+            "api_key_prefix",
         )
 
 
@@ -54,7 +49,6 @@ class ValidationDetailSerializer(ValidationSerializer):
 
     class Meta(ValidationSerializer.Meta):
         fields = ValidationSerializer.Meta.fields + ("result_data",)
-        read_only_fields = ValidationSerializer.Meta.read_only_fields + ("result_data",)
 
 
 class FileValidationCreateSerializer(serializers.Serializer):

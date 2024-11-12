@@ -116,6 +116,7 @@ class TestValidationAPI:
             assert "file_size" in first
             assert "cop_version" in first
             assert "report_code" in first
+            assert "api_key_prefix" in first
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -147,6 +148,7 @@ class TestValidationAPI:
             assert "file_size" in data
             assert "cop_version" in data
             assert "report_code" in data
+            assert "api_key_prefix" in data
 
     def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):
         """
@@ -187,3 +189,4 @@ class TestValidationAPI:
         assert str(val.pk) == res.json()["id"]
         assert val.user == normal_user
         assert val.api_key_prefix == client_with_api_key.api_key_prefix_
+        assert val.api_key_prefix == res.json()["api_key_prefix"]

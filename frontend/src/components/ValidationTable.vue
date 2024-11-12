@@ -42,6 +42,10 @@
       {{ filesize(item.file_size) }}
     </template>
 
+    <template #item.api_key_prefix="{ item }">
+      <v-icon color="disabled">{{ item.api_key_prefix === "" ? "mdi-account" : "mdi-api" }}</v-icon>
+    </template>
+
     <template #item.stats="{ item }">
       <StatsPie :item="item" />
     </template>
@@ -62,6 +66,7 @@ type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
 const headers: ReadonlyHeaders = [
   { key: "status", title: "Status", width: 1 },
+  { key: "api_key_prefix", title: "Submission method" },
   { key: "filename", title: "Filename" },
   { key: "file_size", title: "File size", align: "end" },
   { key: "platform_name", title: "Platform" },

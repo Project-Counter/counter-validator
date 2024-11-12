@@ -81,6 +81,7 @@ export type Validation = {
   api_key?: number
   filename?: string
   file_size: number
+  api_key_prefix: string
 } & ValidationBase
 
 export const levelColorMap = new Map<SeverityLevel, string>([
