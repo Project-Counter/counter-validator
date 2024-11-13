@@ -8,3 +8,7 @@ omit =
   */migrations/*
   */management/*
   config/settings/devel.py
+  tools/*
+  config/asgi.py
+  config/wsgi.py
+  manage.py
