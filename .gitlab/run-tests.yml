@@ -12,6 +12,7 @@ tests:run_tests:
     POSTGRES_HOST: postgres
     DB_HOST: postgres
     DB_PASSWORD: coval
+    REDIS_URL: "redis://redis:6379/1"
   before_script:
     - apt-get update && apt-get install -y curl
     - export PATH="$PATH:/root/.local/bin"
