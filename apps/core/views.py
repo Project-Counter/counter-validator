@@ -1,9 +1,10 @@
 import logging
 
-from rest_framework import mixins, status
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ModelViewSet
 
 from . import serializers
 from .models import UserApiKey
@@ -11,9 +12,10 @@ from .models import UserApiKey
 logger = logging.getLogger(__name__)
 
 
-class UserApiKeyViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+class UserApiKeyViewSet(ModelViewSet):
     lookup_field = "prefix"
     serializer_class = serializers.UserApiKeySerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return self.request.user.userapikey_set
