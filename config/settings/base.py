@@ -66,6 +66,10 @@ REST_FRAMEWORK = {
     ],
     "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
+    "DEFAULT_THROTTLE_CLASSES": ["core.throttling.APIKeyBasedThrottle"],
+    "DEFAULT_THROTTLE_RATES": {
+        "api_keys": "10/minute",
+    },
 }
 
 

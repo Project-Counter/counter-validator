@@ -190,3 +190,31 @@ class TestValidationAPI:
         assert val.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
+
+
+@pytest.mark.django_db
+class TestValidationAPIThrottling:
+    def test_list_with_api_key(self, client_with_api_key, normal_user, settings):
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+        ValidationFactory.create_batch(10, user=normal_user)
+        res = client_with_api_key.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 10
+        # second request should be throttled
+        res = client_with_api_key.get(reverse("validation-list"))
+        assert res.status_code == 429
+        assert "Request was throttled" in res.json()["detail"]
+
+    def test_list_as_normal_user(self, client_authenticated_user, normal_user, settings):
+        """
+        Normal access (with cookie based authentication) should not be throttled.
+        """
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+        ValidationFactory.create_batch(10, user=normal_user)
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 10
+        # second request should not be throttled
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 10
