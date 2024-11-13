@@ -22,7 +22,7 @@ class ValidationSerializer(serializers.ModelSerializer):
     cop_version = serializers.CharField(read_only=True, source="core.cop_version")
     report_code = serializers.CharField(read_only=True, source="core.report_code")
     stats = serializers.JSONField(read_only=True, source="core.stats")
-    api_key_prefix = serializers.CharField(read_only=True)
+    api_key_prefix = serializers.CharField(read_only=True, source="core.api_key_prefix")
 
     class Meta:
         model = Validation

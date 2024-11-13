@@ -43,6 +43,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     )
     status = models.SmallIntegerField(choices=ValidationStatus, default=ValidationStatus.WAITING)
     user_email_checksum = models.CharField(max_length=2 * settings.HASHING_DIGEST_SIZE)
+    api_key_prefix = models.CharField(max_length=8, blank=True)
 
     platform = models.ForeignKey(
         Platform,
@@ -102,7 +103,6 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
 class Validation(UUIDPkMixin, models.Model):
     core = models.OneToOneField(ValidationCore, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    api_key_prefix = models.CharField(max_length=8, blank=True)
 
     task_id = models.CharField(
         max_length=getattr(settings, "DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH", 255),
@@ -152,6 +152,7 @@ class Validation(UUIDPkMixin, models.Model):
             file_size=file_size,
             file_checksum=file_checksum,
             user_email_checksum=checksum_string(user.email),
+            api_key_prefix=api_key_prefix,
         )
         validation = cls.objects.create(
             core=core,
@@ -159,6 +160,5 @@ class Validation(UUIDPkMixin, models.Model):
             filename=file.name,
             file=file,
             user_note=user_note,
-            api_key_prefix=api_key_prefix,
         )
         return validation

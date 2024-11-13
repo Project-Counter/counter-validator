@@ -188,5 +188,5 @@ class TestValidationAPI:
         assert val.core.platform_name == "test"
         assert str(val.pk) == res.json()["id"]
         assert val.user == normal_user
-        assert val.api_key_prefix == client_with_api_key.api_key_prefix_
-        assert val.api_key_prefix == res.json()["api_key_prefix"]
+        assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
+        assert val.core.api_key_prefix == res.json()["api_key_prefix"]
