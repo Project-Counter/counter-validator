@@ -5,21 +5,6 @@
     :mobile="null"
     no-data-text="No validations in your history"
   >
-    <template #top>
-      <v-row>
-        <v-col>
-          <v-btn
-            color="primary"
-            size="large"
-            :to="{ name: '/validation/file' }"
-          >
-            <v-icon class="me-2"> mdi-file-cog-outline </v-icon>
-            Validate a file
-          </v-btn>
-        </v-col>
-      </v-row>
-    </template>
-
     <template #item.status="{ item }">
       <validation-status :validation="item" />
     </template>

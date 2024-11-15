@@ -15,6 +15,7 @@ declare module 'vue' {
     FilePicker: typeof import('./components/FilePicker.vue')['default']
     IsoDateTime: typeof import('./components/IsoDateTime.vue')['default']
     LoginPage: typeof import('./components/LoginPage.vue')['default']
+    MonthPicker: typeof import('./components/MonthPicker.vue')['default']
     MsgDialog: typeof import('./components/MsgDialog.vue')['default']
     NewFileValidation: typeof import('./components/NewFileValidation.vue')['default']
     NewSushiValidation: typeof import('./components/NewSushiValidation.vue')['default']

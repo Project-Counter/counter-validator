@@ -85,21 +85,37 @@
             />
           </v-col>
         </v-row>
+      </v-form>
+    </template>
 
-        <!--        <div class="text-end my-5 ">-->
-        <!--          <v-btn-->
-        <!--            class="ma-2"-->
-        <!--            prepend-icon="mdi-help-circle-outline"-->
-        <!--          >-->
-        <!--            Get status-->
-        <!--          </v-btn>-->
-        <!--          <v-btn-->
-        <!--            class="ma-2"-->
-        <!--            prepend-icon="mdi-account-multiple"-->
-        <!--          >-->
-        <!--            Get members-->
-        <!--          </v-btn>-->
-        <!--        </div>-->
+    <template #item.2>
+      <v-form>
+        <h2 class="mb-3">Report selection</h2>
+        <v-row>
+          <v-col>
+            <v-select
+              v-model="cop"
+              label="CoP version"
+              :items="copItems"
+            ></v-select>
+          </v-col>
+          <v-col>
+            <v-select
+              v-model="reportCode"
+              label="Report code"
+              :items="reportCodes"
+            ></v-select>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <MonthPicker v-model="beginDate"></MonthPicker>
+          </v-col>
+          <v-col>
+            <MonthPicker v-model="endDate"></MonthPicker>
+          </v-col>
+        </v-row>
       </v-form>
     </template>
   </v-stepper>
@@ -109,21 +125,22 @@
 import { Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
+import { CoP, ReportCode } from "@/lib/definitions/counter"
+import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 
 const stepper = ref(0)
 const formValid = ref(false)
 const platforms = shallowRef()
 const platform = ref(null)
-// const sushiService = reactive<SushiService>({
-//   id: "",
-//   counter_release: "",
-//   url: "",
-//   ip_address_authorization: undefined,
-//   api_key_required: undefined,
-//   platform_attr_required: undefined,
-//   requestor_id_required: undefined,
-//   deprecated: false,
-// })
+const cop = ref<CoP>("5")
+const reportCode = ref<ReportCode>(ReportCode.TR)
+const lastMonth = addMonths(new Date(), -1)
+const beginDate = ref(startOfMonth(lastMonth))
+const endDate = ref(endOfMonth(lastMonth))
+
+const copItems = ["5", "5.1"]
+const reportCodes = Object.values(ReportCode)
+
 const loading = ref(false)
 const loadingPlatforms = ref(true)
 
@@ -135,6 +152,9 @@ const credentials = reactive<Credentials>({
   api_key: "",
 })
 
+// computed
+// const availableReports =
+// methods
 async function update() {
   if (!platform.value) return
   loading.value = true
@@ -148,12 +168,6 @@ async function load() {
   platforms.value = await loadPlatforms()
   loadingPlatforms.value = false
 }
-
-// async function submit() {
-//   await validateSushi(credentials)
-// }
-
-// watch(stepper, submit)
 
 load().then()
 </script>
