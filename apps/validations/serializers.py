@@ -3,7 +3,9 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import Validation, ValidationCore
+from .enums import ValidationStatus
+from .hashing import checksum_string
+from .models import CounterAPIValidation, Validation, ValidationCore
 
 
 class ValidationSerializer(serializers.ModelSerializer):
@@ -26,7 +28,7 @@ class ValidationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Validation
-        fields = (
+        fields = [
             "id",
             "file",
             "status",
@@ -41,14 +43,14 @@ class ValidationSerializer(serializers.ModelSerializer):
             "report_code",
             "stats",
             "api_key_prefix",
-        )
+        ]
 
 
 class ValidationDetailSerializer(ValidationSerializer):
     result_data = serializers.ReadOnlyField()
 
     class Meta(ValidationSerializer.Meta):
-        fields = ValidationSerializer.Meta.fields + ("result_data",)
+        fields = ValidationSerializer.Meta.fields + ["result_data"]
 
 
 class FileValidationCreateSerializer(serializers.Serializer):
@@ -81,6 +83,62 @@ class FileValidationCreateSerializer(serializers.Serializer):
             platform_name=platform.name if platform else validated_data.get("platform_name", ""),
             user_note=validated_data.get("user_note", ""),
             api_key=api_key,
+        )
+
+
+class CounterAPIValidationSerializer(ValidationSerializer):
+    class Meta:
+        model = CounterAPIValidation
+        fields = ValidationSerializer.Meta.fields + [
+            "url",
+            "requested_cop_version",
+            "requested_report_code",
+            "requested_begin_date",
+            "requested_end_date",
+            "requested_extra_attributes",
+            "credentials",
+            "api_endpoint",
+        ]
+
+
+class CredentialsSerializer(serializers.Serializer):
+    requestor_id = serializers.CharField()
+    customer_id = serializers.CharField()
+    api_key = serializers.CharField()
+
+
+class CounterAPIValidationCreateSerializer(serializers.Serializer):
+    """
+    Serializer to create a new COUNTER API validation from a POST request.
+    """
+
+    credentials = CredentialsSerializer()
+    url = serializers.URLField()
+    cop_version = serializers.CharField()
+    report_code = serializers.CharField()
+    begin_date = serializers.DateField()
+    end_date = serializers.DateField()
+    extra_attributes = serializers.JSONField(default=dict)
+
+    def create(self, validated_data) -> CounterAPIValidation:
+        user = self.context["request"].user
+        api_key = getattr(self.context["request"], "api_key", None)
+        core = ValidationCore.objects.create(
+            status=ValidationStatus.WAITING,
+            user_email_checksum=checksum_string(user.email),
+            api_key_prefix=api_key.prefix if api_key else "",
+        )
+
+        return CounterAPIValidation.objects.create(
+            core=core,
+            user=user,
+            url=validated_data["url"],
+            requested_cop_version=validated_data["cop_version"],
+            requested_report_code=validated_data["report_code"],
+            requested_begin_date=validated_data["begin_date"],
+            requested_end_date=validated_data["end_date"],
+            requested_extra_attributes=validated_data["extra_attributes"],
+            credentials=validated_data["credentials"],
         )
 
 

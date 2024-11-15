@@ -1,17 +1,18 @@
 from core.permissions import HasUserAPIKey
-from counter.serializers import Credentials
 from django.db.transaction import atomic
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 import validations.serializers
-from validations.enums import ValidationStatus
-from validations.models import Validation, ValidationCore
-from validations.serializers import FileValidationCreateSerializer
+from validations.models import ValidationCore
+from validations.serializers import (
+    CounterAPIValidationCreateSerializer,
+    FileValidationCreateSerializer,
+)
 from validations.tasks import validate_file, validate_sushi
 
 
@@ -47,16 +48,20 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         # sleep(2)
         return Response(out_serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=("POST",))
-    def sushi(self, request):
-        obj = Validation.objects.create(
-            user=request.user,
-            status=ValidationStatus.WAITING,
+
+class CounterAPIValidationViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated | HasUserAPIKey]
+    serializer_class = validations.serializers.CounterAPIValidationSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = CounterAPIValidationCreateSerializer(
+            data=request.data, context={"request": request}
         )
-        serializer = Credentials(data=request.data)
         serializer.is_valid(raise_exception=True)
-        validate_sushi.delay_on_commit(obj.pk, serializer.validated_data)
-        return Response(status=status.HTTP_201_CREATED)
+        obj = serializer.save()
+        validate_sushi.delay_on_commit(obj.pk)
+        out_serializer = self.get_serializer(obj)
+        return Response(out_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ValidationCoreViewSet(ReadOnlyModelViewSet):

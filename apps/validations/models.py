@@ -1,6 +1,7 @@
 import os
 import string
 from typing import IO
+from urllib.parse import urlencode, urljoin
 
 from core.mixins import CreatedUpdatedMixin, UUIDPkMixin
 from core.models import User
@@ -169,11 +170,50 @@ class CounterAPIValidation(Validation):
     This is a special validation for the Counter API (SUSHI).
     """
 
+    COP_TO_URL_PREFIX = {"5.1": "/r51"}
+
     credentials = models.JSONField(
-        help_text="Credentials for the SUSHI service used for the validation"
+        default=dict, help_text="Credentials for the SUSHI service used for the validation"
     )
+    url = models.URLField(help_text="URL of the SUSHI service")
+    api_endpoint = models.CharField(default="reports", max_length=64)
+    requested_cop_version = models.CharField(
+        max_length=16,
+        blank=True,
+        help_text="COUNTER CoP version requested from the server",
+    )
+    requested_report_code = models.CharField(
+        max_length=16,
+        blank=True,
+        help_text="Report code requested from the server",
+    )
+    requested_extra_attributes = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Extra attributes for the SUSHI request, e.g. report filters",
+    )
+    requested_begin_date = models.DateField()
+    requested_end_date = models.DateField()
 
     def save(self, *args, **kwargs):
         self.core.sushi_credentials_checksum = checksum_dict(self.credentials)
         self.core.save()
         super().save(*args, **kwargs)
+
+    def get_url(self):
+        return (
+            urljoin(
+                self.url,
+                f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}"
+                f"/reports/{self.requested_report_code.lower()}",
+            )
+            + "?"
+            + urlencode(
+                self.credentials
+                | {
+                    "begin_date": self.requested_begin_date,
+                    "end_date": self.requested_end_date,
+                    **self.requested_extra_attributes,
+                }
+            )
+        )

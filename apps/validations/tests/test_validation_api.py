@@ -1,17 +1,18 @@
 from unittest.mock import patch
 from uuid import UUID
 
+import factory
 import pytest
 from counter.fake_data import PlatformFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from validations.fake_data import ValidationFactory
+from validations.fake_data import CounterAPIValidationRequestDataFactory, ValidationFactory
 from validations.models import Validation, ValidationCore
 
 
 @pytest.mark.django_db
-class TestValidationAPI:
+class TestFileValidationAPI:
     def test_api_okay(self, client_authenticated_user):
         filename = "tr.json"
         file = SimpleUploadedFile(filename, content=b"xxx")
@@ -218,3 +219,29 @@ class TestValidationAPIThrottling:
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
         assert len(res.json()) == 10
+
+
+@pytest.mark.django_db
+class TestCounterAPIValidationAPI:
+    def test_create(self, client_authenticated_user):
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        with patch("validations.tasks.validate_sushi.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        val = Validation.objects.select_related("core").get()
+        assert str(val.pk) == res.json()["id"]
+        assert "url" in res.json()
+        assert "credentials" in res.json()
+        assert "requested_cop_version" in res.json()
+        assert "cop_version" in res.json()
+        assert "requested_report_code" in res.json()
+        assert "report_code" in res.json()
+        assert "api_endpoint" in res.json()
+        assert "requested_extra_attributes" in res.json()
+        assert "requested_begin_date" in res.json()
+        assert "requested_end_date" in res.json()
