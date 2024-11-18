@@ -107,8 +107,6 @@ export type ValidationDetail = Validation & {
 }
 
 export type Credentials = {
-  url: string
-  platform?: string
   customer_id: string
   requestor_id?: string
   api_key?: string

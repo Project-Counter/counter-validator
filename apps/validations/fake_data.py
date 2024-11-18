@@ -60,16 +60,14 @@ class CounterAPIValidationFactory(ValidationFactory):
     requested_begin_date = factory.LazyFunction(
         lambda: fake.date_this_decade(before_today=True).replace(day=1)
     )
-    requested_end_date = factory.LazyAttribute(lambda o: month_end(o.begin_date))
+    requested_end_date = factory.LazyAttribute(lambda o: month_end(o.requested_begin_date))
     requested_extra_attributes = factory.LazyFunction(dict)
 
     @factory.post_generation
     def credentials(self, create, extracted, **kwargs):
-        print("asldfjsdfklsdjf")
         if extracted:
             self.credentials = extracted
         else:
             self.credentials = factory.build(
                 dict, FACTORY_CLASS=CounterAPICredentialsFactory, **kwargs
             )
-        print(self.credentials)

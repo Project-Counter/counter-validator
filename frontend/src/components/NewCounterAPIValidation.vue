@@ -118,6 +118,45 @@
         </v-row>
       </v-form>
     </template>
+
+    <template #item.3>
+      <v-sheet>
+        <h2 class="mb-3">Overview & validation</h2>
+        <v-row>
+          <v-col>
+            <table>
+              <tbody>
+                <tr>
+                  <th>Server URL</th>
+                  <td>{{ url }}</td>
+                </tr>
+                <tr>
+                  <th>Credentials</th>
+                  <td>{{ credentials }}</td>
+                </tr>
+                <tr>
+                  <th>Report</th>
+                  <td>{{ cop }} / {{ reportCode }}</td>
+                </tr>
+                <tr>
+                  <th>Period</th>
+                  <td>{{ isoDate(beginDate) }} - {{ isoDate(endDate) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn
+              color="primary"
+              @click="create"
+              >Validate</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-sheet>
+    </template>
   </v-stepper>
 </template>
 
@@ -126,9 +165,11 @@ import { Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
-import { addMonths, endOfMonth, startOfMonth } from "date-fns"
+import { addMonths, endOfMonth, formatISO, startOfMonth } from "date-fns"
+import { validateCounterAPI } from "@/lib/http/validation"
+import { isoDate } from "../lib/datetime"
 
-const stepper = ref(0)
+const stepper = ref(3)
 const formValid = ref(false)
 const platforms = shallowRef()
 const platform = ref(null)
@@ -145,12 +186,11 @@ const loading = ref(false)
 const loadingPlatforms = ref(true)
 
 const credentials = reactive<Credentials>({
-  url: "",
-  platform: "",
-  customer_id: "",
+  customer_id: "aaa",
   requestor_id: "",
   api_key: "",
 })
+const url = ref("https://sashimi.celus.net/")
 
 // computed
 // const availableReports =
@@ -159,7 +199,7 @@ async function update() {
   if (!platform.value) return
   loading.value = true
   const c = await loadSushiService((await loadPlatform(platform.value)).sushi_services[0])
-  credentials.url = c.url
+  url.value = c.url
   loading.value = false
 }
 
@@ -169,5 +209,19 @@ async function load() {
   loadingPlatforms.value = false
 }
 
-load().then()
+async function create() {
+  console.log("create")
+  await validateCounterAPI(
+    credentials,
+    url.value,
+    cop.value,
+    reportCode.value,
+    beginDate.value,
+    endDate.value,
+  )
+}
+
+onMounted(() => {
+  load().then()
+})
 </script>

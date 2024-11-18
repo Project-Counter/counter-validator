@@ -13,7 +13,7 @@ from validations.serializers import (
     CounterAPIValidationCreateSerializer,
     FileValidationCreateSerializer,
 )
-from validations.tasks import validate_file, validate_sushi
+from validations.tasks import validate_counter_api, validate_file
 
 
 class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
@@ -59,7 +59,7 @@ class CounterAPIValidationViewSet(ModelViewSet):
         )
         serializer.is_valid(raise_exception=True)
         obj = serializer.save()
-        validate_sushi.delay_on_commit(obj.pk)
+        validate_counter_api.delay_on_commit(obj.pk)
         out_serializer = self.get_serializer(obj)
         return Response(out_serializer.data, status=status.HTTP_201_CREATED)
 

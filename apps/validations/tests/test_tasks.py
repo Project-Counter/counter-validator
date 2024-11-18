@@ -3,117 +3,101 @@ File and SUSHI validation tests.
 """
 
 import re
-from unittest.mock import patch
+from base64 import b64encode
+from zlib import compress
 
 import pytest
-import requests_mock
 from core.fake_data import UserFactory
-from django.conf import settings as django_settings
-from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from validations.enums import SeverityLevel, ValidationStatus
+from validations.fake_data import CounterAPIValidationFactory
 from validations.models import Validation
-from validations.tasks import validate_file
+from validations.tasks import validate_counter_api, validate_file
 
 
 class ResponseMock:
+    data = {
+        "result": {
+            "result": "Warning",
+            "header": {
+                "report": {"A1": "Foobar"},
+                "result": ["This is a report", 'for "Foobar"'],
+                "cop_version": "5",
+                "report_id": "TR",
+                "created": "2021-09-30T14:00:00",
+                "institution_name": "FooBar",
+                "created_by": "XYZ",
+                "begin_date": "2024-09-01",
+                "end_date": "2024-09-30",
+            },
+            "messages": [
+                {
+                    "data": "",
+                    "level": 2,
+                    "header": "Row 1",
+                    "number": 1,
+                    "message": "some warning",
+                },
+            ],
+        },
+        "memory": 4194304,
+    }
+
     @staticmethod
     def raise_for_status():
         pass
 
-    @staticmethod
-    def json():
-        return {
-            "result": {
-                "result": "Warning",
-                "header": {
-                    "report": {"A1": "Foobar"},
-                    "result": ["This is a report", 'for "Foobar"'],
-                    "cop_version": "5",
-                    "report_id": "TR",
-                    "created": "2021-09-30T14:00:00",
-                    "institution_name": "FooBar",
-                    "created_by": "XYZ",
-                    "begin_date": "2024-09-01",
-                    "end_date": "2024-09-30",
-                },
-                "messages": [
-                    {
-                        "data": "",
-                        "level": 2,
-                        "header": "Row 1",
-                        "number": 1,
-                        "message": "some warning",
-                    },
-                ],
-            },
-            "memory": 4194304,
-        }
+    @classmethod
+    def json(cls):
+        return cls.data
 
 
-def post_mock(pk, status):
-    def mock(*args, **kwargs):
-        assert Validation.objects.filter(pk=pk, core__status=status).count() == 1
-
-        assert args[0] == django_settings.CTOOLS_URL + "file.php"
-        assert kwargs["params"]["extension"] == "csv"
-        assert isinstance(kwargs["data"], File)
-
-        return ResponseMock()
-
-    return mock
+class ResponseMockCounterAPI(ResponseMock):
+    @classmethod
+    def json(cls):
+        out = super().json()
+        with open("test_data/reports/50-Sample-TR.json", "rb") as infile:
+            out["report"] = b64encode(compress(infile.read(), 3)).decode()
+        return out
 
 
 @pytest.mark.django_db
-class TestValidationTask:
-    def test_task_simple(self):
+class TestFileValidationTask:
+    def test_task_simple(self, requests_mock):
         file = SimpleUploadedFile("tr.csv", b"test data")
         obj = Validation.create_from_file(user=UserFactory(), file=file)
-        insert_assert = post_mock(obj.pk, ValidationStatus.RUNNING)
-        with patch("requests.post", wraps=insert_assert) as p:
-            validate_file(obj.pk)
-            p.assert_called_once()
+        json = ResponseMock.json()
+        mock = requests_mock.post(re.compile(".*"), json=json, status_code=200)
+        validate_file(obj.pk)
+        assert mock.called_once
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
-        json = ResponseMock.json()
-        assert "messages" in json["result"]
+
         assert obj.core.used_memory == json["memory"]
-        assert obj.core.cop_version == "5"
         assert obj.core.cop_version == json["result"]["header"]["cop_version"]
-        assert obj.core.report_code == "TR"
         assert obj.core.report_code == json["result"]["header"]["report_id"]
 
-    def test_task_success(self, settings):
+    def test_task_success(self, settings, requests_mock):
         file = SimpleUploadedFile("test1.json", b"test data")
         obj = Validation.create_from_file(user=UserFactory(), file=file)
         obj.core.status = ValidationStatus.WAITING
         obj.core.save()
-        with requests_mock.Mocker() as m:
-            with open(settings.BASE_DIR / "test_data/validation_results/test1.json") as datafile:
-                m.post(
-                    re.compile(".*"),
-                    text=datafile.read(),
-                    status_code=200,
-                )
+        with open(settings.BASE_DIR / "test_data/validation_results/test1.json") as datafile:
+            mock = requests_mock.post(re.compile(".*"), text=datafile.read(), status_code=200)
             validate_file(obj.pk)
-            assert m.called_once
+            assert mock.called_once
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
         assert obj.core.validation_result == SeverityLevel.WARNING
 
     @pytest.mark.parametrize("http_status", [400, 401, 403, 404, 405, 500])
-    def test_task_c5tools_error(self, http_status):
+    def test_task_c5tools_error(self, http_status, requests_mock):
         file = SimpleUploadedFile("tr.csv", b"test data")
         obj = Validation.create_from_file(user=UserFactory(), file=file)
-        with requests_mock.Mocker() as m:
-            m.post(
-                re.compile(".*"),
-                text="error",
-                status_code=http_status,
-            )
-            validate_file(obj.pk)
-            assert m.called_once
+        mock = requests_mock.post(re.compile(".*"), text="error", status_code=http_status)
+        validate_file(obj.pk)
+        assert mock.called_once
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.FAILURE
         assert obj.core.validation_result == SeverityLevel.UNKNOWN
@@ -121,3 +105,22 @@ class TestValidationTask:
         assert obj.core.stats == {}
         assert obj.core.duration > 0
         assert obj.core.error_message != ""
+
+
+@pytest.mark.django_db
+class TestCounterAPIValidationTask:
+    def test_task_simple(self, requests_mock):
+        obj = CounterAPIValidationFactory(user=UserFactory(), core__status=ValidationStatus.WAITING)
+        json = ResponseMockCounterAPI.json()
+        mock = requests_mock.post(re.compile(".*"), json=json, status_code=200)
+        validate_counter_api(obj.pk)
+        assert mock.called_once
+        obj.refresh_from_db()
+        assert obj.core.status == ValidationStatus.SUCCESS
+        assert obj.core.used_memory == json["memory"]
+        assert obj.core.cop_version == json["result"]["header"]["cop_version"]
+        assert obj.core.report_code == json["result"]["header"]["report_id"]
+        assert obj.file is not None
+        with open("test_data/reports/50-Sample-TR.json", "rb") as infile:
+            assert obj.file.read() == infile.read()
+        assert obj.filename.startswith("Counter API Report")

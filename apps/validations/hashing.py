@@ -40,6 +40,15 @@ def checksum_string(string: str) -> str:
     return hasher.hexdigest()
 
 
+def checksum_bytes(data: bytes) -> str:
+    """
+    Calculate the checksum of a bytes object.
+    """
+    hasher = create_hasher()
+    hasher.update(data)
+    return hasher.hexdigest()
+
+
 def checksum_dict(data: dict) -> str:
     """
     Calculate the checksum of a dictionary based on its JSON representation.

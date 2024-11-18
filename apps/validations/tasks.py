@@ -1,15 +1,21 @@
+import base64
+import logging
 import os
 import time
-import urllib.parse
 import uuid
+import zlib
 
 import celery
 import requests
 from celery.contrib.django.task import DjangoTask
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from validations.enums import ValidationStatus
-from validations.models import Validation, ValidationCore
+from validations.hashing import checksum_bytes
+from validations.models import CounterAPIValidation, Validation, ValidationCore
+
+logger = logging.getLogger(__name__)
 
 
 class ValidationTask(DjangoTask):
@@ -44,8 +50,9 @@ def validate_file(pk: uuid.UUID):
         obj.core.used_memory = json["memory"]
         obj.core.status = ValidationStatus.SUCCESS
         obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
-        obj.core.cop_version = json["result"]["header"].get("cop_version", "")
-        obj.core.report_code = json["result"]["header"].get("report_id", "")
+        if header := json["result"].get("header"):
+            obj.core.cop_version = header.get("cop_version", "")
+            obj.core.report_code = header.get("report_id", "")
     finally:
         end = time.monotonic()
         obj.core.duration = end - start
@@ -54,22 +61,44 @@ def validate_file(pk: uuid.UUID):
 
 
 @celery.shared_task(base=ValidationTask)
-def validate_sushi(pk, credentials: dict):
-    obj = Validation.objects.get(pk=pk)
+def validate_counter_api(pk):
+    start = time.monotonic()
+    obj = CounterAPIValidation.objects.select_related("core").get(pk=pk)
     obj.status = ValidationStatus.RUNNING
     obj.save()
 
-    url = credentials.pop("url")
-    credentials["begin_date"] = "2024-07-01"
-    credentials["end_date"] = "2024-07-31"
-    credentials = {k: v for k, v in credentials.items() if v}
-    req = requests.post(
-        settings.CTOOLS_URL + "sushi.php",
-        params={"url": url + "?" + urllib.parse.urlencode(credentials)},
-    )
-    req.raise_for_status()
-
-    json = req.json()
-    obj.result_data = json["result"]
-    obj.status = ValidationStatus.SUCCESS
-    obj.save()
+    req_url = obj.get_url()
+    logger.debug("Requesting URL: %s", req_url)
+    try:
+        resp = requests.post(
+            settings.CTOOLS_URL + "sushi.php",
+            json={"url": req_url},
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        obj.core.status = ValidationStatus.FAILURE
+        obj.core.error_message = str(e)
+        logger.warning("Error while requesting URL: %s", e)
+        logger.warning("Response text: %s", resp.text)
+    else:
+        json = resp.json()
+        obj.result_data = json["result"]
+        obj.core.used_memory = json["memory"]
+        obj.core.status = ValidationStatus.SUCCESS
+        obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
+        if header := json["result"].get("header"):
+            obj.core.cop_version = header.get("cop_version", "")
+            obj.core.report_code = header.get("report_id", "")
+        if report := json.get("report"):
+            # report is base64 encoded gzipped JSON
+            logger.info("Decoding report: %s", report)
+            content = zlib.decompress(base64.b64decode(report.encode("utf-8")))
+            obj.core.file_checksum = checksum_bytes(content)
+            obj.core.file_size = len(content)
+            obj.file = SimpleUploadedFile(name="foo.json", content=content)
+            obj.filename = f'Counter API Report {obj.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
+    finally:
+        end = time.monotonic()
+        obj.core.duration = end - start
+        obj.core.save()
+        obj.save()

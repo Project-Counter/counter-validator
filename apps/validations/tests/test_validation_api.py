@@ -225,7 +225,7 @@ class TestValidationAPIThrottling:
 class TestCounterAPIValidationAPI:
     def test_create(self, client_authenticated_user):
         data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
-        with patch("validations.tasks.validate_sushi.delay_on_commit") as p:
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("counter-api-validation-list"),
                 data=data,
@@ -245,3 +245,30 @@ class TestCounterAPIValidationAPI:
         assert "requested_extra_attributes" in res.json()
         assert "requested_begin_date" in res.json()
         assert "requested_end_date" in res.json()
+
+    @pytest.mark.parametrize(
+        ["empty_credential_fields", "status_code"],
+        [
+            [[], 201],
+            [["requestor_id"], 201],
+            [["customer_id"], 400],  # customer_id is required
+            [["api_key"], 201],
+            [["requestor_id", "customer_id"], 400],
+            [["requestor_id", "api_key"], 201],
+            [["customer_id", "api_key"], 400],
+            [["requestor_id", "customer_id", "api_key"], 400],
+        ],
+    )
+    def test_create_with_empty_credential_fields(
+        self, client_authenticated_user, empty_credential_fields, status_code
+    ):
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        for field in empty_credential_fields:
+            data["credentials"][field] = ""
+        with patch("validations.tasks.validate_counter_api.delay_on_commit"):
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == status_code

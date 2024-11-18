@@ -1,11 +1,13 @@
 import { Credentials, Validation, ValidationCore, ValidationDetail } from "../definitions/api"
 import { FUpload } from "../definitions/upload"
 import { jsonFetch, wrapFetch } from "./util"
+import { CoP, ReportCode } from "@/lib/definitions/counter"
+import { isoDate } from "@/lib/datetime"
 
 export const urls = {
   list: "validations/validation/",
   file: "validations/validation/file/",
-  sushi: "validations/validation/sushi/",
+  sushi: "validations/counter-api-validation/",
   coreList: "validations/validation-core/",
 }
 
@@ -48,9 +50,23 @@ export async function validateFile(file: FUpload) {
   })
 }
 
-export async function validateSushi(credentials: Credentials) {
+export async function validateCounterAPI(
+  credentials: Credentials,
+  url: string,
+  cop: CoP,
+  reportCode: ReportCode,
+  beginDate: Date,
+  endDate: Date,
+) {
   return wrapFetch(urls.sushi, {
     method: "POST",
-    json: credentials,
+    json: {
+      credentials,
+      url,
+      cop_version: cop,
+      report_code: reportCode,
+      begin_date: isoDate(beginDate),
+      end_date: isoDate(endDate),
+    },
   })
 }

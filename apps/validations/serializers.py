@@ -102,9 +102,9 @@ class CounterAPIValidationSerializer(ValidationSerializer):
 
 
 class CredentialsSerializer(serializers.Serializer):
-    requestor_id = serializers.CharField()
+    requestor_id = serializers.CharField(required=False, allow_blank=True)
     customer_id = serializers.CharField()
-    api_key = serializers.CharField()
+    api_key = serializers.CharField(required=False, allow_blank=True)
 
 
 class CounterAPIValidationCreateSerializer(serializers.Serializer):

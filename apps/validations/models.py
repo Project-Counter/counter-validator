@@ -201,6 +201,7 @@ class CounterAPIValidation(Validation):
         super().save(*args, **kwargs)
 
     def get_url(self):
+        clean_creds = {k: v for k, v in self.credentials.items() if v}
         return (
             urljoin(
                 self.url,
@@ -209,7 +210,7 @@ class CounterAPIValidation(Validation):
             )
             + "?"
             + urlencode(
-                self.credentials
+                clean_creds
                 | {
                     "begin_date": self.requested_begin_date,
                     "end_date": self.requested_end_date,

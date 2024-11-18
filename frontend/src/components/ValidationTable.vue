@@ -19,7 +19,7 @@
 
     <template #item.filename="{ item }">
       <router-link :to="'validation/' + item.id + '/'">
-        {{ item.filename }}
+        {{ item.filename || "Unknown" }}
       </router-link>
     </template>
 

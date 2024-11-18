@@ -16,7 +16,7 @@
         <v-btn
           color="primary"
           size="large"
-          :to="{ name: '/validation/sushi' }"
+          :to="{ name: '/validation/api' }"
         >
           <v-icon class="me-2">mdi-server-outline</v-icon>
           Validate API
