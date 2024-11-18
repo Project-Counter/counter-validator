@@ -35,21 +35,21 @@
             md="8"
           >
             <v-text-field
-              v-model="credentials.url"
+              v-model="url"
               label="URL"
               :rules="[rules.required]"
             />
           </v-col>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <v-text-field
-              v-model="credentials.platform"
-              hint="Fill only if required by the server"
-              label="Platform"
-            />
-          </v-col>
+          <!--          <v-col-->
+          <!--            cols="12"-->
+          <!--            md="4"-->
+          <!--          >-->
+          <!--            <v-text-field-->
+          <!--              v-model="credentials.platform"-->
+          <!--              hint="Fill only if required by the server"-->
+          <!--              label="Platform"-->
+          <!--            />-->
+          <!--          </v-col>-->
         </v-row>
 
         <h2 class="mt-4 mb-3">Credentials</h2>
@@ -165,7 +165,7 @@ import { Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
-import { addMonths, endOfMonth, formatISO, startOfMonth } from "date-fns"
+import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
 import { isoDate } from "../lib/datetime"
 
