@@ -80,6 +80,7 @@ export type ValidationCore = {
 export type Validation = {
   api_key?: number
   filename?: string
+  file_url?: string
   file_size: number
   api_key_prefix: string
 } & ValidationBase

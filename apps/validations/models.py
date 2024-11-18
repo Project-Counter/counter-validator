@@ -164,6 +164,11 @@ class Validation(UUIDPkMixin, models.Model):
         )
         return validation
 
+    def file_url(self):
+        if self.file:
+            return self.file.url
+        return None
+
 
 class CounterAPIValidation(Validation):
     """

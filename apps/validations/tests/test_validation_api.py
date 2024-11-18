@@ -107,6 +107,7 @@ class TestFileValidationAPI:
             first = res.json()[0]
             assert "id" in first
             assert "filename" in first
+            assert "file_url" in first
             assert "status" in first
             assert "platform_name" in first
             assert "validation_result" in first
@@ -139,6 +140,7 @@ class TestFileValidationAPI:
             data = res.json()
             assert "id" in data
             assert "filename" in data
+            assert "file_url" in data
             assert "status" in data
             assert "platform_name" in data
             assert "validation_result" in data

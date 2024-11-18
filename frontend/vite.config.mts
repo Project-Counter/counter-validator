@@ -69,6 +69,9 @@ export default defineConfig({
         target: `http://127.0.0.1:${process.env.VITE_BE_PORT || 8000}/`,
         changeOrigin: true,
       },
+      "/media/": {
+        target: `http://127.0.0.1:${process.env.VITE_BE_PORT || 8000}/`,
+      },
     },
   },
 })

@@ -3,7 +3,14 @@
     <tbody>
       <tr>
         <th>Filename</th>
-        <td>{{ validation?.filename }}</td>
+        <td>
+          <a
+            target="_blank"
+            :href="validation.file_url"
+            >{{ validation?.filename }}</a
+          >
+          ({{ filesize(validation.file_size) }})
+        </td>
       </tr>
       <tr>
         <th>Created</th>
@@ -28,6 +35,7 @@
 import { statusMap, ValidationDetail } from "@/lib/definitions/api"
 import { intlFormatDistance } from "date-fns"
 import ValidationResultChip from "@/components/ValidationResultChip.vue"
+import { filesize } from "filesize"
 
 const p = defineProps<{
   validation: ValidationDetail

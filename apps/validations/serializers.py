@@ -10,6 +10,7 @@ from .models import CounterAPIValidation, Validation, ValidationCore
 
 class ValidationSerializer(serializers.ModelSerializer):
     file = serializers.FileField(write_only=True)
+    file_url = serializers.URLField(read_only=True)
     validation_result = serializers.CharField(
         read_only=True, source="core.get_validation_result_display"
     )
@@ -31,6 +32,7 @@ class ValidationSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "file",
+            "file_url",
             "status",
             "created",
             "filename",
