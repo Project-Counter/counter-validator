@@ -90,8 +90,7 @@ def validate_counter_api(pk):
             obj.core.cop_version = header.get("cop_version", "")
             obj.core.report_code = header.get("report_id", "")
         if report := json.get("report"):
-            # report is base64 encoded gzipped JSON
-            logger.info("Decoding report: %s", report)
+            # report is base64 encoded zlib compressed JSON
             content = zlib.decompress(base64.b64decode(report.encode("utf-8")))
             obj.core.file_checksum = checksum_bytes(content)
             obj.core.file_size = len(content)

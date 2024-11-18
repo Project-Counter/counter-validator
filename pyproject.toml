@@ -36,6 +36,7 @@ pytest-cov = "^5.0.0"
 pytest-django = "^4.8.0"
 ruff = "^0.6.9"
 watchdog = {version = "^5.0.2", extras = ["watchmedo"]}
+dj-inmemorystorage = "^2.1.0"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.devel"

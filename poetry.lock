@@ -547,6 +547,21 @@ files = [
 ]
 
 [[package]]
+name = "dj-inmemorystorage"
+version = "2.1.0"
+description = "A non-persistent in-memory data storage backend for Django."
+optional = false
+python-versions = "*"
+files = [
+    {file = "dj-inmemorystorage-2.1.0.tar.gz", hash = "sha256:1771801613414262803a1a1e97dafd2b7a563e78fbcbfa2b6f841c9d8e7b872a"},
+    {file = "dj_inmemorystorage-2.1.0-py2.py3-none-any.whl", hash = "sha256:81aa007a7cdb1899b3cd92404f656c82cd690a831b8698a43045f859d7276945"},
+]
+
+[package.dependencies]
+Django = ">=1.11"
+six = ">=1.10"
+
+[[package]]
 name = "dj-rest-auth"
 version = "6.0.0"
 description = "Authentication and Registration in Django Rest Framework"
@@ -1499,4 +1514,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "31ee466d39263146f5161456887151a327a68acdc91ba36a44e17b460a460b65"
+content-hash = "14833de1cf2c2d338ea65c58b5566787283379686524c4bf6f4ec65442f73044"
