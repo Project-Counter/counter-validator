@@ -62,10 +62,13 @@ const headers: ReadonlyHeaders = [
   { key: "created", title: "Time" },
 ]
 
-try {
-  items.value = await getValidations()
-} finally {
-  loading.value = false
+async function start() {
+  try {
+    items.value = await getValidations()
+  } finally {
+    loading.value = false
+  }
+  await checkUnfinished()
 }
 
 async function checkUnfinished() {
@@ -83,5 +86,7 @@ async function checkUnfinished() {
   }
 }
 
-await checkUnfinished()
+onMounted(() => {
+  start()
+})
 </script>

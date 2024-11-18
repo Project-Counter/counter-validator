@@ -1,7 +1,5 @@
 <template>
-  <Suspense>
-    <ValidationTable />
-  </Suspense>
+  <ValidationTable />
 </template>
 
 <script setup lang="ts"></script>

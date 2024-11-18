@@ -26,9 +26,7 @@
 
     <v-row>
       <v-col>
-        <Suspense>
-          <ValidationTable />
-        </Suspense>
+        <ValidationTable />
       </v-col>
     </v-row>
   </v-container>

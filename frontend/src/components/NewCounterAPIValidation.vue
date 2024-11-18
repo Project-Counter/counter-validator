@@ -2,8 +2,8 @@
   <v-stepper
     v-model="stepper"
     :disabled="!formValid"
-    :items="['Server selection', 'Report selection', 'Download & validation']"
-    :mobile="null"
+    :items="['Server selection', 'Report selection', 'Validation']"
+    editable
   >
     <template #item.1>
       <v-form
@@ -121,7 +121,7 @@
 
     <template #item.3>
       <v-sheet>
-        <h2 class="mb-3">Overview & validation</h2>
+        <h2 class="mb-3">Validation</h2>
         <v-row>
           <v-col>
             <table>
@@ -169,7 +169,7 @@ import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
 import { isoDate } from "../lib/datetime"
 
-const stepper = ref(3)
+const stepper = ref(1)
 const formValid = ref(false)
 const platforms = shallowRef()
 const platform = ref(null)
