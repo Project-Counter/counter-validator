@@ -26,6 +26,7 @@ class ValidationSerializer(serializers.ModelSerializer):
     report_code = serializers.CharField(read_only=True, source="core.report_code")
     stats = serializers.JSONField(read_only=True, source="core.stats")
     api_key_prefix = serializers.CharField(read_only=True, source="core.api_key_prefix")
+    data_source = serializers.SerializerMethodField()
 
     class Meta:
         model = Validation
@@ -45,7 +46,14 @@ class ValidationSerializer(serializers.ModelSerializer):
             "report_code",
             "stats",
             "api_key_prefix",
+            "data_source",
         ]
+
+    def get_data_source(self, obj):
+        try:
+            return obj.counterapivalidation and "counter_api"
+        except CounterAPIValidation.DoesNotExist:
+            return "file"
 
 
 class ValidationDetailSerializer(ValidationSerializer):

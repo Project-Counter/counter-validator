@@ -119,6 +119,7 @@ class TestFileValidationAPI:
             assert "cop_version" in first
             assert "report_code" in first
             assert "api_key_prefix" in first
+            assert "data_source" in first
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -152,6 +153,7 @@ class TestFileValidationAPI:
             assert "cop_version" in data
             assert "report_code" in data
             assert "api_key_prefix" in data
+            assert "data_source" in data
 
     def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):
         """

@@ -206,3 +206,6 @@ MAX_FILE_SIZE = config("MAX_FILE_SIZE", cast=int, default=20 * (1024**2))
 # size of the hash in bytes. Blake 2b is used as the hashing algorithm
 HASHING_DIGEST_SIZE = config("FILE_HASHING_DIGEST_SIZE", cast=int, default=32)
 HASHING_SALT = config("FILE_HASHING_SALT", default=SECRET_KEY)
+
+# development stuff
+DEBUG_SLEEP = config("DEBUG_SLEEP", cast=float, default=0)

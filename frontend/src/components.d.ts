@@ -19,6 +19,7 @@ declare module 'vue' {
     MsgDialog: typeof import('./components/MsgDialog.vue')['default']
     NewCounterAPIValidation: typeof import('./components/NewCounterAPIValidation.vue')['default']
     NewFileValidation: typeof import('./components/NewFileValidation.vue')['default']
+    NewSushiValidation: typeof import('./components/NewSushiValidation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SimplePie: typeof import('./components/SimplePie.vue')['default']

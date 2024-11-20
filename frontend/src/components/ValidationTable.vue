@@ -40,6 +40,12 @@
     <template #loading>
       <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
     </template>
+
+    <template #item.data_source="{ item }">
+      <v-icon color="disabled">{{
+        item.data_source === "file" ? "mdi-file-outline" : "mdi-cloud-outline"
+      }}</v-icon>
+    </template>
   </v-data-table>
 </template>
 
@@ -57,6 +63,7 @@ type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
 const headers: ReadonlyHeaders = [
   { key: "status", title: "Status", width: 1 },
+  { key: "data_source", title: "Data source" },
   { key: "api_key_prefix", title: "Submission method" },
   { key: "filename", title: "Filename" },
   { key: "file_size", title: "File size", align: "end" },

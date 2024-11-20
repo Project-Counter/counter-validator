@@ -31,7 +31,6 @@ def validate_file(pk: uuid.UUID):
     obj = Validation.objects.select_related("core").get(pk=pk)
     obj.core.status = ValidationStatus.RUNNING
     obj.core.save()
-    # time.sleep(5)
 
     try:
         with obj.file.open("rb") as fp:
