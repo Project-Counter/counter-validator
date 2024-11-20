@@ -4,6 +4,8 @@
     :items="items"
     :mobile="null"
     no-data-text="No validations in your history"
+    :loading="loading"
+    color="primary"
   >
     <template #item.status="{ item }">
       <validation-status :validation="item" />
@@ -34,6 +36,10 @@
     <template #item.stats="{ item }">
       <StatsPie :item="item" />
     </template>
+
+    <template #loading>
+      <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+    </template>
   </v-data-table>
 </template>
 
@@ -45,7 +51,7 @@ import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 
 const items = ref<Validation[]>([])
-let loading = ref(true)
+let loading = ref(false)
 
 type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
@@ -63,6 +69,7 @@ const headers: ReadonlyHeaders = [
 ]
 
 async function start() {
+  loading.value = true
   try {
     items.value = await getValidations()
   } finally {

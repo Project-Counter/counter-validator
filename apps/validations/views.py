@@ -1,4 +1,7 @@
+from time import sleep
+
 from core.permissions import HasUserAPIKey
+from django.conf import settings
 from django.db.transaction import atomic
 from rest_framework import status
 from rest_framework.decorators import action
@@ -35,6 +38,8 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
             qs = qs.select_related("core__platform")
         if self.action == "detail":
             qs = qs.defer(None)
+        if settings.DEBUG:
+            sleep(3)
         return qs
 
     @action(detail=False, methods=("POST",), url_path="file")
@@ -61,6 +66,8 @@ class CounterAPIValidationViewSet(ModelViewSet):
         obj = serializer.save()
         validate_counter_api.delay_on_commit(obj.pk)
         out_serializer = self.get_serializer(obj)
+        if settings.DEBUG:
+            sleep(3)
         return Response(out_serializer.data, status=status.HTTP_201_CREATED)
 
 

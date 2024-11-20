@@ -60,6 +60,13 @@
       />
     </template>
   </v-snackbar>
+  <v-snackbar
+    v-if="store.notification"
+    v-model="store.showNotification"
+    :color="store.notification.type"
+  >
+    <p>{{ store.notification.message }}</p>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">

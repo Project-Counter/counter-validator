@@ -4,6 +4,7 @@
     :disabled="!formValid"
     :items="['Server selection', 'Report selection', 'Validation']"
     editable
+    :max="4"
   >
     <template #item.1>
       <v-form
@@ -124,7 +125,7 @@
         <h2 class="mb-3">Validation</h2>
         <v-row>
           <v-col>
-            <table>
+            <v-table density="compact">
               <tbody>
                 <tr>
                   <th>Server URL</th>
@@ -143,19 +144,26 @@
                   <td>{{ isoDate(beginDate) }} - {{ isoDate(endDate) }}</td>
                 </tr>
               </tbody>
-            </table>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-btn
-              color="primary"
-              @click="create"
-              >Validate</v-btn
-            >
+            </v-table>
           </v-col>
         </v-row>
       </v-sheet>
+    </template>
+
+    <template #next>
+      <v-btn
+        v-if="stepper < 3"
+        @click="stepper++"
+        >Next</v-btn
+      >
+      <v-btn
+        v-else
+        color="primary"
+        :disabled="false"
+        :loading="creatingValidation"
+        @click="create"
+        >Validate</v-btn
+      >
     </template>
   </v-stepper>
 </template>
@@ -167,7 +175,8 @@ import * as rules from "@/lib/formRules"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
-import { isoDate } from "../lib/datetime"
+import { isoDate } from "@/lib/datetime"
+import { useAppStore } from "@/stores/app"
 
 const stepper = ref(1)
 const formValid = ref(false)
@@ -184,6 +193,7 @@ const reportCodes = Object.values(ReportCode)
 
 const loading = ref(false)
 const loadingPlatforms = ref(true)
+const store = useAppStore()
 
 const credentials = reactive<Credentials>({
   customer_id: "aaa",
@@ -191,9 +201,9 @@ const credentials = reactive<Credentials>({
   api_key: "",
 })
 const url = ref("https://sashimi.celus.net/")
+const router = useRouter()
+const creatingValidation = ref(false)
 
-// computed
-// const availableReports =
 // methods
 async function update() {
   if (!platform.value) return
@@ -210,15 +220,24 @@ async function load() {
 }
 
 async function create() {
-  console.log("create")
-  await validateCounterAPI(
-    credentials,
-    url.value,
-    cop.value,
-    reportCode.value,
-    beginDate.value,
-    endDate.value,
-  )
+  creatingValidation.value = true
+  try {
+    await validateCounterAPI(
+      credentials,
+      url.value,
+      cop.value,
+      reportCode.value,
+      beginDate.value,
+      endDate.value,
+    )
+  } catch (err) {
+    console.error(err)
+    return
+  } finally {
+    creatingValidation.value = false
+  }
+  store.displayNotification({ message: "Validation was successfully started", type: "success" })
+  await router.push({ name: "/" })
 }
 
 onMounted(() => {

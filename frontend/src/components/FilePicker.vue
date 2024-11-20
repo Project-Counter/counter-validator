@@ -214,7 +214,7 @@ async function startUploading() {
     }
   } finally {
     if (!anyError.value) {
-      await router.push({ name: "/validation/" })
+      await router.push({ name: "/" })
     }
   }
 }
