@@ -4,7 +4,8 @@ from core.fake_data import UserFactory
 from counter.fake_data import COP_VERSIONS, REPORT_TYPE_CODES, PlatformFactory
 from counter.logic.dates import month_end
 
-from validations.models import CounterAPIValidation, Validation, ValidationCore
+from validations.enums import SeverityLevel
+from validations.models import CounterAPIValidation, Validation, ValidationCore, ValidationMessage
 
 fake = faker.Faker(locale="en_US")
 
@@ -71,3 +72,30 @@ class CounterAPIValidationFactory(ValidationFactory):
             self.credentials = factory.build(
                 dict, FACTORY_CLASS=CounterAPICredentialsFactory, **kwargs
             )
+
+
+class MessageDictFactory(factory.Factory):
+    class Meta:
+        model = dict
+
+    d = factory.Faker("text")
+    l = factory.fuzzy.FuzzyChoice(SeverityLevel.labels)  # noqa: E741
+    h = factory.Faker("sentence")
+    p = factory.Faker("sentence")
+    m = factory.Faker("sentence")
+    s = factory.Faker("sentence")
+
+
+class ValidationMessageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ValidationMessage
+
+    validation = factory.SubFactory(ValidationFactory)
+    number = factory.Faker("random_int", min=1, max=1000)
+    data = factory.Faker("text")
+    level = factory.fuzzy.FuzzyChoice(SeverityLevel.labels)
+    code = factory.Faker("bothify", text="?###")
+    position = factory.Faker("sentence")
+    message = factory.Faker("sentence")
+    summary = factory.Faker("sentence")
+    hint = factory.Faker("sentence")

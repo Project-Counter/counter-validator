@@ -2,8 +2,9 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from validations.enums import SeverityLevel
 from validations.fake_data import CounterAPIValidationFactory, ValidationFactory
-from validations.models import Validation, ValidationCore
+from validations.models import Validation, ValidationCore, ValidationMessage
 
 
 @pytest.mark.django_db
@@ -87,3 +88,34 @@ class TestCounterAPIValidation:
         assert parts_query["key"] == ["value"]
         assert parts_query["requestor_id"] == [params["requestor_id"]]
         assert parts_query["customer_id"] == [params["customer_id"]]
+
+
+@pytest.mark.django_db
+class TestValidationMessage:
+    @pytest.mark.parametrize("null_key", ["d", "h", "p", "m", "s"])
+    def test_from_dict(self, null_key):
+        """
+        Test that the from_dict method creates a ValidationMessage instance
+        """
+        data = {
+            "d": ":)",
+            "l": "Warning",
+            "h": "You should do something about it",
+            "p": "element.Report_Header",
+            "m": "Report header is messed up :)",
+            "s": "Report header is messed up",
+        }
+        data[null_key] = None
+        validation = ValidationFactory()
+        message = ValidationMessage.from_dict(validation, 1, data)
+        assert message.level == SeverityLevel.WARNING
+        assert message.hint == (data["h"] or "")
+        assert message.position == (data["p"] or "")
+        assert message.message == (data["m"] or "")
+        assert message.summary == (data["s"] or "")
+        assert message.data == (data["d"] or "")
+        assert not ValidationMessage.objects.filter(
+            pk=message.pk
+        ).exists(), "The message should not be saved to the database"
+        # test saving
+        message.save()

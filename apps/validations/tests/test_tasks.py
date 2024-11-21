@@ -33,11 +33,12 @@ class ResponseMock:
             },
             "messages": [
                 {
-                    "data": "",
-                    "level": 2,
-                    "header": "Row 1",
-                    "number": 1,
-                    "message": "some warning",
+                    "d": ":)",
+                    "l": "Warning",
+                    "h": "You should do something about it",
+                    "p": "element.Report_Header",
+                    "m": "Report header is messed up :)",
+                    "s": "Report header is messed up",
                 },
             ],
         },
@@ -90,6 +91,9 @@ class TestFileValidationTask:
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
         assert obj.core.validation_result == SeverityLevel.WARNING
+        assert "messages" not in obj.result_data
+        assert "Warning" in obj.core.stats
+        assert obj.messages.count() == 165, "There are 165 messages in the test file"
 
     @pytest.mark.parametrize("http_status", [400, 401, 403, 404, 405, 500])
     def test_task_c5tools_error(self, http_status, requests_mock):

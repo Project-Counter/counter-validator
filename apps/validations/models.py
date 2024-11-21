@@ -12,7 +12,7 @@ from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from rest_framework_api_key.models import APIKey
 
-from validations.enums import MessageKeys, SeverityLevel, ValidationStatus
+from validations.enums import SeverityLevel, ValidationStatus
 from validations.hashing import checksum_dict, checksum_fileobj, checksum_string
 
 
@@ -91,15 +91,6 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     def __str__(self):
         return f"{self.pk}: {self.created} - {self.get_status_display()}"
 
-    @classmethod
-    def extract_stats(cls, messages: [dict]) -> dict:
-        stats = {}
-        for message in messages:
-            if lvl := message.get(MessageKeys.level.value):
-                level = SeverityLevel.by_label(lvl)
-                stats[level.label] = stats.get(level.label, 0) + 1
-        return stats
-
 
 class Validation(UUIDPkMixin, models.Model):
     core = models.OneToOneField(ValidationCore, on_delete=models.CASCADE)
@@ -169,6 +160,23 @@ class Validation(UUIDPkMixin, models.Model):
             return self.file.url
         return None
 
+    def add_result(self, result: dict) -> dict:
+        """
+        Add JSON to the `result_data` field after extracting the messages into separate objects.
+        It returns a statistics of message levels.
+        """
+        messages = result.pop("messages", [])
+        m_to_store = []
+        stats = {}
+        for i, message in enumerate(messages, 1):
+            m = ValidationMessage.from_dict(self, i, message)
+            m_to_store.append(m)
+            stats[m.level.label] = stats.get(m.level.label, 0) + 1
+
+        ValidationMessage.objects.bulk_create(m_to_store)
+        self.result_data = result
+        return stats
+
 
 class CounterAPIValidation(Validation):
     """
@@ -226,18 +234,41 @@ class CounterAPIValidation(Validation):
 
 
 class ValidationMessage(UUIDPkMixin, models.Model):
-    validation = models.ForeignKey(Validation, on_delete=models.CASCADE)
-    number = models.PositiveIntegerField(default=1)
+    KEY_TO_ATTR = {
+        "d": "data",
+        "l": {"attr": "level", "converter": SeverityLevel.by_label},
+        "h": "hint",
+        "m": "message",
+        "p": "position",
+        "s": "summary",
+    }
+
+    validation = models.ForeignKey(Validation, on_delete=models.CASCADE, related_name="messages")
+    number = models.PositiveIntegerField(
+        default=0, help_text="Order of the message inside the validation results"
+    )
     level = models.PositiveSmallIntegerField(choices=SeverityLevel)
     code = models.CharField(max_length=16, blank=True)
+    position = models.TextField(blank=True)
     message = models.TextField()
-    summary = models.CharField(max_length=128, blank=True)
-    hint = models.CharField(max_length=128, blank=True)
-    data = models.CharField(max_length=128, blank=True)
-    position = models.CharField(max_length=128, blank=True)
+    summary = models.TextField()
+    hint = models.TextField(blank=True)
+    data = models.TextField(blank=True)
 
     class Meta:
-        ordering = ["pk"]
+        ordering = ["validation", "number", "pk"]
 
     def __str__(self):
         return f"{self.get_level_display()}: {self.message}"
+
+    @classmethod
+    def from_dict(cls, validation: Validation, number: int, data: dict) -> "ValidationMessage":
+        kwargs = {}
+        for key, attr in cls.KEY_TO_ATTR.items():
+            value = data.get(key)
+            if isinstance(attr, dict):
+                if converter := attr.get("converter"):
+                    value = converter(value)
+                attr = attr["attr"]
+            kwargs[attr] = value or ""  # None is not allowed
+        return cls(validation=validation, number=number, **kwargs)

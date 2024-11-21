@@ -10,10 +10,11 @@ import requests
 from celery.contrib.django.task import DjangoTask
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.transaction import atomic
 
 from validations.enums import ValidationStatus
 from validations.hashing import checksum_bytes
-from validations.models import CounterAPIValidation, Validation, ValidationCore
+from validations.models import CounterAPIValidation, Validation
 
 logger = logging.getLogger(__name__)
 
@@ -26,37 +27,55 @@ class ValidationTask(DjangoTask):
 
 
 @celery.shared_task(base=ValidationTask)
+@atomic
 def validate_file(pk: uuid.UUID):
     start = time.monotonic()
     obj = Validation.objects.select_related("core").get(pk=pk)
     obj.core.status = ValidationStatus.RUNNING
     obj.core.save()
 
-    try:
-        with obj.file.open("rb") as fp:
-            req = requests.post(
-                settings.CTOOLS_URL + "file.php",
-                params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
-                data=fp,
-            )
-        req.raise_for_status()
-    except Exception as e:
-        obj.core.status = ValidationStatus.FAILURE
-        obj.core.error_message = str(e)
-    else:
-        json = req.json()
-        obj.result_data = json["result"]
-        obj.core.used_memory = json["memory"]
-        obj.core.status = ValidationStatus.SUCCESS
-        obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
-        if header := json["result"].get("header"):
-            obj.core.cop_version = header.get("cop_version", "")
-            obj.core.report_code = header.get("report_id", "")
-    finally:
-        end = time.monotonic()
-        obj.core.duration = end - start
-        obj.core.save()
-        obj.save()
+    with obj.file.open("rb") as fp:
+        req = requests.post(
+            settings.CTOOLS_URL + "file.php",
+            params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
+            data=fp,
+        )
+    json = req.json()
+    obj.core.stats = obj.add_result(json.get("result", {}))
+    obj.core.used_memory = json["memory"]
+    obj.core.status = ValidationStatus.SUCCESS
+    if header := json["result"].get("header"):
+        obj.core.cop_version = header.get("cop_version", "")
+        obj.core.report_code = header.get("report_id", "")
+    end = time.monotonic()
+    obj.core.duration = end - start
+    obj.core.save()
+    obj.save()
+
+    # try:
+    #     with obj.file.open("rb") as fp:
+    #         req = requests.post(
+    #             settings.CTOOLS_URL + "file.php",
+    #             params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
+    #             data=fp,
+    #         )
+    #     req.raise_for_status()
+    # except Exception as e:
+    #     obj.core.status = ValidationStatus.FAILURE
+    #     obj.core.error_message = str(e)
+    # else:
+    #     json = req.json()
+    #     obj.core.stats = obj.add_result(json.get("result", {}))
+    #     obj.core.used_memory = json["memory"]
+    #     obj.core.status = ValidationStatus.SUCCESS
+    #     if header := json["result"].get("header"):
+    #         obj.core.cop_version = header.get("cop_version", "")
+    #         obj.core.report_code = header.get("report_id", "")
+    # finally:
+    #     end = time.monotonic()
+    #     obj.core.duration = end - start
+    #     obj.core.save()
+    #     obj.save()
 
 
 @celery.shared_task(base=ValidationTask)
@@ -81,10 +100,9 @@ def validate_counter_api(pk):
         logger.warning("Response text: %s", resp.text)
     else:
         json = resp.json()
-        obj.result_data = json["result"]
+        obj.core.stats = obj.add_result(json.get("result", {}))
         obj.core.used_memory = json["memory"]
         obj.core.status = ValidationStatus.SUCCESS
-        obj.core.stats = ValidationCore.extract_stats(json["result"]["messages"])
         if header := json["result"].get("header"):
             obj.core.cop_version = header.get("cop_version", "")
             obj.core.report_code = header.get("report_id", "")
