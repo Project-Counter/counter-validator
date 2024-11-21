@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 
 from .enums import ValidationStatus
 from .hashing import checksum_string
-from .models import CounterAPIValidation, Validation, ValidationCore
+from .models import CounterAPIValidation, Validation, ValidationCore, ValidationMessage
 
 
 class ValidationSerializer(serializers.ModelSerializer):
@@ -175,4 +175,13 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
             "stats",
             "error_message",
         )
+        read_only_fields = fields
+
+
+class ValidationMessageSerializer(serializers.ModelSerializer):
+    severity = serializers.CharField(source="get_severity_display", read_only=True)
+
+    class Meta:
+        model = ValidationMessage
+        fields = ("severity", "code", "message", "location", "summary", "hint", "data")
         read_only_fields = fields

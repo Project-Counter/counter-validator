@@ -236,10 +236,10 @@ class CounterAPIValidation(Validation):
 class ValidationMessage(UUIDPkMixin, models.Model):
     KEY_TO_ATTR = {
         "d": "data",
-        "l": {"attr": "level", "converter": SeverityLevel.by_label},
+        "l": {"attr": "severity", "converter": SeverityLevel.by_label},
         "h": "hint",
         "m": "message",
-        "p": "position",
+        "p": "location",
         "s": "summary",
     }
 
@@ -247,9 +247,9 @@ class ValidationMessage(UUIDPkMixin, models.Model):
     number = models.PositiveIntegerField(
         default=0, help_text="Order of the message inside the validation results"
     )
-    level = models.PositiveSmallIntegerField(choices=SeverityLevel)
+    severity = models.PositiveSmallIntegerField(choices=SeverityLevel)
     code = models.CharField(max_length=16, blank=True)
-    position = models.TextField(blank=True)
+    location = models.TextField(blank=True)
     message = models.TextField()
     summary = models.TextField()
     hint = models.TextField(blank=True)
@@ -257,6 +257,7 @@ class ValidationMessage(UUIDPkMixin, models.Model):
 
     class Meta:
         ordering = ["validation", "number", "pk"]
+        unique_together = ("validation", "number")
 
     def __str__(self):
         return f"{self.get_level_display()}: {self.message}"

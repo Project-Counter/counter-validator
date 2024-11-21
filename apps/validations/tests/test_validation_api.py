@@ -276,3 +276,41 @@ class TestCounterAPIValidationAPI:
                 format="json",
             )
             assert res.status_code == status_code
+
+
+@pytest.mark.django_db
+class TestValidationMessagesAPI:
+    def test_list(self, client_authenticated_user, normal_user):
+        val = ValidationFactory(user=normal_user, messages__count=3)
+        ValidationFactory(user=normal_user, messages__count=5)  # other validation, not in output
+        res = client_authenticated_user.get(reverse("validation-message-list", args=[val.pk]))
+        assert res.status_code == 200
+        out = res.json()
+        assert "count" in out, "count should be in the response - it should be paginated"
+        assert "next" in out, "next should be in the response - it should be paginated"
+        assert "previous" in out, "previous should be in the response - it should be paginated"
+        assert "results" in out, "results should be in the response - it should be paginated"
+        assert len(out["results"]) == 3
+        first = out["results"][0]
+        assert "message" in first
+        assert "severity" in first
+        assert "summary" in first
+        assert "hint" in first
+        assert "location" in first
+        assert "data" in first
+
+    def test_detail(self, client_authenticated_user, normal_user):
+        val = ValidationFactory(user=normal_user, messages__count=3)
+        ValidationFactory(user=normal_user, messages__count=5)
+        m = val.messages.first()
+        res = client_authenticated_user.get(
+            reverse("validation-message-detail", args=[val.pk, m.pk])
+        )
+        assert res.status_code == 200
+        out = res.json()
+        assert "message" in out
+        assert "severity" in out
+        assert "summary" in out
+        assert "hint" in out
+        assert "location" in out
+        assert "data" in out

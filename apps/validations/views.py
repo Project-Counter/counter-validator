@@ -2,13 +2,15 @@ from core.permissions import HasUserAPIKey
 from django.db.transaction import atomic
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import DestroyModelMixin
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 import validations.serializers
-from validations.models import ValidationCore
+from validations.models import Validation, ValidationCore, ValidationMessage
 from validations.serializers import (
     CounterAPIValidationCreateSerializer,
     FileValidationCreateSerializer,
@@ -70,3 +72,15 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return ValidationCore.objects.select_related("platform").order_by("-created")
+
+
+class ValidationMessageViewSet(ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = validations.serializers.ValidationMessageSerializer
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        validation = get_object_or_404(
+            Validation.objects.filter(user=self.request.user), pk=self.kwargs["validation_pk"]
+        )
+        return ValidationMessage.objects.filter(validation=validation)

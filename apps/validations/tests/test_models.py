@@ -95,7 +95,8 @@ class TestValidationMessage:
     @pytest.mark.parametrize("null_key", ["d", "h", "p", "m", "s"])
     def test_from_dict(self, null_key):
         """
-        Test that the from_dict method creates a ValidationMessage instance
+        Test that the from_dict method creates a ValidationMessage instance.
+        We make sure that "null" values are handled correctly and converted to empty strings.
         """
         data = {
             "d": ":)",
@@ -108,9 +109,9 @@ class TestValidationMessage:
         }
         validation = ValidationFactory()
         message = ValidationMessage.from_dict(validation, 1, data)
-        assert message.level == SeverityLevel.WARNING
+        assert message.severity == SeverityLevel.WARNING
         assert message.hint == (data["h"] or "")
-        assert message.position == (data["p"] or "")
+        assert message.location == (data["p"] or "")
         assert message.message == (data["m"] or "")
         assert message.summary == (data["s"] or "")
         assert message.data == (data["d"] or "")

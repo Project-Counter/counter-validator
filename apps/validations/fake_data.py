@@ -30,6 +30,22 @@ class ValidationFactory(factory.django.DjangoModelFactory):
     file = factory.django.FileField(filename="test.txt")
     user_note = factory.Faker("text")
 
+    @factory.post_generation
+    def messages(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for i, m in enumerate(extracted):
+                m.validation = self
+                m.number = i + 1
+            self.messages.set(extracted)
+        elif count := kwargs.pop("count", 0):
+            to_add = []
+            for index, m in enumerate(ValidationMessageFactory.build_batch(count, validation=self)):
+                m.number = index
+                to_add.append(m)
+            ValidationMessage.objects.bulk_create(to_add)
+
 
 class CounterAPICredentialsFactory(factory.Factory):
     requestor_id = factory.Faker("uuid4")
@@ -93,9 +109,9 @@ class ValidationMessageFactory(factory.django.DjangoModelFactory):
     validation = factory.SubFactory(ValidationFactory)
     number = factory.Faker("random_int", min=1, max=1000)
     data = factory.Faker("text")
-    level = factory.fuzzy.FuzzyChoice(SeverityLevel.labels)
+    severity = factory.fuzzy.FuzzyChoice(SeverityLevel.values)
     code = factory.Faker("bothify", text="?###")
-    position = factory.Faker("sentence")
+    location = factory.Faker("sentence")
     message = factory.Faker("sentence")
     summary = factory.Faker("sentence")
     hint = factory.Faker("sentence")

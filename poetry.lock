@@ -697,6 +697,21 @@ files = [
 packaging = "*"
 
 [[package]]
+name = "drf-nested-routers"
+version = "0.94.1"
+description = "Nested resources for the Django Rest Framework"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "drf-nested-routers-0.94.1.tar.gz", hash = "sha256:2b846385ed95c9f17bf4242db3b264ac826b5af00dda6c737d3fe7cc7bf2c7db"},
+    {file = "drf_nested_routers-0.94.1-py2.py3-none-any.whl", hash = "sha256:3a8ec45a025c0f39188ec1ec415244beb875a6f4db87911a1f5a606d09b68c9f"},
+]
+
+[package.dependencies]
+Django = ">=4.2"
+djangorestframework = ">=3.14.0"
+
+[[package]]
 name = "factory-boy"
 version = "3.3.1"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
@@ -1514,4 +1529,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "14833de1cf2c2d338ea65c58b5566787283379686524c4bf6f4ec65442f73044"
+content-hash = "4f1ea78100e27328b8b911ed6af5399d304dc1c1ae16762466127883cb4c41e8"

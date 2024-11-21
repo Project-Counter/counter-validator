@@ -1,4 +1,5 @@
 from rest_framework.routers import SimpleRouter
+from rest_framework_nested.routers import NestedSimpleRouter
 
 from . import views
 
@@ -9,4 +10,10 @@ router.register(
     r"counter-api-validation", views.CounterAPIValidationViewSet, basename="counter-api-validation"
 )
 
+validation_router = NestedSimpleRouter(router, r"validation", lookup="validation")
+validation_router.register(
+    r"validation-message", views.ValidationMessageViewSet, basename="validation-message"
+)
+
 urlpatterns = router.urls
+urlpatterns += validation_router.urls

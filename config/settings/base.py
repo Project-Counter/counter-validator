@@ -70,6 +70,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "api_keys": "10/minute",
     },
+    "PAGE_SIZE": 50,
 }
 
 
