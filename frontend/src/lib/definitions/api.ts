@@ -29,12 +29,12 @@ export type SeverityLevel =
   | ""
 
 export type Message = {
-  l: SeverityLevel // level
-  s: string // summary
-  m: string // message
-  p: number // position
-  d?: string // data
-  h?: string // hint
+  severity: SeverityLevel // level
+  summary: string // summary
+  message: string // message
+  location: string // position
+  data: string // data
+  hint: string // hint
 }
 
 export type Result = {

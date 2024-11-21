@@ -171,7 +171,7 @@ class Validation(UUIDPkMixin, models.Model):
         for i, message in enumerate(messages, 1):
             m = ValidationMessage.from_dict(self, i, message)
             m_to_store.append(m)
-            stats[m.level.label] = stats.get(m.level.label, 0) + 1
+            stats[m.get_severity_display()] = stats.get(m.get_severity_display(), 0) + 1
 
         ValidationMessage.objects.bulk_create(m_to_store)
         self.result_data = result

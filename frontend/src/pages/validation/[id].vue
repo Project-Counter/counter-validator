@@ -14,7 +14,7 @@
     </v-tab>
 
     <v-tab
-      v-if="validation?.result_data?.messages"
+      v-if="validation && Object.keys(validation.stats).length"
       prepend-icon="mdi-receipt-text"
       value="result"
     >
@@ -75,10 +75,10 @@
       </section>
     </v-tabs-window-item>
     <v-tabs-window-item
-      v-if="validation?.result_data?.messages"
+      v-if="validation"
       value="result"
     >
-      <ValidationMessagesTable :messages="validation.result_data.messages" />
+      <ValidationMessagesTable :validation="validation" />
     </v-tabs-window-item>
   </v-tabs-window>
 </template>

@@ -12,7 +12,7 @@ router.register(
 
 validation_router = NestedSimpleRouter(router, r"validation", lookup="validation")
 validation_router.register(
-    r"validation-message", views.ValidationMessageViewSet, basename="validation-message"
+    r"messages", views.ValidationMessageViewSet, basename="validation-message"
 )
 
 urlpatterns = router.urls
