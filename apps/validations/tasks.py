@@ -34,48 +34,30 @@ def validate_file(pk: uuid.UUID):
     obj.core.status = ValidationStatus.RUNNING
     obj.core.save()
 
-    with obj.file.open("rb") as fp:
-        req = requests.post(
-            settings.CTOOLS_URL + "file.php",
-            params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
-            data=fp,
-        )
-    json = req.json()
-    obj.core.stats = obj.add_result(json.get("result", {}))
-    obj.core.used_memory = json["memory"]
-    obj.core.status = ValidationStatus.SUCCESS
-    if header := json["result"].get("header"):
-        obj.core.cop_version = header.get("cop_version", "")
-        obj.core.report_code = header.get("report_id", "")
-    end = time.monotonic()
-    obj.core.duration = end - start
-    obj.core.save()
-    obj.save()
-
-    # try:
-    #     with obj.file.open("rb") as fp:
-    #         req = requests.post(
-    #             settings.CTOOLS_URL + "file.php",
-    #             params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
-    #             data=fp,
-    #         )
-    #     req.raise_for_status()
-    # except Exception as e:
-    #     obj.core.status = ValidationStatus.FAILURE
-    #     obj.core.error_message = str(e)
-    # else:
-    #     json = req.json()
-    #     obj.core.stats = obj.add_result(json.get("result", {}))
-    #     obj.core.used_memory = json["memory"]
-    #     obj.core.status = ValidationStatus.SUCCESS
-    #     if header := json["result"].get("header"):
-    #         obj.core.cop_version = header.get("cop_version", "")
-    #         obj.core.report_code = header.get("report_id", "")
-    # finally:
-    #     end = time.monotonic()
-    #     obj.core.duration = end - start
-    #     obj.core.save()
-    #     obj.save()
+    try:
+        with obj.file.open("rb") as fp:
+            req = requests.post(
+                settings.CTOOLS_URL + "file.php",
+                params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
+                data=fp,
+            )
+        req.raise_for_status()
+    except Exception as e:
+        obj.core.status = ValidationStatus.FAILURE
+        obj.core.error_message = str(e)
+    else:
+        json = req.json()
+        obj.core.stats = obj.add_result(json.get("result", {}))
+        obj.core.used_memory = json["memory"]
+        obj.core.status = ValidationStatus.SUCCESS
+        if header := json["result"].get("header"):
+            obj.core.cop_version = header.get("cop_version", "")
+            obj.core.report_code = header.get("report_id", "")
+    finally:
+        end = time.monotonic()
+        obj.core.duration = end - start
+        obj.core.save()
+        obj.save()
 
 
 @celery.shared_task(base=ValidationTask)

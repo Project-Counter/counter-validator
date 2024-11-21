@@ -104,8 +104,8 @@ class TestValidationMessage:
             "p": "element.Report_Header",
             "m": "Report header is messed up :)",
             "s": "Report header is messed up",
+            null_key: None,
         }
-        data[null_key] = None
         validation = ValidationFactory()
         message = ValidationMessage.from_dict(validation, 1, data)
         assert message.level == SeverityLevel.WARNING
