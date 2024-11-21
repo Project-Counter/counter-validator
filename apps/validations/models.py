@@ -223,3 +223,21 @@ class CounterAPIValidation(Validation):
                 }
             )
         )
+
+
+class ValidationMessage(UUIDPkMixin, models.Model):
+    validation = models.ForeignKey(Validation, on_delete=models.CASCADE)
+    number = models.PositiveIntegerField(default=1)
+    level = models.PositiveSmallIntegerField(choices=SeverityLevel)
+    code = models.CharField(max_length=16, blank=True)
+    message = models.TextField()
+    summary = models.CharField(max_length=128, blank=True)
+    hint = models.CharField(max_length=128, blank=True)
+    data = models.CharField(max_length=128, blank=True)
+    position = models.CharField(max_length=128, blank=True)
+
+    class Meta:
+        ordering = ["pk"]
+
+    def __str__(self):
+        return f"{self.get_level_display()}: {self.message}"
