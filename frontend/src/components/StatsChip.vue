@@ -7,11 +7,11 @@
       <template #activator="{ props }">
         <span
           v-bind="props"
-          :class="'text-' + levelColorMap.get(level)"
+          :class="'text-' + severityLevelColorMap.get(level)"
           class="me-3 text-caption"
         >
           <v-icon
-            :icon="'mdi-' + levelIconMap.get(level)"
+            :icon="'mdi-' + severityLevelIconMap.get(level)"
             size="x-small"
           />{{ value }}
         </span>
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue"
-import { ValidationCore, levelColorMap, levelIconMap } from "@/lib/definitions/api"
+import { ValidationCore, severityLevelColorMap, severityLevelIconMap } from "@/lib/definitions/api"
 import type { Entries } from "type-fest"
 
 let p = defineProps<{

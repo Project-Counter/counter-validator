@@ -3,7 +3,7 @@
     :cell-props="
       ({ item, column }) =>
         column.key == 'color'
-          ? { class: 'bg-' + colorMap.get(item.l), style: { minHeight: '4px' } }
+          ? { class: 'bg-' + colorMap.get(item.severity), style: { minHeight: '4px' } }
           : {}
     "
     density="compact"
@@ -55,12 +55,13 @@
 
 <script setup lang="ts">
 import {
-  levelColorMap as colorMap,
+  severityLevelColorMap as colorMap,
   Message,
   SeverityLevel,
   Validation,
 } from "@/lib/definitions/api"
 import { getValidationMessages } from "@/lib/http/message"
+import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
 
 const props = defineProps<{
   validation: Validation
@@ -73,7 +74,9 @@ const headers = [
   { key: "color", title: "", sortable: false },
   { key: "severity", title: "Severity" },
   { key: "location", title: "Location" },
+  { key: "data", title: "Data" },
   { key: "message", title: "Message" },
+  // { key: "summary", title: "Summary" },
   { key: "hint", title: "Hint" },
 ]
 

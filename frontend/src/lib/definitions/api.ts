@@ -86,7 +86,7 @@ export type Validation = {
   data_source: "counter_api" | "file"
 } & ValidationBase
 
-export const levelColorMap = new Map<SeverityLevel, string>([
+export const severityLevelColorMap = new Map<SeverityLevel, string>([
   ["Passed", "success"],
   ["Notice", "info"],
   ["Warning", "warning"],
@@ -95,7 +95,7 @@ export const levelColorMap = new Map<SeverityLevel, string>([
   ["Fatal error", "error"],
 ])
 
-export const levelIconMap = new Map<SeverityLevel, string>([
+export const severityLevelIconMap = new Map<SeverityLevel, string>([
   ["Passed", "check"],
   ["Notice", "information-outline"],
   ["Warning", "alert"],

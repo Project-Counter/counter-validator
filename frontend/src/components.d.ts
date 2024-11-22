@@ -22,6 +22,7 @@ declare module 'vue' {
     NewSushiValidation: typeof import('./components/NewSushiValidation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SeverityLevelChip: typeof import('./components/SeverityLevelChip.vue')['default']
     SimplePie: typeof import('./components/SimplePie.vue')['default']
     StatsChip: typeof import('./components/StatsChip.vue')['default']
     StatsPie: typeof import('./components/StatsPie.vue')['default']

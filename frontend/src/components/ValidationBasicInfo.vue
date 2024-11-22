@@ -25,7 +25,7 @@
       <tr>
         <th>Validation result</th>
         <td>
-          <ValidationResultChip :item="validation" />
+          <SeverityLevelChip :severity="validation.validation_result" />
         </td>
       </tr>
     </tbody>
@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { statusMap, ValidationDetail } from "@/lib/definitions/api"
 import { intlFormatDistance } from "date-fns"
-import ValidationResultChip from "@/components/ValidationResultChip.vue"
+import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
 import { filesize } from "filesize"
 
 const p = defineProps<{

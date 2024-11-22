@@ -13,7 +13,7 @@
     </template>
 
     <template #item.validation_result="{ item }">
-      <ValidationResult :item="item" />
+      <SeverityLevelChip :severity="item.validation_result" />
     </template>
 
     <template #item.file_size="{ item }">
@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { ValidationCore } from "@/lib/definitions/api"
 import { getValidationCores } from "@/lib/http/validation"
-import ValidationResult from "@/components/ValidationResultChip.vue"
+import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 import StatsPie from "@/components/StatsPie.vue"

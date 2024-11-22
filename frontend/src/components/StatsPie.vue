@@ -16,7 +16,7 @@
 
             <td>
               <v-icon
-                :color="levelColorMap.get(level)"
+                :color="severityLevelColorMap.get(level)"
                 size="16"
                 >mdi-circle</v-icon
               >
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue"
-import { ValidationBase, levelColorMap } from "@/lib/definitions/api"
+import { ValidationBase, severityLevelColorMap } from "@/lib/definitions/api"
 import SimplePie from "@/components/SimplePie.vue"
 import { useTheme } from "vuetify"
 import type { Entries } from "type-fest"
@@ -45,7 +45,7 @@ let p = defineProps<{
 const statParts = computed(() =>
   (Object.entries(p.item.stats) as Entries<typeof p.item.stats>).map(([level, value]) => ({
     size: value,
-    color: vTheme.current.value.colors[levelColorMap.get(level) ?? "grey"],
+    color: vTheme.current.value.colors[severityLevelColorMap.get(level) ?? "grey"],
   })),
 )
 </script>
