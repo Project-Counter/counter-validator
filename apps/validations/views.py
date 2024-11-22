@@ -50,6 +50,15 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         out_serializer = self.get_serializer(obj)
         return Response(out_serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=("GET",), url_path="stats")
+    def stats(self, request, pk=None):
+        validation: Validation = self.get_object()
+        stats = {
+            "summary": validation.get_summary_stats(),
+            "summary_severity": validation.get_summary_severity_stats(),
+        }
+        return Response(stats)
+
 
 class CounterAPIValidationViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated | HasUserAPIKey]

@@ -177,6 +177,32 @@ class Validation(UUIDPkMixin, models.Model):
         self.result_data = result
         return stats
 
+    def get_summary_stats(self):
+        """
+        Statistics of messages with specific summary.
+        """
+        return {
+            rec["summary"]: rec["count"]
+            for rec in ValidationMessage.objects.filter(validation=self)
+            .values("summary")
+            .annotate(count=models.Count("summary"))
+            .order_by("-count")
+        }
+
+    def get_summary_severity_stats(self):
+        """
+        Statistics of messages with specific severity.
+        """
+        out = (
+            ValidationMessage.objects.filter(validation=self)
+            .values("summary", "severity")
+            .annotate(count=models.Count("severity"))
+            .order_by("-severity", "-count")
+        )
+        for rec in out:
+            rec["severity"] = SeverityLevel(rec["severity"]).label
+        return out
+
 
 class CounterAPIValidation(Validation):
     """

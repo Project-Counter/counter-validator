@@ -175,8 +175,8 @@ import * as rules from "@/lib/formRules"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
-import { isoDate } from "@/lib/datetime"
 import { useAppStore } from "@/stores/app"
+import { isoDate } from "@/lib/formatting"
 
 const stepper = ref(1)
 const formValid = ref(false)

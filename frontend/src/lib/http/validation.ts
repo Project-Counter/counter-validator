@@ -2,7 +2,8 @@ import { Credentials, Validation, ValidationCore, ValidationDetail } from "../de
 import { FUpload } from "../definitions/upload"
 import { jsonFetch, wrapFetch } from "./util"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
-import { isoDate } from "@/lib/datetime"
+
+import { isoDate } from "@/lib/formatting"
 
 export const urls = {
   list: "validations/validation/",

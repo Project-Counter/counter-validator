@@ -14,3 +14,12 @@ export async function getValidationMessages(validationId: string) {
   const out = await jsonFetch<PaginatedMessage>(url)
   return out.results
 }
+
+export async function getValidationMessageStats(validationId: string) {
+  const url = `${urls.list}${validationId}/stats/`
+  const out = await jsonFetch<{
+    summary: Record<string, number>
+    summary_severity: { summary: string; severity: number; count: number }[]
+  }>(url)
+  return out
+}

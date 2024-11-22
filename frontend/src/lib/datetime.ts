@@ -1,5 +1,3 @@
-import { formatISO } from "date-fns"
-
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -17,8 +15,4 @@ export class Timer {
   clear() {
     if (this.timeoutId) clearTimeout(this.timeoutId)
   }
-}
-
-export function isoDate(date: Date) {
-  return formatISO(date, { representation: "date" })
 }

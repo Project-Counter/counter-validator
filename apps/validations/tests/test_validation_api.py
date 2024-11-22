@@ -7,7 +7,12 @@ from counter.fake_data import PlatformFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from validations.fake_data import CounterAPIValidationRequestDataFactory, ValidationFactory
+from validations.enums import SeverityLevel
+from validations.fake_data import (
+    CounterAPIValidationRequestDataFactory,
+    ValidationFactory,
+    ValidationMessageFactory,
+)
 from validations.models import Validation, ValidationCore
 
 
@@ -195,6 +200,30 @@ class TestFileValidationAPI:
         assert val.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
+
+    def test_validation_stats(self, client_authenticated_user, normal_user):
+        v = ValidationFactory.create(user=normal_user)
+        ValidationMessageFactory.create(validation=v, severity=SeverityLevel.ERROR, summary="Aaa")
+        ValidationMessageFactory.create_batch(
+            2, validation=v, severity=SeverityLevel.NOTICE, summary="Bbb"
+        )
+        ValidationMessageFactory.create_batch(
+            3, validation=v, severity=SeverityLevel.NOTICE, summary="Ccc"
+        )
+        res = client_authenticated_user.get(reverse("validation-stats", args=[v.pk]))
+        assert res.status_code == 200
+        assert "summary" in res.json()
+        assert res.json()["summary"] == {
+            "Aaa": 1,
+            "Bbb": 2,
+            "Ccc": 3,
+        }
+        assert "summary_severity" in res.json()
+        assert res.json()["summary_severity"] == [
+            {"summary": "Aaa", "severity": "Error", "count": 1},
+            {"summary": "Ccc", "severity": "Notice", "count": 3},
+            {"summary": "Bbb", "severity": "Notice", "count": 2},
+        ]
 
 
 @pytest.mark.django_db

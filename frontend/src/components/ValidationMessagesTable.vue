@@ -49,6 +49,38 @@
           </v-chip>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col cols="auto">
+          <v-table density="compact">
+            <tbody>
+              <tr
+                v-for="stat in stats"
+                :key="`${stats.severity}-${stat.summary}`"
+              >
+                <td>
+                  <SeverityLevelChip
+                    :severity="stat.severity"
+                    variant="text"
+                  />
+                </td>
+                <td>{{ stat.summary }}</td>
+                <td class="text-right">{{ formatInteger(stat.count) }}</td>
+                <td class="text-right">{{ formatPercent(stat.count / total) }}</td>
+                <td>
+                  <span
+                    :style="{
+                      width: `${Math.round((100 * stat.count) / total)}px`,
+                    }"
+                    class="d-inline-block"
+                    :class="`bg-${severityLevelColorMap.get(stat.severity)}`"
+                    >&nbsp;</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-col>
+      </v-row>
     </template>
   </v-data-table>
 </template>
@@ -59,9 +91,11 @@ import {
   Message,
   SeverityLevel,
   Validation,
+  severityLevelColorMap,
 } from "@/lib/definitions/api"
-import { getValidationMessages } from "@/lib/http/message"
+import { getValidationMessages, getValidationMessageStats } from "@/lib/http/message"
 import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
+import { formatInteger, formatPercent } from "../lib/formatting"
 
 const props = defineProps<{
   validation: Validation
@@ -108,6 +142,16 @@ const filteredMessages = computed(() => {
   return messages.value.filter((m) => selectedLevels.value.includes(m.severity))
 })
 
+// messages stats
+const stats = ref<{ summary: string; severity: number; count: number }[]>([])
+const total = ref(0)
+async function getMessagesStats() {
+  stats.value = (await getValidationMessageStats(props.validation.id)).summary_severity
+  total.value = stats.value.reduce((acc, curr) => acc + curr.count, 0)
+  console.log(stats.value)
+}
+
 // on mount
 onMounted(getMessages)
+onMounted(getMessagesStats)
 </script>
