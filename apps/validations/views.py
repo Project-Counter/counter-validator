@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 import validations.serializers
+from validations.filters import OrderByFilter, SeverityFilter
 from validations.models import Validation, ValidationCore, ValidationMessage
 from validations.serializers import (
     CounterAPIValidationCreateSerializer,
@@ -83,10 +84,17 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
         return ValidationCore.objects.select_related("platform").order_by("-created")
 
 
+class MessagePagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
+
 class ValidationMessageViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = validations.serializers.ValidationMessageSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = MessagePagination
+    filter_backends = [OrderByFilter, SeverityFilter]
 
     def get_queryset(self):
         validation = get_object_or_404(

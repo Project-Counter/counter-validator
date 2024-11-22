@@ -15,6 +15,11 @@ export async function getValidationMessages(validationId: string) {
   return out.results
 }
 
+export async function getValidationMessagesFromUrl(url: string) {
+  const out = await jsonFetch<PaginatedMessage>(url)
+  return out
+}
+
 export async function getValidationMessageStats(validationId: string) {
   const url = `${urls.list}${validationId}/stats/`
   const out = await jsonFetch<{

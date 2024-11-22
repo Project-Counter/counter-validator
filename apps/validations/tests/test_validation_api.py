@@ -343,3 +343,82 @@ class TestValidationMessagesAPI:
         assert "hint" in out
         assert "location" in out
         assert "data" in out
+
+    @pytest.mark.parametrize("page_size", [5, 8, 10, 15])
+    def test_list_pagination(self, client_authenticated_user, normal_user, page_size):
+        val = ValidationFactory(user=normal_user, messages__count=10)
+        res = client_authenticated_user.get(
+            reverse("validation-message-list", args=[val.pk]), {"page_size": page_size}
+        )
+        assert res.status_code == 200
+        out = res.json()
+        assert "count" in out, "count should be in the response - it should be paginated"
+        assert "next" in out, "next should be in the response - it should be paginated"
+        assert "previous" in out, "previous should be in the response - it should be paginated"
+        assert "results" in out, "results should be in the response - it should be paginated"
+        assert len(out["results"]) == min(page_size, 10)
+
+    @pytest.mark.parametrize("order_desc", [True, False])
+    @pytest.mark.parametrize("order_by", ["summary", "hint", "location"])
+    def test_list_ordering(self, client_authenticated_user, normal_user, order_by, order_desc):
+        val = ValidationFactory(user=normal_user, messages__count=10)
+        res = client_authenticated_user.get(
+            reverse("validation-message-list", args=[val.pk]),
+            {"order_by": order_by, "order_desc": order_desc},
+        )
+        assert res.status_code == 200
+        out = res.json()
+        assert len(out["results"]) == 10
+        if order_desc:
+            assert out["results"][0][order_by] >= out["results"][-1][order_by]
+        else:
+            assert out["results"][0][order_by] <= out["results"][-1][order_by]
+
+    @pytest.mark.parametrize("order_desc", [True, False])
+    def test_list_ordering_by_severity(self, client_authenticated_user, normal_user, order_desc):
+        """
+        Severity needs to be decoded back to the enum value to be able to compare it,
+        so it has a separate test
+        """
+        val = ValidationFactory(user=normal_user, messages__count=10)
+        res = client_authenticated_user.get(
+            reverse("validation-message-list", args=[val.pk]),
+            {"order_by": "severity", "order_desc": order_desc},
+        )
+        assert res.status_code == 200
+        out = res.json()
+        assert len(out["results"]) == 10
+        first_value = SeverityLevel.by_any_value(out["results"][0]["severity"])
+        last_value = SeverityLevel.by_any_value(out["results"][-1]["severity"])
+        if order_desc:
+            assert first_value >= last_value
+        else:
+            assert first_value <= last_value
+
+    @pytest.mark.parametrize("severity", [SeverityLevel.ERROR, SeverityLevel.WARNING])
+    @pytest.mark.parametrize("encoding", ["value", "name", "label"])
+    def test_list_filtering_by_severity(
+        self, client_authenticated_user, normal_user, severity, encoding
+    ):
+        val = ValidationFactory(user=normal_user)
+        ValidationMessageFactory.create_batch(3, validation=val, severity=severity)
+        ValidationMessageFactory.create_batch(1, validation=val, severity=SeverityLevel.NOTICE)
+        ValidationMessageFactory.create_batch(
+            2, validation=val, severity=SeverityLevel.CRITICAL_ERROR
+        )
+        res = client_authenticated_user.get(
+            reverse("validation-message-list", args=[val.pk]),
+            {"severity": getattr(severity, encoding)},
+        )
+        assert res.status_code == 200
+        out = res.json()
+        assert len(out["results"]) == 3
+        for r in out["results"]:
+            assert r["severity"] == severity.label
+        # test with list
+        res = client_authenticated_user.get(
+            reverse("validation-message-list", args=[val.pk]),
+            {"severity": f"{getattr(severity, encoding)},{SeverityLevel.NOTICE.label}"},
+        )
+        assert res.status_code == 200
+        assert len(res.json()) == 4

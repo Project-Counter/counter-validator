@@ -19,6 +19,13 @@ class SeverityLevel(models.IntegerChoices):
                 return member
         return cls.UNKNOWN
 
+    @classmethod
+    def by_any_value(cls, value) -> "SeverityLevel | None":
+        for member in cls:
+            if member.value == value or member.label == value or member.name == value:
+                return member
+        return None
+
 
 class ValidationStatus(models.IntegerChoices):
     WAITING = 0

@@ -1,5 +1,8 @@
 <template>
-  <v-data-table
+  <v-data-table-server
+    v-model:items-per-page="params.pageSize"
+    v-model:page="params.page"
+    v-model:sort-by="params.sortBy"
     :cell-props="
       ({ item, column }) =>
         column.key == 'color'
@@ -8,9 +11,10 @@
     "
     density="compact"
     :headers="headers"
-    :items="filteredMessages"
-    :items-per-page="25"
+    :items="messages"
     :mobile="null"
+    :items-length="totalCount"
+    @update:options="getMessages"
   >
     <template #top>
       <v-row>
@@ -82,7 +86,7 @@
         </v-col>
       </v-row>
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
@@ -93,9 +97,11 @@ import {
   Validation,
   severityLevelColorMap,
 } from "@/lib/definitions/api"
-import { getValidationMessages, getValidationMessageStats } from "@/lib/http/message"
+import { getValidationMessageStats, getValidationMessagesFromUrl } from "@/lib/http/message"
 import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
 import { formatInteger, formatPercent } from "../lib/formatting"
+import { usePaginatedAPI } from "@/composables/paginatedAPI"
+import { urls } from "@/lib/http/validation"
 
 const props = defineProps<{
   validation: Validation
@@ -134,12 +140,18 @@ const severityMap = computed(() => {
 })
 
 // messages
+const { url, params, filters } = usePaginatedAPI(`${urls.list}${props.validation.id}/messages/`)
+const totalCount = ref(0)
+
 async function getMessages() {
-  messages.value = await getValidationMessages(props.validation.id)
+  const { results: m, count } = await getValidationMessagesFromUrl(url.value)
+  messages.value = m
+  totalCount.value = count
 }
 
-const filteredMessages = computed(() => {
-  return messages.value.filter((m) => selectedLevels.value.includes(m.severity))
+watch([selectedLevels], () => {
+  filters.severity = selectedLevels.value.join(",")
+  getMessages()
 })
 
 // messages stats
@@ -148,10 +160,9 @@ const total = ref(0)
 async function getMessagesStats() {
   stats.value = (await getValidationMessageStats(props.validation.id)).summary_severity
   total.value = stats.value.reduce((acc, curr) => acc + curr.count, 0)
-  console.log(stats.value)
 }
 
 // on mount
-onMounted(getMessages)
+// onMounted(getMessages)
 onMounted(getMessagesStats)
 </script>
