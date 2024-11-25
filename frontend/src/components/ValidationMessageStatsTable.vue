@@ -1,5 +1,14 @@
 <template>
   <v-table density="compact">
+    <thead>
+      <tr>
+        <th>Severity</th>
+        <th>Summary</th>
+        <th class="text-right">Count</th>
+        <th class="text-right">Percentage</th>
+        <th>Graph</th>
+      </tr>
+    </thead>
     <tbody>
       <tr
         v-for="stat in stats"

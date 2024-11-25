@@ -17,42 +17,6 @@
     @update:options="getMessages"
   >
     <template #top>
-      <v-row>
-        <v-col
-          class="align-self-center"
-          cols="auto"
-        >
-          <v-chip
-            v-for="[level, count] in severityMap.entries()"
-            :key="level"
-            class="ps-0 pe-1"
-            :color="selectedLevels.includes(level) ? colorMap.get(level) : 'grey'"
-            size="large"
-            @click="toggleLevelVisibility(level)"
-          >
-            <template #append>
-              <v-chip
-                class="ms-2 text-caption"
-                :class="'bg-' + (selectedLevels.includes(level) ? colorMap.get(level) : 'grey')"
-                variant="text"
-              >
-                {{ count }}
-              </v-chip>
-            </template>
-            <template #prepend>
-              <v-checkbox
-                v-model="selectedLevels"
-                class="pa-0 ma-0"
-                hide-details
-                multiple
-                :value="level"
-              />
-            </template>
-
-            {{ level }}
-          </v-chip>
-        </v-col>
-      </v-row>
       <v-row class="pb-6">
         <v-col>
           <v-expansion-panels>
@@ -60,6 +24,40 @@
               <v-expansion-panel-title>
                 <v-icon class="mr-2">mdi-chart-bar</v-icon>
                 <span>Statistics</span>
+
+                <v-spacer></v-spacer>
+
+                <v-chip
+                  v-for="[level, count] in severityMap.entries()"
+                  :key="level"
+                  class="ps-0 pe-1"
+                  :color="selectedLevels.includes(level) ? colorMap.get(level) : 'grey'"
+                  size="large"
+                  @click.stop="toggleLevelVisibility(level)"
+                >
+                  <template #append>
+                    <v-chip
+                      class="ms-2 text-caption"
+                      :class="
+                        'bg-' + (selectedLevels.includes(level) ? colorMap.get(level) : 'grey')
+                      "
+                      variant="text"
+                    >
+                      {{ count }}
+                    </v-chip>
+                  </template>
+                  <template #prepend>
+                    <v-checkbox
+                      v-model="selectedLevels"
+                      class="pa-0 ma-0"
+                      hide-details
+                      multiple
+                      :value="level"
+                    />
+                  </template>
+
+                  {{ level }}
+                </v-chip>
               </v-expansion-panel-title>
               <v-expansion-panel-text>
                 <ValidationMessageStatsTable :validation="validation" />
