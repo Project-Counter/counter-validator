@@ -1,26 +1,35 @@
 <template>
-  <span class="d-flex">
+  <span class="d-flex flex-grow-1 flex-basis-0">
     <v-select
       v-model="month"
       :items="availableMonths"
       item-title="title"
       item-value="value"
+      item-props
+      :label="label ? label + ' (month)' : null"
+      class="pr-1"
     ></v-select>
     <v-select
       v-model="year"
       :items="availableYears"
+      :label="label ? label + ' (year)' : null"
       max-width="8rem"
+      min-width="7rem"
     ></v-select>
   </span>
 </template>
 
 <script setup lang="ts">
 let model = defineModel<Date>({ required: true })
+const props = defineProps<{
+  validator?: (value: Date) => boolean
+  label?: string
+}>()
 
 const month = ref(model.value.getMonth() + 1)
 const year = ref(model.value.getFullYear().toString())
 
-const availableMonths = [
+const allMonths = [
   { value: 1, title: "January" },
   { value: 2, title: "February" },
   { value: 3, title: "March" },
@@ -35,14 +44,42 @@ const availableMonths = [
   { value: 12, title: "December" },
 ]
 
-let availableYears: Array<string> = []
+let allYears: Array<string> = []
 for (let i = 2010; i <= new Date().getFullYear(); i++) {
-  availableYears.push(i.toString())
+  allYears.push(i.toString())
 }
+
+const availableMonths = computed(() => {
+  return allMonths.map((m) => {
+    let enabled = true
+    if (props.validator) {
+      enabled = props.validator(new Date(Number.parseInt(year.value), m.value - 1))
+    }
+    m.disabled = !enabled
+    return m
+  })
+})
+
+const availableYears = computed(() => {
+  if (props.validator)
+    return allYears.filter((y) =>
+      allMonths.map((m) => new Date(Number.parseInt(y), m.value - 1)).some(props.validator),
+    )
+  return allYears
+})
 
 // watch input and emit new date
 watch([month, year], () => {
-  model.value = new Date(Number.parseInt(year.value), month.value - 1)
+  let newValue = new Date(Number.parseInt(year.value), month.value - 1)
+  if (props.validator && !props.validator(newValue)) {
+    // if the new value is invalid, find the next valid month
+    newValue =
+      allMonths
+        .reverse()
+        .map((m) => new Date(Number.parseInt(year.value), m.value - 1))
+        .find(props.validator) ?? model.value
+  }
+  model.value = newValue
 })
 
 watch(
@@ -54,4 +91,8 @@ watch(
 )
 </script>
 
-<style scoped></style>
+<style scoped>
+.flex-basis-0 {
+  flex-basis: 0;
+}
+</style>

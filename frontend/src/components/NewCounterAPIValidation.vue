@@ -111,10 +111,10 @@
 
         <v-row>
           <v-col>
-            <MonthPicker v-model="beginDate"></MonthPicker>
-          </v-col>
-          <v-col>
-            <MonthPicker v-model="endDate"></MonthPicker>
+            <MonthRangePicker
+              v-model:start="beginDate"
+              v-model:end="endDate"
+            />
           </v-col>
         </v-row>
       </v-form>
@@ -141,7 +141,7 @@
                 </tr>
                 <tr>
                   <th>Period</th>
-                  <td>{{ isoDate(beginDate) }} - {{ isoDate(endDate) }}</td>
+                  <td>{{ isoDate(beginDate) }} - {{ isoDate(endOfMonth(endDate)) }}</td>
                 </tr>
               </tbody>
             </v-table>
