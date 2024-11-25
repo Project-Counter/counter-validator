@@ -28,6 +28,24 @@ export type SeverityLevel =
   | "Fatal error"
   | ""
 
+export const severityLevelColorMap = new Map<SeverityLevel, string>([
+  ["Passed", "success"],
+  ["Notice", "info"],
+  ["Warning", "warning"],
+  ["Error", "error"],
+  ["Critical error", "error"],
+  ["Fatal error", "error"],
+])
+
+export const severityLevelIconMap = new Map<SeverityLevel, string>([
+  ["Passed", "check"],
+  ["Notice", "information-outline"],
+  ["Warning", "alert"],
+  ["Error", "alert-circle"],
+  ["Critical error", "alert-circle"],
+  ["Fatal error", "alert-circle"],
+])
+
 export type Message = {
   severity: SeverityLevel // level
   summary: string // summary
@@ -85,24 +103,6 @@ export type Validation = {
   api_key_prefix: string
   data_source: "counter_api" | "file"
 } & ValidationBase
-
-export const severityLevelColorMap = new Map<SeverityLevel, string>([
-  ["Passed", "success"],
-  ["Notice", "info"],
-  ["Warning", "warning"],
-  ["Error", "error"],
-  ["Critical error", "error"],
-  ["Fatal error", "error"],
-])
-
-export const severityLevelIconMap = new Map<SeverityLevel, string>([
-  ["Passed", "check"],
-  ["Notice", "information-outline"],
-  ["Warning", "alert"],
-  ["Error", "alert-circle"],
-  ["Critical error", "alert-circle"],
-  ["Fatal error", "alert-circle"],
-])
 
 export type ValidationDetail = Validation & {
   result_data: Result

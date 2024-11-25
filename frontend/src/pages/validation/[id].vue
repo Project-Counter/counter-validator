@@ -18,7 +18,7 @@
       prepend-icon="mdi-receipt-text"
       value="result"
     >
-      Validation result
+      Validation messages
     </v-tab>
   </v-tabs>
   <v-tabs-window
@@ -33,47 +33,24 @@
         :validation="validation"
       />
 
+      <h3 class="mt-6 mb-5">Extracted information</h3>
+      <ValidationExtractedInfo
+        v-if="validation"
+        :validation="validation"
+      />
+
       <section v-if="header">
         <h3 class="my-5">Report Header</h3>
-        <v-row v-if="header.result">
-          <v-col
-            cols="12"
-            md="2"
-          >
-            Result
-          </v-col>
-
-          <v-col>
-            <div
-              v-for="(line, idx) in header.result ?? []"
-              :key="idx"
-            >
-              {{ line }}
-            </div>
-          </v-col>
-        </v-row>
-        <v-row v-if="header.report">
-          <v-col
-            cols="12"
-            md="2"
-          >
-            Report header
-          </v-col>
-          <v-col
-            cols="12"
-            md="10"
-          >
-            <div
-              v-for="(line, key) in header.report ?? []"
-              :key="key"
-              class="json"
-            >
-              {{ line }}
-            </div>
-          </v-col>
-        </v-row>
+        <div
+          v-for="(line, key) in header.report ?? []"
+          :key="key"
+          class="json"
+        >
+          {{ line }}
+        </div>
       </section>
     </v-tabs-window-item>
+
     <v-tabs-window-item
       v-if="validation"
       value="result"
@@ -110,6 +87,7 @@ load().then()
 .json {
   white-space: pre-wrap;
   font-family: monospace;
-  font-size: 0.875em;
+  font-size: 0.825em;
+  color: #555555;
 }
 </style>

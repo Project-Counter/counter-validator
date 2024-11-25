@@ -29,6 +29,7 @@ declare module 'vue' {
     UserForm: typeof import('./components/UserForm.vue')['default']
     ValidationBasicInfo: typeof import('./components/ValidationBasicInfo.vue')['default']
     ValidationCoreTable: typeof import('./components/ValidationCoreTable.vue')['default']
+    ValidationExtractedInfo: typeof import('./components/ValidationExtractedInfo.vue')['default']
     ValidationMessagesTable: typeof import('./components/ValidationMessagesTable.vue')['default']
     ValidationMessageStatsTable: typeof import('./components/ValidationMessageStatsTable.vue')['default']
     ValidationStatus: typeof import('./components/ValidationStatus.vue')['default']
