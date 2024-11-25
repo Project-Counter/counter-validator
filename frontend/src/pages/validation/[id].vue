@@ -13,6 +13,8 @@
       Info
     </v-tab>
 
+    <v-tab prepend-icon="mdi-chart-bar">Statistics</v-tab>
+
     <v-tab
       v-if="validation && Object.keys(validation.stats).length"
       prepend-icon="mdi-receipt-text"
@@ -49,6 +51,10 @@
           {{ line }}
         </div>
       </section>
+    </v-tabs-window-item>
+
+    <v-tabs-window-item value="statistics">
+      <ValidationMessageStatsTable :validation="validation" />
     </v-tabs-window-item>
 
     <v-tabs-window-item
