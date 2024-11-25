@@ -53,36 +53,19 @@
           </v-chip>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col cols="auto">
-          <v-table density="compact">
-            <tbody>
-              <tr
-                v-for="stat in stats"
-                :key="`${stat.severity}-${stat.summary}`"
-              >
-                <td>
-                  <SeverityLevelChip
-                    :severity="stat.severity"
-                    variant="text"
-                  />
-                </td>
-                <td>{{ stat.summary }}</td>
-                <td class="text-right">{{ formatInteger(stat.count) }}</td>
-                <td class="text-right">{{ formatPercent(stat.count / total) }}</td>
-                <td>
-                  <span
-                    :style="{
-                      width: `${Math.round((100 * stat.count) / total)}px`,
-                    }"
-                    class="d-inline-block"
-                    :class="`bg-${severityLevelColorMap.get(stat.severity)}`"
-                    >&nbsp;</span
-                  >
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
+      <v-row class="pb-6">
+        <v-col>
+          <v-expansion-panels>
+            <v-expansion-panel eager>
+              <v-expansion-panel-title>
+                <v-icon class="mr-2">mdi-chart-bar</v-icon>
+                <span>Statistics</span>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <ValidationMessageStatsTable :validation="validation" />
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-col>
       </v-row>
     </template>
@@ -91,17 +74,15 @@
 
 <script setup lang="ts">
 import {
-  severityLevelColorMap as colorMap,
   Message,
   SeverityLevel,
+  severityLevelColorMap as colorMap,
   Validation,
-  severityLevelColorMap,
 } from "@/lib/definitions/api"
-import { getValidationMessageStats, getValidationMessagesFromUrl } from "@/lib/http/message"
-import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
-import { formatInteger, formatPercent } from "../lib/formatting"
+import { getValidationMessagesFromUrl } from "@/lib/http/message"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { urls } from "@/lib/http/validation"
+import ValidationMessageStatsTable from "@/components/ValidationMessageStatsTable.vue"
 
 const props = defineProps<{
   validation: Validation
@@ -153,16 +134,4 @@ watch([selectedLevels], () => {
   filters.severity = selectedLevels.value.join(",")
   getMessages()
 })
-
-// messages stats
-const stats = ref<{ summary: string; severity: SeverityLevel; count: number }[]>([])
-const total = ref(0)
-async function getMessagesStats() {
-  stats.value = (await getValidationMessageStats(props.validation.id)).summary_severity
-  total.value = stats.value.reduce((acc, curr) => acc + curr.count, 0)
-}
-
-// on mount
-// onMounted(getMessages)
-onMounted(getMessagesStats)
 </script>
