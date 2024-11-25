@@ -2,7 +2,7 @@
   <v-stepper
     v-model="stepper"
     :disabled="!formValid"
-    :items="['Server selection', 'Report selection', 'Validation']"
+    :items="['Server selection', 'Endpoint selection', 'Validation']"
     editable
     :max="4"
   >
@@ -91,7 +91,7 @@
 
     <template #item.2>
       <v-form>
-        <h2 class="mb-3">Report selection</h2>
+        <h2 class="mb-3">Endpoint selection</h2>
         <v-row>
           <v-col>
             <v-select
@@ -102,15 +102,36 @@
           </v-col>
           <v-col>
             <v-select
+              v-model="endpoint"
+              :items="apiEndpoints"
+              label="Endpoint"
+              item-value="code"
+              item-title="name"
+            >
+              <template #item="{ item, props }">
+                <v-list-item
+                  v-bind="props"
+                  :subtitle="item.raw.path"
+                >
+                </v-list-item>
+              </template>
+            </v-select>
+          </v-col>
+        </v-row>
+
+        <v-row v-if="endpoint === 'reports'">
+          <v-col
+            cols="6"
+            md="3"
+            lg="2"
+          >
+            <v-select
               v-model="reportCode"
               label="Report code"
               :items="reportCodes"
             ></v-select>
           </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col>
+          <v-col cols="12">
             <MonthRangePicker
               v-model:start="beginDate"
               v-model:end="endDate"
@@ -190,6 +211,13 @@ const endDate = ref(endOfMonth(lastMonth))
 
 const copItems = ["5", "5.1"]
 const reportCodes = Object.values(ReportCode)
+const apiEndpoints = [
+  { name: "Reports", path: "/reports/[code]", code: "reports" },
+  { name: "Report list", path: "/reports", code: "report-list" },
+  { name: "Members", path: "/members", code: "members" },
+  { name: "Status", path: "/status", code: "status" },
+]
+const endpoint = ref(apiEndpoints[0].code)
 
 const loading = ref(false)
 const loadingPlatforms = ref(true)
@@ -240,7 +268,5 @@ async function create() {
   await router.push({ name: "/" })
 }
 
-onMounted(() => {
-  load().then()
-})
+onMounted(load)
 </script>

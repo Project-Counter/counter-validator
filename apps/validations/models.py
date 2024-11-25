@@ -231,8 +231,9 @@ class CounterAPIValidation(Validation):
         blank=True,
         help_text="Extra attributes for the SUSHI request, e.g. report filters",
     )
-    requested_begin_date = models.DateField()
-    requested_end_date = models.DateField()
+    # dates are not required for all endpoints
+    requested_begin_date = models.DateField(null=True, blank=True)
+    requested_end_date = models.DateField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.core.sushi_credentials_checksum = checksum_dict(self.credentials)
