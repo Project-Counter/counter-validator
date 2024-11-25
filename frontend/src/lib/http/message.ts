@@ -1,6 +1,6 @@
 import { urls } from "@/lib/http/validation"
 import { jsonFetch } from "@/lib/http/util"
-import { Message } from "@/lib/definitions/api"
+import { Message, SeverityLevel } from "@/lib/definitions/api"
 
 type PaginatedMessage = {
   count: number
@@ -24,7 +24,7 @@ export async function getValidationMessageStats(validationId: string) {
   const url = `${urls.list}${validationId}/stats/`
   const out = await jsonFetch<{
     summary: Record<string, number>
-    summary_severity: { summary: string; severity: number; count: number }[]
+    summary_severity: { summary: string; severity: SeverityLevel; count: number }[]
   }>(url)
   return out
 }

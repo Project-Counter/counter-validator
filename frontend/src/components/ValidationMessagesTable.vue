@@ -59,7 +59,7 @@
             <tbody>
               <tr
                 v-for="stat in stats"
-                :key="`${stats.severity}-${stat.summary}`"
+                :key="`${stat.severity}-${stat.summary}`"
               >
                 <td>
                   <SeverityLevelChip
@@ -155,7 +155,7 @@ watch([selectedLevels], () => {
 })
 
 // messages stats
-const stats = ref<{ summary: string; severity: number; count: number }[]>([])
+const stats = ref<{ summary: string; severity: SeverityLevel; count: number }[]>([])
 const total = ref(0)
 async function getMessagesStats() {
   stats.value = (await getValidationMessageStats(props.validation.id)).summary_severity
