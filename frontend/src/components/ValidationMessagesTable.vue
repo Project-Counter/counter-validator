@@ -40,7 +40,7 @@
               <v-checkbox
                 v-model="selectedLevels"
                 class="pa-0 ma-0"
-                hide-details
+                :hide-details="true"
                 multiple
                 :value="level"
               />
@@ -48,6 +48,14 @@
 
             {{ level }}
           </v-chip>
+        </v-col>
+        <v-col>
+          <v-text-field
+            v-model="search"
+            label="Search"
+            clearable
+            dense
+          ></v-text-field>
         </v-col>
       </v-row>
     </template>
@@ -66,9 +74,15 @@ import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { urls } from "@/lib/http/validation"
 import { HttpStatusError } from "@/lib/http/util"
 
-const props = defineProps<{
-  validation: Validation
-}>()
+const props = withDefaults(
+  defineProps<{
+    validation: Validation
+    searchString: string
+  }>(),
+  {
+    searchString: "",
+  },
+)
 
 const messages = ref<Message[]>([])
 
@@ -122,11 +136,24 @@ async function getMessages() {
       totalCount.value = 0
       return
     }
+    throw err
   }
 }
 
-watch([selectedLevels], () => {
+// search
+const search = ref(props.searchString)
+
+watch(selectedLevels, () => {
   filters.severity = selectedLevels.value.join(",")
   getMessages()
+})
+
+watchEffect(() => {
+  filters.search = search.value || ""
+  getMessages()
+})
+
+watchEffect(() => {
+  search.value = props.searchString
 })
 </script>

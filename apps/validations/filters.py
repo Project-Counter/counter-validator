@@ -37,3 +37,11 @@ class SeverityFilter(filters.BaseFilterBackend):
             if values:
                 return queryset.filter(severity__in=values)
         return queryset
+
+
+class MessagesSearchFilter(filters.SearchFilter):
+    """
+    A filter backend that allows filtering by text.
+    """
+
+    search_param = "search"

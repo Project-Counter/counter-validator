@@ -18,7 +18,7 @@
     <v-tab
       v-if="Object.keys(validation.stats).length"
       prepend-icon="mdi-receipt-text"
-      value="result"
+      value="messages"
     >
       Validation messages
     </v-tab>
@@ -83,15 +83,17 @@
         <ValidationMessageStatsTable
           v-if="validation"
           :validation="validation"
+          @select-message="selectMessage"
         />
       </v-container>
     </v-tabs-window-item>
 
-    <v-tabs-window-item value="result">
+    <v-tabs-window-item value="messages">
       <v-container>
         <ValidationMessagesTable
           v-if="validation"
           :validation="validation"
+          :search-string="messagesSearchString"
         />
       </v-container>
     </v-tabs-window-item>
@@ -99,12 +101,12 @@
 </template>
 
 <script setup lang="ts">
-import { ValidationDetail } from "@/lib/definitions/api"
+import { Message, ValidationDetail } from "@/lib/definitions/api"
 import { getValidationDetail } from "@/lib/http/validation"
 import ValidationMessagesTable from "@/components/ValidationMessagesTable.vue"
 import ValidationBasicInfo from "@/components/ValidationBasicInfo.vue"
 
-const tab = ref(null)
+const tab = ref("info")
 
 const validation = ref<ValidationDetail>()
 const route = useRoute()
@@ -133,7 +135,16 @@ async function load() {
     validation.value = await getValidationDetail(route.params.id)
   }
 }
-load().then()
+
+// message selected in the stats table
+const messagesSearchString = ref("")
+
+function selectMessage(message: Message) {
+  tab.value = "messages"
+  messagesSearchString.value = message.summary
+}
+
+onMounted(load)
 </script>
 
 <style scoped lang="scss">

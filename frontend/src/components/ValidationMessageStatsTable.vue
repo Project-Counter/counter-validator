@@ -7,6 +7,7 @@
         <th class="text-right">Count</th>
         <th class="text-right">Percentage</th>
         <th>Graph</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -20,7 +21,9 @@
             variant="text"
           />
         </td>
-        <td>{{ stat.summary }}</td>
+        <td>
+          {{ stat.summary }}
+        </td>
         <td class="text-right">{{ formatInteger(stat.count) }}</td>
         <td class="text-right">{{ formatPercent(stat.count / total) }}</td>
         <td>
@@ -32,6 +35,16 @@
             :class="`bg-${severityLevelColorMap.get(stat.severity)}`"
             >&nbsp;</span
           >
+        </td>
+        <td>
+          <v-btn
+            size="x-small"
+            variant="text"
+            @click="emit('select-message', stat)"
+          >
+            <v-icon class="mr-1">mdi-filter-outline</v-icon>
+            Apply filter
+          </v-btn>
         </td>
       </tr>
     </tbody>
@@ -46,6 +59,8 @@ import { formatInteger, formatPercent } from "../lib/formatting"
 const props = defineProps<{
   validation: Validation
 }>()
+
+const emit = defineEmits(["select-message"])
 
 // messages stats
 const stats = ref<{ summary: string; severity: SeverityLevel; count: number }[]>([])

@@ -50,7 +50,7 @@
               v-for="(value, key) in validation.credentials"
               :key="key"
             >
-              <th>{{ key }}</th>
+              <th class="font-weight-regular">{{ key }}</th>
               <td>{{ value }}</td>
             </tr>
           </table>
