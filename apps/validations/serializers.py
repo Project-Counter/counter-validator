@@ -8,6 +8,13 @@ from .hashing import checksum_string
 from .models import CounterAPIValidation, Validation, ValidationCore, ValidationMessage
 
 
+class CredentialsSerializer(serializers.Serializer):
+    requestor_id = serializers.CharField(required=False, allow_blank=True)
+    customer_id = serializers.CharField()
+    api_key = serializers.CharField(required=False, allow_blank=True)
+    platform = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+
 class ValidationSerializer(serializers.ModelSerializer):
     file = serializers.FileField(write_only=True)
     file_url = serializers.URLField(read_only=True)
@@ -27,6 +34,24 @@ class ValidationSerializer(serializers.ModelSerializer):
     stats = serializers.JSONField(read_only=True, source="core.stats")
     api_key_prefix = serializers.CharField(read_only=True, source="core.api_key_prefix")
     data_source = serializers.SerializerMethodField()
+    # attrs from optional counterapivalidation
+    credentials = CredentialsSerializer(source="counterapivalidation.credentials", read_only=True)
+    requested_cop_version = serializers.CharField(
+        source="counterapivalidation.requested_cop_version", read_only=True
+    )
+    requested_report_code = serializers.CharField(
+        source="counterapivalidation.requested_report_code", read_only=True
+    )
+    api_endpoint = serializers.CharField(source="counterapivalidation.api_endpoint", read_only=True)
+    requested_extra_attributes = serializers.CharField(
+        source="counterapivalidation.requested_extra_attributes", read_only=True
+    )
+    requested_begin_date = serializers.CharField(
+        source="counterapivalidation.requested_begin_date", read_only=True
+    )
+    requested_end_date = serializers.CharField(
+        source="counterapivalidation.requested_end_date", read_only=True
+    )
 
     class Meta:
         model = Validation
@@ -47,6 +72,14 @@ class ValidationSerializer(serializers.ModelSerializer):
             "stats",
             "api_key_prefix",
             "data_source",
+            # optional fields from CounterAPIValidation
+            "credentials",
+            "requested_cop_version",
+            "requested_report_code",
+            "api_endpoint",
+            "requested_extra_attributes",
+            "requested_begin_date",
+            "requested_end_date",
         ]
 
     def get_data_source(self, obj):
@@ -111,12 +144,6 @@ class CounterAPIValidationSerializer(ValidationSerializer):
         ]
 
 
-class CredentialsSerializer(serializers.Serializer):
-    requestor_id = serializers.CharField(required=False, allow_blank=True)
-    customer_id = serializers.CharField()
-    api_key = serializers.CharField(required=False, allow_blank=True)
-
-
 class CounterAPIValidationCreateSerializer(serializers.Serializer):
     """
     Serializer to create a new COUNTER API validation from a POST request.
@@ -138,6 +165,10 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             user_email_checksum=checksum_string(user.email),
             api_key_prefix=api_key.prefix if api_key else "",
         )
+        credentials = validated_data["credentials"]
+        if "platform" in credentials and not credentials["platform"]:
+            # remove empty platform altogether
+            credentials.pop("platform")
 
         return CounterAPIValidation.objects.create(
             core=core,
@@ -148,7 +179,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             requested_begin_date=validated_data["begin_date"],
             requested_end_date=validated_data["end_date"],
             requested_extra_attributes=validated_data["extra_attributes"],
-            credentials=validated_data["credentials"],
+            credentials=credentials,
         )
 
 
@@ -157,6 +188,7 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
     validation_result = serializers.CharField(
         read_only=True, source="get_validation_result_display"
     )
+    source = serializers.SerializerMethodField()
 
     class Meta:
         model = ValidationCore
@@ -174,8 +206,13 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
             "duration",
             "stats",
             "error_message",
+            "source",
         )
         read_only_fields = fields
+
+    @classmethod
+    def get_source(cls, obj: ValidationCore):
+        return "counter_api" if obj.sushi_credentials_checksum else "file"
 
 
 class ValidationMessageSerializer(serializers.ModelSerializer):

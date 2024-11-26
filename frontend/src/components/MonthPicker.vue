@@ -6,13 +6,13 @@
       item-title="title"
       item-value="value"
       item-props
-      :label="label ? label + ' (month)' : null"
+      :label="label ? label + ' (month)' : undefined"
       class="pr-1"
     ></v-select>
     <v-select
       v-model="year"
       :items="availableYears"
-      :label="label ? label + ' (year)' : null"
+      :label="label ? label + ' (year)' : undefined"
       max-width="8rem"
       min-width="7rem"
     ></v-select>
@@ -29,7 +29,7 @@ const props = defineProps<{
 const month = ref(model.value.getMonth() + 1)
 const year = ref(model.value.getFullYear().toString())
 
-const allMonths = [
+const allMonths: { value: number; title: string; disabled?: boolean }[] = [
   { value: 1, title: "January" },
   { value: 2, title: "February" },
   { value: 3, title: "March" },
@@ -61,11 +61,14 @@ const availableMonths = computed(() => {
 })
 
 const availableYears = computed(() => {
-  if (props.validator)
-    return allYears.filter((y) =>
-      allMonths.map((m) => new Date(Number.parseInt(y), m.value - 1)).some(props.validator),
-    )
-  return allYears
+  if (!props.validator) return allYears
+  return allYears.filter((y) =>
+    allMonths
+      .map((m) => new Date(Number.parseInt(y), m.value - 1))
+      // typescript complains about props.validator being possibly undefined (which is BS)
+      // but we make it happy by checking for undefined once more here
+      .some((date) => (props.validator ? props.validator(date) : true)),
+  )
 })
 
 // watch input and emit new date

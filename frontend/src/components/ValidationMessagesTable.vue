@@ -64,6 +64,7 @@ import {
 import { getValidationMessagesFromUrl } from "@/lib/http/message"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { urls } from "@/lib/http/validation"
+import { HttpStatusError } from "@/lib/http/util"
 
 const props = defineProps<{
   validation: Validation
@@ -106,9 +107,22 @@ const { url, params, filters } = usePaginatedAPI(`${urls.list}${props.validation
 const totalCount = ref(0)
 
 async function getMessages() {
-  const { results: m, count } = await getValidationMessagesFromUrl(url.value)
-  messages.value = m
-  totalCount.value = count
+  try {
+    const { results: m, count } = await getValidationMessagesFromUrl(url.value)
+    messages.value = m
+    totalCount.value = count
+  } catch (err) {
+    if (err instanceof HttpStatusError && err?.res?.status === 404) {
+      if (params.page > 1) {
+        params.page = 1
+        getMessages()
+        return
+      }
+      messages.value = []
+      totalCount.value = 0
+      return
+    }
+  }
 }
 
 watch([selectedLevels], () => {

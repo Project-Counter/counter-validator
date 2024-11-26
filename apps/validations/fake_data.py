@@ -51,6 +51,7 @@ class CounterAPICredentialsFactory(factory.Factory):
     requestor_id = factory.Faker("uuid4")
     customer_id = factory.Faker("company")
     api_key = factory.Faker("uuid4")
+    platform = factory.LazyFunction(lambda: fake.boolean() and fake.company() or None)
 
 
 class CounterAPIValidationRequestDataFactory(factory.Factory):

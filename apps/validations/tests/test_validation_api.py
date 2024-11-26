@@ -9,11 +9,12 @@ from django.urls import reverse
 
 from validations.enums import SeverityLevel
 from validations.fake_data import (
+    CounterAPIValidationFactory,
     CounterAPIValidationRequestDataFactory,
     ValidationFactory,
     ValidationMessageFactory,
 )
-from validations.models import Validation, ValidationCore
+from validations.models import CounterAPIValidation, Validation, ValidationCore
 
 
 @pytest.mark.django_db
@@ -305,6 +306,42 @@ class TestCounterAPIValidationAPI:
                 format="json",
             )
             assert res.status_code == status_code
+
+    @pytest.mark.parametrize("platform_present", [True, False])
+    def test_create_with_platform_in_credentials(self, client_authenticated_user, platform_present):
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        data["credentials"]["platform"] = "foobar" if platform_present else ""
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        val = CounterAPIValidation.objects.select_related("core").get()
+        assert str(val.pk) == res.json()["id"]
+        if platform_present:
+            assert val.credentials["platform"] == "foobar"
+        else:
+            assert "platform" not in val.credentials
+
+    def test_detail_for_generic_validation_api(self, client_authenticated_user, normal_user):
+        val = CounterAPIValidationFactory(user=normal_user)
+        res = client_authenticated_user.get(reverse("validation-detail", args=[val.pk]))
+        assert res.status_code == 200
+        data = res.json()
+        assert "id" in data
+        assert "credentials" in data
+        assert data["credentials"] == val.credentials
+        assert "requested_cop_version" in data
+        assert "cop_version" in data
+        assert "requested_report_code" in data
+        assert "report_code" in data
+        assert "api_endpoint" in data
+        assert "requested_extra_attributes" in data
+        assert "requested_begin_date" in data
+        assert "requested_end_date" in data
 
 
 @pytest.mark.django_db

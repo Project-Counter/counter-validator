@@ -35,6 +35,7 @@ class TestValidationCoreAPI:
             assert "duration" in first
             assert "stats" in first
             assert "error_message" in first
+            assert "source" in first and first["source"] == "file"
             # stuff that should not be there - it is in Validation only
             assert "filename" not in first
             assert "result_data" not in first

@@ -16,52 +16,84 @@
     <v-tab prepend-icon="mdi-chart-bar">Statistics</v-tab>
 
     <v-tab
-      v-if="validation && Object.keys(validation.stats).length"
+      v-if="Object.keys(validation.stats).length"
       prepend-icon="mdi-receipt-text"
       value="result"
     >
       Validation messages
     </v-tab>
   </v-tabs>
-  <v-tabs-window
-    v-model="tab"
-    class="mt-5 pa-1"
-  >
+  <v-tabs-window v-model="tab">
     <v-tabs-window-item value="details">
-      <h3 class="mb-5">Basic information</h3>
-      <!-- ts need the v-if bellow to narrow down the type -->
-      <ValidationBasicInfo
-        v-if="validation"
-        :validation="validation"
-      />
+      <v-container>
+        <v-row>
+          <v-col v-bind="colAttrs">
+            <v-card v-bind="cardAttrs">
+              <v-card-title>Basic information</v-card-title>
+              <v-card-text>
+                <!-- ts need the v-if bellow to narrow down the type -->
 
-      <h3 class="mt-6 mb-5">Extracted information</h3>
-      <ValidationExtractedInfo
-        v-if="validation"
-        :validation="validation"
-      />
+                <ValidationBasicInfo
+                  v-if="validation"
+                  :validation="validation"
+                />
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
 
-      <section v-if="header">
-        <h3 class="my-5">Report Header</h3>
-        <div
-          v-for="(line, key) in header.report ?? []"
-          :key="key"
-          class="json"
-        >
-          {{ line }}
-        </div>
-      </section>
+        <v-row>
+          <v-col v-bind="colAttrs">
+            <v-card v-bind="cardAttrs">
+              <v-card-title>Extracted information</v-card-title>
+              <v-card-text>
+                <ValidationExtractedInfo
+                  v-if="validation"
+                  :validation="validation"
+                />
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col v-bind="colAttrs">
+            <v-card
+              v-if="header"
+              v-bind="cardAttrs"
+            >
+              <v-card-title>Report Header</v-card-title>
+              <v-card-text>
+                <div
+                  v-for="(line, key) in header.report ?? []"
+                  :key="key"
+                  class="json"
+                >
+                  {{ line }}
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-tabs-window-item>
 
     <v-tabs-window-item value="statistics">
-      <ValidationMessageStatsTable :validation="validation" />
+      <v-container>
+        <ValidationMessageStatsTable
+          v-if="validation"
+          :validation="validation"
+        />
+      </v-container>
     </v-tabs-window-item>
 
-    <v-tabs-window-item
-      v-if="validation"
-      value="result"
-    >
-      <ValidationMessagesTable :validation="validation" />
+    <v-tabs-window-item value="result">
+      <v-container>
+        <ValidationMessagesTable
+          v-if="validation"
+          :validation="validation"
+        />
+      </v-container>
     </v-tabs-window-item>
   </v-tabs-window>
 </template>
@@ -76,6 +108,21 @@ const tab = ref(null)
 
 const validation = ref<ValidationDetail>()
 const route = useRoute()
+
+// styles
+const cardAttrs = {
+  elevation: 3,
+  class: "pa-4",
+}
+const colAttrs = {
+  cols: "12",
+  lg: "10",
+  xl: "8",
+  xxl: "6",
+  "offset-lg": "1",
+  "offset-xl": "2",
+  "offset-xxl": "3",
+}
 
 // computed
 const header = computed(() => validation.value?.result_data?.header)
@@ -93,7 +140,7 @@ load().then()
 .json {
   white-space: pre-wrap;
   font-family: monospace;
-  font-size: 0.825em;
+  font-size: 0.875em;
   color: #555555;
 }
 </style>

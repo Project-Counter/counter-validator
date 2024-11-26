@@ -59,7 +59,6 @@ export type Result = {
   datetime: string
   result: string
   header: Record<string, string>
-  messages: Message[]
 }
 
 export enum Status {
@@ -75,6 +74,13 @@ export const statusMap = new Map<Status, string>([
   [Status.SUCCESS, "Success"],
   [Status.FAILURE, "Failure"],
 ])
+
+export type Credentials = {
+  customer_id: string
+  requestor_id?: string
+  api_key?: string
+  platform?: string
+}
 
 export type ValidationBase = {
   id: string // uuid
@@ -102,16 +108,17 @@ export type Validation = {
   file_size: number
   api_key_prefix: string
   data_source: "counter_api" | "file"
+  credentials: Credentials | null
+  requested_cop_version: string | null
+  requested_report_code: string | null
+  api_endpoint: string | null
+  requested_extra_attributes: string | null
+  requested_begin_date: string | null
+  requested_end_date: string | null
 } & ValidationBase
 
 export type ValidationDetail = Validation & {
   result_data: Result
-}
-
-export type Credentials = {
-  customer_id: string
-  requestor_id?: string
-  api_key?: string
 }
 
 export type Platform = {

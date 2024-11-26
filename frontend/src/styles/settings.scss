@@ -21,11 +21,19 @@ table.overview {
   td {
     text-align: left;
     padding: 0.25rem 1rem 0.25rem 0.5rem;
+    vertical-align: text-top;
   }
 
   th.right,
   td.right {
     text-align: right;
+  }
+}
+
+table.dense {
+  th,
+  td {
+    padding: 0 0.5rem !important;
   }
 }
 

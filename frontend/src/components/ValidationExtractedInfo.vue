@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { ValidationDetail } from "@/lib/definitions/api"
 
-const p = defineProps<{
+defineProps<{
   validation: ValidationDetail
 }>()
 </script>
