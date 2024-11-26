@@ -1,6 +1,6 @@
 <template>
-  <span>{{ format(date, "yyyy-mm-dd") }}</span>
-  <span class="text-caption ps-1">{{ format(date, "HH:MM:SS") }}</span>
+  <span>{{ format(date, "yyyy-MM-dd") }}</span>
+  <span class="text-caption ps-1">{{ format(date, "HH:mm:ss") }}</span>
 </template>
 
 <script setup lang="ts">
