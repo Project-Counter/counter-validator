@@ -20,7 +20,7 @@ table.overview {
   th,
   td {
     text-align: left;
-    padding: 0.25rem 1rem 0.25rem 0.5rem;
+    padding: 0.25rem 1rem 0.25rem 0;
     vertical-align: text-top;
   }
 
@@ -33,7 +33,7 @@ table.overview {
 table.dense {
   th,
   td {
-    padding: 0 0.5rem !important;
+    padding: 0 0.5rem 0 0 !important;
   }
 }
 
