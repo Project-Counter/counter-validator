@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from validations.enums import SeverityLevel
 from validations.fake_data import (
+    CounterAPICredentialsFactory,
     CounterAPIValidationFactory,
     CounterAPIValidationRequestDataFactory,
     ValidationFactory,
@@ -325,6 +326,30 @@ class TestCounterAPIValidationAPI:
             assert val.credentials["platform"] == "foobar"
         else:
             assert "platform" not in val.credentials
+
+    @pytest.mark.parametrize("endpoint", ["/members", "/status", "/reports"])
+    def test_create_for_other_endpoints(self, client_authenticated_user, endpoint):
+        credentials_data = factory.build(dict, FACTORY_CLASS=CounterAPICredentialsFactory)
+        data = {
+            "credentials": credentials_data,
+            "api_endpoint": endpoint,
+            "cop_version": "5",
+            "url": "https://example.com",
+        }
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        val = CounterAPIValidation.objects.select_related("core").get()
+        assert str(val.pk) == res.json()["id"]
+        assert val.api_endpoint == endpoint
+        assert val.requested_report_code == ""
+        assert val.requested_begin_date is None
+        assert val.requested_end_date is None
 
     def test_detail_for_generic_validation_api(self, client_authenticated_user, normal_user):
         val = CounterAPIValidationFactory(user=normal_user)

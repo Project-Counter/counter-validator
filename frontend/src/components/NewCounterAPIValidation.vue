@@ -107,6 +107,7 @@
               label="Endpoint"
               item-value="code"
               item-title="name"
+              return-object
             >
               <template #item="{ item, props }">
                 <v-list-item
@@ -119,7 +120,7 @@
           </v-col>
         </v-row>
 
-        <v-row v-if="endpoint === 'reports'">
+        <v-row v-if="reportEndpoint">
           <v-col
             cols="6"
             md="3"
@@ -157,10 +158,14 @@
                   <td>{{ credentials }}</td>
                 </tr>
                 <tr>
+                  <th>API endpoint</th>
+                  <td>{{ endpoint.path }}</td>
+                </tr>
+                <tr v-if="reportEndpoint">
                   <th>Report</th>
                   <td>{{ cop }} / {{ reportCode }}</td>
                 </tr>
-                <tr>
+                <tr v-if="reportEndpoint">
                   <th>Period</th>
                   <td>{{ isoDate(beginDate) }} - {{ isoDate(endOfMonth(endDate)) }}</td>
                 </tr>
@@ -217,7 +222,8 @@ const apiEndpoints = [
   { name: "Members", path: "/members", code: "members" },
   { name: "Status", path: "/status", code: "status" },
 ]
-const endpoint = ref(apiEndpoints[0].code)
+const endpoint = ref(apiEndpoints[0])
+const reportEndpoint = computed(() => endpoint.value.code === "reports")
 
 const loading = ref(false)
 const loadingPlatforms = ref(true)
@@ -254,9 +260,10 @@ async function create() {
       credentials,
       url.value,
       cop.value,
-      reportCode.value,
-      beginDate.value,
-      endDate.value,
+      endpoint.value.path,
+      reportEndpoint.value ? reportCode.value : undefined,
+      reportEndpoint.value ? beginDate.value : undefined,
+      reportEndpoint.value ? endDate.value : undefined,
     )
   } catch (err) {
     console.error(err)

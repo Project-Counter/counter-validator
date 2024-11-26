@@ -63,7 +63,7 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
 
 class CounterAPIValidationViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated | HasUserAPIKey]
-    serializer_class = validations.serializers.CounterAPIValidationSerializer
+    serializer_class = validations.serializers.ValidationSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = CounterAPIValidationCreateSerializer(

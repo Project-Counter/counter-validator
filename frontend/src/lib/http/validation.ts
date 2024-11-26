@@ -55,19 +55,36 @@ export async function validateCounterAPI(
   credentials: Credentials,
   url: string,
   cop: CoP,
-  reportCode: ReportCode,
-  beginDate: Date,
-  endDate: Date,
+  endpoint: string,
+  reportCode?: ReportCode,
+  beginDate?: Date,
+  endDate?: Date,
 ) {
+  const data: {
+    credentials: Credentials
+    url: string
+    cop_version: CoP
+    api_endpoint: string
+    report_code?: ReportCode
+    begin_date?: string
+    end_date?: string
+  } = {
+    credentials,
+    url,
+    cop_version: cop,
+    api_endpoint: endpoint,
+  }
+  if (reportCode) {
+    data["report_code"] = reportCode
+  }
+  if (beginDate) {
+    data["begin_date"] = isoDate(beginDate)
+  }
+  if (endDate) {
+    data["end_date"] = isoDate(endDate)
+  }
   return wrapFetch(urls.sushi, {
     method: "POST",
-    json: {
-      credentials,
-      url,
-      cop_version: cop,
-      report_code: reportCode,
-      begin_date: isoDate(beginDate),
-      end_date: isoDate(endDate),
-    },
+    json: data,
   })
 }

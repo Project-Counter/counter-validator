@@ -19,4 +19,9 @@ class Migration(migrations.Migration):
             name="requested_end_date",
             field=models.DateField(blank=True, null=True),
         ),
+        migrations.AlterField(
+            model_name="counterapivalidation",
+            name="api_endpoint",
+            field=models.CharField(default="/reports/[id]", max_length=64),
+        ),
     ]

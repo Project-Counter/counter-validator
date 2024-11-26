@@ -215,7 +215,7 @@ class CounterAPIValidation(Validation):
         default=dict, help_text="Credentials for the SUSHI service used for the validation"
     )
     url = models.URLField(help_text="URL of the SUSHI service")
-    api_endpoint = models.CharField(default="reports", max_length=64)
+    api_endpoint = models.CharField(default="/reports/[id]", max_length=64)
     requested_cop_version = models.CharField(
         max_length=16,
         blank=True,
@@ -242,21 +242,20 @@ class CounterAPIValidation(Validation):
 
     def get_url(self):
         clean_creds = {k: v for k, v in self.credentials.items() if v}
+        if self.requested_begin_date:
+            clean_creds["begin_date"] = self.requested_begin_date
+        if self.requested_end_date:
+            clean_creds["end_date"] = self.requested_end_date
+        path = self.api_endpoint
+        if path == "/reports/[id]":
+            path = f"/reports/{self.requested_report_code.lower()}"
         return (
             urljoin(
                 self.url,
-                f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}"
-                f"/reports/{self.requested_report_code.lower()}",
+                f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}{path}",
             )
             + "?"
-            + urlencode(
-                clean_creds
-                | {
-                    "begin_date": self.requested_begin_date,
-                    "end_date": self.requested_end_date,
-                    **self.requested_extra_attributes,
-                }
-            )
+            + urlencode(clean_creds | self.requested_extra_attributes)
         )
 
 

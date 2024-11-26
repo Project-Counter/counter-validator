@@ -129,21 +129,6 @@ class FileValidationCreateSerializer(serializers.Serializer):
         )
 
 
-class CounterAPIValidationSerializer(ValidationSerializer):
-    class Meta:
-        model = CounterAPIValidation
-        fields = ValidationSerializer.Meta.fields + [
-            "url",
-            "requested_cop_version",
-            "requested_report_code",
-            "requested_begin_date",
-            "requested_end_date",
-            "requested_extra_attributes",
-            "credentials",
-            "api_endpoint",
-        ]
-
-
 class CounterAPIValidationCreateSerializer(serializers.Serializer):
     """
     Serializer to create a new COUNTER API validation from a POST request.
@@ -151,11 +136,20 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
 
     credentials = CredentialsSerializer()
     url = serializers.URLField()
+    api_endpoint = serializers.CharField(default="/reports/[id]")
     cop_version = serializers.CharField()
-    report_code = serializers.CharField()
-    begin_date = serializers.DateField()
-    end_date = serializers.DateField()
+    report_code = serializers.CharField(allow_blank=True, required=False)
+    begin_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
     extra_attributes = serializers.JSONField(default=dict)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        if attrs.get("api_endpoint") == "/reports/[id]":
+            for attr in ("cop_version", "begin_date", "end_date"):
+                if not attrs.get(attr):
+                    raise ValidationError(f"{attr} is required if api_endpoint is /reports/[id]")
+        return attrs
 
     def create(self, validated_data) -> CounterAPIValidation:
         user = self.context["request"].user
@@ -174,10 +168,11 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             core=core,
             user=user,
             url=validated_data["url"],
+            api_endpoint=validated_data["api_endpoint"],
             requested_cop_version=validated_data["cop_version"],
-            requested_report_code=validated_data["report_code"],
-            requested_begin_date=validated_data["begin_date"],
-            requested_end_date=validated_data["end_date"],
+            requested_report_code=validated_data.get("report_code", ""),
+            requested_begin_date=validated_data.get("begin_date"),
+            requested_end_date=validated_data.get("end_date"),
             requested_extra_attributes=validated_data["extra_attributes"],
             credentials=credentials,
         )

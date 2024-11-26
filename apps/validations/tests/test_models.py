@@ -85,9 +85,40 @@ class TestCounterAPIValidation:
         parts_query = parse_qs(parts.query)
         assert parts_query["begin_date"] == [params["begin_date"]]
         assert parts_query["end_date"] == [params["end_date"]]
-        assert parts_query["key"] == ["value"]
+        assert parts_query["key"] == ["value"], "Extra attributes should be included"
         assert parts_query["requestor_id"] == [params["requestor_id"]]
         assert parts_query["customer_id"] == [params["customer_id"]]
+        assert parts_query["api_key"] == [params["api_key"]]
+
+    @pytest.mark.parametrize("endpoint", ["/members", "/status", "/reports"])
+    def test_get_url_for_non_report_endpoints(self, endpoint):
+        """
+        Test that the get_url method returns the correct URL for non-report endpoints
+        """
+        validation = CounterAPIValidationFactory(
+            api_endpoint=endpoint,
+            url="http://example.com",
+            requested_cop_version="5",
+            requested_report_code="",
+            requested_begin_date=None,
+            requested_end_date=None,
+            requested_extra_attributes={},
+            credentials__requestor_id="rid",
+            credentials__customer_id="cid",
+            credentials__api_key="key",
+        )
+        request_url = validation.get_url()
+        # split url
+        parts = urlparse(request_url)
+        assert parts.scheme == "http"
+        assert parts.netloc == "example.com"
+        assert parts.path == endpoint
+        # check query params
+        parts_query = parse_qs(parts.query)
+        assert parts_query["requestor_id"] == ["rid"]
+        assert parts_query["customer_id"] == ["cid"]
+        assert "begin_date" not in parts_query
+        assert "end_date" not in parts_query
 
 
 @pytest.mark.django_db
