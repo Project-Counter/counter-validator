@@ -61,7 +61,18 @@
         :key="attr.attr"
       >
         <th>{{ attr.name }}</th>
-        <td>{{ validation[attr.attr] }}</td>
+        <td v-if="typeof validation[attr.attr] === 'object'">
+          <table class="dense">
+            <tr
+              v-for="(value, key) in validation[attr.attr]"
+              :key="key"
+            >
+              <th class="font-weight-regular">{{ key }}</th>
+              <td>{{ stringify(value) }}</td>
+            </tr>
+          </table>
+        </td>
+        <td v-else>{{ stringify(validation[attr.attr]) }}</td>
       </tr>
     </tbody>
   </table>
@@ -90,7 +101,7 @@ let sushiAttrs: {
   { attr: "requested_cop_version", name: "CoP version" },
   { attr: "api_endpoint", name: "API endpoint" },
 ]
-if (p.validation.api_endpoint === "reports") {
+if (p.validation.api_endpoint === "/reports/[id]") {
   sushiAttrs = sushiAttrs.concat([
     { attr: "requested_report_code", name: "Report" },
     { attr: "requested_begin_date", name: "Begin date" },
@@ -104,4 +115,17 @@ const relCreated = computed(() => {
     return intlFormatDistance(p.validation.created, Date.now())
   return ""
 })
+
+function stringify(obj: string | object | null): string {
+  if (typeof obj === "string") {
+    return obj
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((o) => o.toString()).join("|")
+  }
+  if (obj !== null) {
+    return obj.toString()
+  }
+  return ""
+}
 </script>

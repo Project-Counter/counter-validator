@@ -43,7 +43,7 @@ class ValidationSerializer(serializers.ModelSerializer):
         source="counterapivalidation.requested_report_code", read_only=True
     )
     api_endpoint = serializers.CharField(source="counterapivalidation.api_endpoint", read_only=True)
-    requested_extra_attributes = serializers.CharField(
+    requested_extra_attributes = serializers.JSONField(
         source="counterapivalidation.requested_extra_attributes", read_only=True
     )
     requested_begin_date = serializers.CharField(

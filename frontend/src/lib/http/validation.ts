@@ -59,6 +59,7 @@ export async function validateCounterAPI(
   reportCode?: ReportCode,
   beginDate?: Date,
   endDate?: Date,
+  extraAttributes?: { [key: string]: string },
 ) {
   const data: {
     credentials: Credentials
@@ -68,11 +69,13 @@ export async function validateCounterAPI(
     report_code?: ReportCode
     begin_date?: string
     end_date?: string
+    extra_attributes: { [key: string]: string } | undefined
   } = {
     credentials,
     url,
     cop_version: cop,
     api_endpoint: endpoint,
+    extra_attributes: extraAttributes,
   }
   if (reportCode) {
     data["report_code"] = reportCode

@@ -327,6 +327,24 @@ class TestCounterAPIValidationAPI:
         else:
             assert "platform" not in val.credentials
 
+    def test_create_with_attributes_to_show(self, client_authenticated_user):
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        data["extra_attributes"] = {"foo": "bar", "attributes_to_show": "YOP|Data_Type"}
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        val = CounterAPIValidation.objects.select_related("core").get()
+        assert str(val.pk) == res.json()["id"]
+        assert val.requested_extra_attributes == {
+            "foo": "bar",
+            "attributes_to_show": "YOP|Data_Type",
+        }
+
     @pytest.mark.parametrize("endpoint", ["/members", "/status", "/reports"])
     def test_create_for_other_endpoints(self, client_authenticated_user, endpoint):
         credentials_data = factory.build(dict, FACTORY_CLASS=CounterAPICredentialsFactory)

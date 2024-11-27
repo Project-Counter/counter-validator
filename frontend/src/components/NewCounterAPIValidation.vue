@@ -25,7 +25,7 @@
           persistent-clear
           persistent-hint
           prepend-inner-icon="mdi-magnify"
-          @update:model-value="update"
+          @update:model-value="selectPlatform"
         />
         <div class="my-3">
           <v-divider>or enter manually</v-divider>
@@ -139,6 +139,47 @@
             />
           </v-col>
         </v-row>
+        <v-row v-if="reportEndpoint && availableAttributes.length">
+          <v-col
+            cols="auto"
+            class="font-weight-light align-self-center text-center"
+          >
+            Attributes to show
+            <br />
+            <v-btn-group
+              density="compact"
+              variant="tonal"
+            >
+              <v-btn
+                size="small"
+                @click="attributesToShow = availableAttributes"
+              >
+                All
+              </v-btn>
+              <v-btn
+                size="small"
+                @click="attributesToShow = []"
+              >
+                None
+              </v-btn>
+            </v-btn-group>
+          </v-col>
+          <v-col class="d-flex flex-1-1-0 align-self-center flex-wrap">
+            <span
+              v-for="attr in availableAttributes"
+              :key="attr"
+            >
+              <v-checkbox
+                v-model="attributesToShow"
+                :label="attr"
+                :value="attr"
+                density="compact"
+                class="pr-5"
+                hide-details
+              />
+            </span>
+          </v-col>
+        </v-row>
       </v-form>
     </template>
 
@@ -169,6 +210,10 @@
                   <th>Period</th>
                   <td>{{ isoDate(beginDate) }} - {{ isoDate(endOfMonth(endDate)) }}</td>
                 </tr>
+                <tr v-if="reportEndpoint">
+                  <th>Attributes to show</th>
+                  <td>{{ attributesToShow.join("|") }}</td>
+                </tr>
               </tbody>
             </v-table>
           </v-col>
@@ -198,24 +243,43 @@
 import { CounterAPIEndpoint, Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
-import { CoP, ReportCode } from "@/lib/definitions/counter"
+import { CoP, ReportCode, reportDefinitions } from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
 import { isoDate } from "@/lib/formatting"
 
+// housekeeping
 const stepper = ref(1)
 const formValid = ref(false)
+const loading = ref(false)
+const loadingPlatforms = ref(true)
+const store = useAppStore()
+const router = useRouter()
+const creatingValidation = ref(false)
 const platforms = shallowRef()
+
+// credentials and related select options
 const platform = ref(null)
+
 const cop = ref<CoP>("5")
+const copItems: CoP[] = ["5", "5.1"]
+
+const url = ref("https://sashimi.celus.net/")
+
 const reportCode = ref<ReportCode>(ReportCode.TR)
+const reportCodes = Object.values(ReportCode)
+
 const lastMonth = addMonths(new Date(), -1)
 const beginDate = ref(startOfMonth(lastMonth))
 const endDate = ref(endOfMonth(lastMonth))
 
-const copItems = ["5", "5.1"]
-const reportCodes = Object.values(ReportCode)
+const credentials = reactive<Credentials>({
+  customer_id: "aaa",
+  requestor_id: "",
+  api_key: "",
+})
+
 const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] = [
   { name: "Reports", path: "/reports/[id]", code: "reports" },
   { name: "Report list", path: "/reports", code: "report-list" },
@@ -225,21 +289,21 @@ const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] =
 const endpoint = ref(apiEndpoints[0])
 const reportEndpoint = computed(() => endpoint.value.code === "reports")
 
-const loading = ref(false)
-const loadingPlatforms = ref(true)
-const store = useAppStore()
-
-const credentials = reactive<Credentials>({
-  customer_id: "aaa",
-  requestor_id: "",
-  api_key: "",
+const attributesToShow = ref([])
+const availableAttributes = computed<string[]>(() => {
+  if (!reportEndpoint.value) return []
+  let desc = reportDefinitions.find((r) => r.code === reportCode.value && r.cop === cop.value)
+  if (!desc) return []
+  return desc.attributes
 })
-const url = ref("https://sashimi.celus.net/")
-const router = useRouter()
-const creatingValidation = ref(false)
+
+watch(reportCode, () => {
+  // when report code changes, reset attributes to show
+  attributesToShow.value = []
+})
 
 // methods
-async function update() {
+async function selectPlatform() {
   if (!platform.value) return
   loading.value = true
   const c = await loadSushiService((await loadPlatform(platform.value)).sushi_services[0])
@@ -247,7 +311,7 @@ async function update() {
   loading.value = false
 }
 
-async function load() {
+async function loadPlatformData() {
   loadingPlatforms.value = true
   platforms.value = await loadPlatforms()
   loadingPlatforms.value = false
@@ -255,6 +319,12 @@ async function load() {
 
 async function create() {
   creatingValidation.value = true
+  let extra = {}
+  if (reportEndpoint.value && attributesToShow.value.length > 0) {
+    extra = {
+      attributes_to_show: attributesToShow.value.join("|"),
+    }
+  }
   try {
     await validateCounterAPI(
       credentials,
@@ -264,6 +334,7 @@ async function create() {
       reportEndpoint.value ? reportCode.value : undefined,
       reportEndpoint.value ? beginDate.value : undefined,
       reportEndpoint.value ? endDate.value : undefined,
+      extra,
     )
   } catch (err) {
     console.error(err)
@@ -275,5 +346,5 @@ async function create() {
   await router.push({ name: "/" })
 }
 
-onMounted(load)
+onMounted(loadPlatformData)
 </script>
