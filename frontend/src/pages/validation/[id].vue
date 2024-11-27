@@ -41,7 +41,11 @@
           </v-col>
         </v-row>
 
-        <v-row>
+        <!--
+          without cop_version, the extracted info would be empty anyway
+          this happens for errors or non-report api endpoints
+         -->
+        <v-row v-if="validation.cop_version">
           <v-col v-bind="colAttrs">
             <v-card v-bind="cardAttrs">
               <v-card-title>Extracted information</v-card-title>
@@ -55,7 +59,7 @@
           </v-col>
         </v-row>
 
-        <v-row>
+        <v-row v-if="header?.report">
           <v-col v-bind="colAttrs">
             <v-card
               v-if="header"

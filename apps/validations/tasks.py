@@ -98,7 +98,7 @@ def validate_counter_api(pk):
             obj.core.file_checksum = checksum_bytes(content)
             obj.core.file_size = len(content)
             obj.file = SimpleUploadedFile(name="foo.json", content=content)
-            obj.filename = f'Counter API Report {obj.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
+            obj.filename = f'Counter API {obj.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
     finally:
         end = time.monotonic()
         obj.core.duration = end - start
