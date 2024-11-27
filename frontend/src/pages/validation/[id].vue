@@ -139,7 +139,7 @@ async function load() {
 }
 
 // message selected in the stats table
-const messagesComponent = ref<ValidationMessagesTable>(null)
+const messagesComponent = ref<InstanceType<typeof ValidationMessagesTable>>()
 
 function selectMessage(message: Message) {
   if (messagesComponent.value) {
