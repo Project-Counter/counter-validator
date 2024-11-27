@@ -145,3 +145,5 @@ export type SushiService = {
   requestor_id_required?: boolean
   deprecated: boolean
 }
+
+export type CounterAPIEndpoint = "/reports/[id]" | "/reports" | "/status" | "/members"

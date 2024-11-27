@@ -195,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { Credentials } from "@/lib/definitions/api"
+import { CounterAPIEndpoint, Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
@@ -216,8 +216,8 @@ const endDate = ref(endOfMonth(lastMonth))
 
 const copItems = ["5", "5.1"]
 const reportCodes = Object.values(ReportCode)
-const apiEndpoints = [
-  { name: "Reports", path: "/reports/[code]", code: "reports" },
+const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] = [
+  { name: "Reports", path: "/reports/[id]", code: "reports" },
   { name: "Report list", path: "/reports", code: "report-list" },
   { name: "Members", path: "/members", code: "members" },
   { name: "Status", path: "/status", code: "status" },

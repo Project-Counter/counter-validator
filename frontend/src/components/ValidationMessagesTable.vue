@@ -18,7 +18,7 @@
   >
     <template #top>
       <v-row class="pb-6">
-        <v-col>
+        <v-col class="mt-3">
           <v-chip
             v-for="[level, count] in severityMap.entries()"
             :key="level"
@@ -74,15 +74,9 @@ import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { urls } from "@/lib/http/validation"
 import { HttpStatusError } from "@/lib/http/util"
 
-const props = withDefaults(
-  defineProps<{
-    validation: Validation
-    searchString: string
-  }>(),
-  {
-    searchString: "",
-  },
-)
+const props = defineProps<{
+  validation: Validation
+}>()
 
 const messages = ref<Message[]>([])
 
@@ -140,8 +134,15 @@ async function getMessages() {
   }
 }
 
+// filter
+function applyFilterByMessage(message: Message) {
+  selectedLevels.value = [message.severity]
+  search.value = message.summary
+}
+defineExpose({ applyFilterByMessage })
+
 // search
-const search = ref(props.searchString)
+const search = ref("")
 
 watch(selectedLevels, () => {
   filters.severity = selectedLevels.value.join(",")
@@ -151,9 +152,5 @@ watch(selectedLevels, () => {
 watchEffect(() => {
   filters.search = search.value || ""
   getMessages()
-})
-
-watchEffect(() => {
-  search.value = props.searchString
 })
 </script>

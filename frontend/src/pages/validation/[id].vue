@@ -32,7 +32,6 @@
               <v-card-title>Basic information</v-card-title>
               <v-card-text>
                 <!-- ts need the v-if bellow to narrow down the type -->
-
                 <ValidationBasicInfo
                   v-if="validation"
                   :validation="validation"
@@ -88,12 +87,15 @@
       </v-container>
     </v-tabs-window-item>
 
-    <v-tabs-window-item value="messages">
+    <v-tabs-window-item
+      value="messages"
+      eager
+    >
       <v-container>
         <ValidationMessagesTable
           v-if="validation"
+          ref="messagesComponent"
           :validation="validation"
-          :search-string="messagesSearchString"
         />
       </v-container>
     </v-tabs-window-item>
@@ -137,11 +139,13 @@ async function load() {
 }
 
 // message selected in the stats table
-const messagesSearchString = ref("")
+const messagesComponent = ref<ValidationMessagesTable>(null)
 
 function selectMessage(message: Message) {
-  tab.value = "messages"
-  messagesSearchString.value = message.summary
+  if (messagesComponent.value) {
+    messagesComponent.value.applyFilterByMessage(message)
+    tab.value = "messages"
+  }
 }
 
 onMounted(load)
