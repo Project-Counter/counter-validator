@@ -5,10 +5,13 @@ ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3030"]
 
 # debug toolbar
-INSTALLED_APPS += ("debug_toolbar",)  # noqa F405
+INSTALLED_APPS += ("debug_toolbar", "silk")  # noqa F405
 MIDDLEWARE = (
     MIDDLEWARE[:-1]  # noqa F405
-    + ("debug_toolbar.middleware.DebugToolbarMiddleware",)
+    + (
+        "silk.middleware.SilkyMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    )
     + MIDDLEWARE[-1:]  # noqa F405
     + ("core.middleware.DebugSleepMiddleware",)
 )
