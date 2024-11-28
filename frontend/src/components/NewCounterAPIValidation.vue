@@ -139,35 +139,43 @@
             />
           </v-col>
         </v-row>
-        <v-row v-if="reportEndpoint && availableAttributes.length">
+        <v-row
+          v-if="reportEndpoint && (selectedReportInfo?.attributes || selectedReportInfo?.switches)"
+        >
           <v-col>
             <v-card
-              class="ma-0 light-border"
+              class="ma-0"
               variant="outlined"
+              border="sm"
             >
               <v-card-title
                 >Attributes to show
 
                 <v-btn
+                  v-if="selectedReportInfo?.attributes"
                   size="small"
                   variant="tonal"
                   class="mr-1 ml-2"
-                  @click="attributesToShow = availableAttributes"
+                  @click="selectAllAttributes"
                 >
                   All
                 </v-btn>
                 <v-btn
+                  v-if="selectedReportInfo?.attributes"
                   size="small"
                   variant="tonal"
-                  @click="attributesToShow = []"
+                  @click="unselectAllAttributes"
                 >
                   None
                 </v-btn>
               </v-card-title>
               <v-card-text>
-                <div class="d-flex flex-wrap">
+                <div
+                  v-if="selectedReportInfo.attributes"
+                  class="d-flex flex-wrap"
+                >
                   <span
-                    v-for="attr in availableAttributes"
+                    v-for="attr in selectedReportInfo.attributes"
                     :key="attr"
                   >
                     <v-checkbox
@@ -180,15 +188,38 @@
                     />
                   </span>
                 </div>
+                <div
+                  v-if="selectedReportInfo.switches"
+                  class="d-flex flex-wrap"
+                >
+                  <v-divider
+                    v-if="selectedReportInfo.attributes"
+                    class="my-2"
+                  ></v-divider>
+                  <span
+                    v-for="attr in selectedReportInfo.switches"
+                    :key="attr"
+                  >
+                    <v-checkbox
+                      v-model="switches"
+                      :label="attr"
+                      :value="attr"
+                      density="compact"
+                      class="pr-5"
+                      hide-details
+                    />
+                  </span>
+                </div>
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
-        <v-row v-if="reportEndpoint && availableAttributes.length">
+        <v-row v-if="reportEndpoint && selectedReportInfo?.attributes">
           <v-col>
             <v-card
-              class="ma-0 light-border"
+              class="ma-0"
               variant="outlined"
+              border="sm"
             >
               <v-card-title>Filters</v-card-title>
               <v-card-text>
@@ -204,7 +235,7 @@
                   class="pb-2"
                 />
                 <template
-                  v-for="attr in availableAttributes"
+                  v-for="attr in selectedReportInfo.attributes"
                   :key="attr"
                 >
                   <v-select
@@ -277,13 +308,32 @@
                 <tr v-if="reportEndpoint">
                   <th>Attributes to show</th>
                   <td>
-                    <v-chip
-                      v-for="a in attributesToShow"
-                      :key="a"
-                      class="mt-1 mr-1"
-                    >
-                      {{ a }}
-                    </v-chip>
+                    <div>
+                      <v-chip
+                        v-for="a in attributesToShow"
+                        :key="a"
+                        class="mt-1 mr-1"
+                      >
+                        {{ a }}
+                      </v-chip>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="reportEndpoint">
+                  <th>Switches</th>
+                  <td>
+                    <div class="d-flex flex-wrap">
+                      <v-checkbox
+                        v-for="s in switches"
+                        :key="s"
+                        :label="s"
+                        :model-value="true"
+                        hide-details
+                        readonly
+                        density="compact"
+                        class="text-caption mr-2"
+                      />
+                    </div>
                   </td>
                 </tr>
                 <tr v-if="reportEndpoint">
@@ -380,22 +430,33 @@ const selectedReportInfo = computed(() => {
   return getReportInfo(cop.value, reportCode.value)
 })
 
-const attributesToShow = ref([])
-const availableAttributes = computed<string[]>(() => {
-  if (selectedReportInfo.value) return selectedReportInfo.value.attributes
-  return []
-})
+// attributes to show + switches (boolean flags which turn on several attributes at once)
+const attributesToShow = ref<string[]>([])
+const switches = ref<string[]>([])
 
-watch(reportCode, () => {
-  // when report code changes, reset attributes to show
+function selectAllAttributes() {
+  attributesToShow.value = selectedReportInfo.value?.attributes || []
+  switches.value = selectedReportInfo.value?.switches || []
+}
+
+function unselectAllAttributes() {
   attributesToShow.value = []
-})
+  switches.value = []
+}
 
 // filters
 const multiValueFilters = ref<{ [key: string]: string[] }>({})
 const textFilters = ref<{ [key: string]: string }>({})
 const filters = computed(() => {
   return { ...multiValueFilters.value, ...textFilters.value }
+})
+
+// when report code changes, reset attributes to show and filters
+watch(reportCode, () => {
+  attributesToShow.value = []
+  switches.value = []
+  multiValueFilters.value = {}
+  textFilters.value = {}
 })
 
 // methods for API communication
@@ -431,6 +492,9 @@ async function create() {
       if (v && v.length) {
         extra[k.toLowerCase()] = v
       }
+    })
+    switches.value.forEach((k) => {
+      extra[k.toLowerCase()] = "True"
     })
   }
 
