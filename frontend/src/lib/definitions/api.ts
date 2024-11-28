@@ -109,6 +109,7 @@ export type Validation = {
   api_key_prefix: string
   data_source: "counter_api" | "file"
   credentials: Credentials | null
+  url: string | null
   requested_cop_version: string | null
   requested_report_code: string | null
   api_endpoint: string | null

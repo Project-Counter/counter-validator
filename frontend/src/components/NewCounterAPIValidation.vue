@@ -186,16 +186,25 @@
             Filters
           </v-col>
           <v-col>
+            <v-select
+              v-if="selectedReportInfo?.metrics"
+              v-model="multiValueFilters['Metric_Type']"
+              :items="selectedReportInfo.metrics"
+              label="Metric_Type"
+              clearable
+              multiple
+              :hide-details="true"
+              min-width="320px"
+            />
             <template
               v-for="attr in availableAttributes"
               :key="attr"
             >
               <v-select
                 v-if="possibleAttributeValues(cop, attr)"
-                v-model="filters[attr]"
+                v-model="multiValueFilters[attr]"
                 :items="possibleAttributeValues(cop, attr)"
                 :label="attr"
-                outlined
                 clearable
                 multiple
                 :hide-details="true"
@@ -203,7 +212,7 @@
               />
               <v-text-field
                 v-else
-                v-model="filters[attr]"
+                v-model="textFilters[attr]"
                 :label="attr"
                 outlined
                 clearable
@@ -372,7 +381,11 @@ watch(reportCode, () => {
 })
 
 // filters
-const filters = ref({})
+const multiValueFilters = ref<{ [key: string]: string[] }>({})
+const textFilters = ref<{ [key: string]: string }>({})
+const filters = computed(() => {
+  return { ...multiValueFilters.value, ...textFilters.value }
+})
 
 // methods for API communication
 async function selectPlatform() {
@@ -391,7 +404,7 @@ async function loadPlatformData() {
 
 async function create() {
   creatingValidation.value = true
-  let extra = {}
+  let extra: Record<string, string> = {}
   // encode attributes to show
   if (reportEndpoint.value && attributesToShow.value.length > 0) {
     extra = {
@@ -399,13 +412,14 @@ async function create() {
     }
   }
   // encode filters
-  Object.entries(filters.value).forEach(([k, v]) => {
+  Object.entries(multiValueFilters.value).forEach(([k, v]) => {
     if (v && v.length) {
-      if (Array.isArray(v)) {
-        extra[k.toLowerCase()] = v.join("|")
-      } else {
-        extra[k.toLowerCase()] = v
-      }
+      extra[k.toLowerCase()] = v.join("|")
+    }
+  })
+  Object.entries(textFilters.value).forEach(([k, v]) => {
+    if (v && v.length) {
+      extra[k.toLowerCase()] = v
     }
   })
   try {
