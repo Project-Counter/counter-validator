@@ -23,12 +23,14 @@
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@types/eslint__js": "^8.42.3",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^22.5.0",
     "@typescript-eslint/parser": "^8.10.0",
     "@vitejs/plugin-vue": "^5.1.2",
     "@vue/eslint-config-typescript": "^13.0.0",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.0.0",
     "eslint-plugin-node": "^11.1.0",
@@ -38,7 +40,7 @@
     "prettier": "^3.3.3",
     "sass": "^1.77.8",
     "sass-embedded": "^1.77.8",
-    "typescript": "^5.5.4",
+    "typescript": "~5.6.3",
     "typescript-eslint": "^8.10.0",
     "unplugin-auto-import": "^0.18.2",
     "unplugin-fonts": "^1.1.1",
@@ -49,7 +51,7 @@
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vue-router": "^4.4.3",
-    "vue-tsc": "^2.0.29"
+    "vue-tsc": "^2.1.10"
   },
   "packageManager": "yarn@4.5.0"
 }
