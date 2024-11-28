@@ -22,7 +22,7 @@ export async function checkUser(reset = false) {
     store.loggedIn = false
     if (err instanceof HttpStatusError) {
       if (![401, 403].includes(err?.res?.status)) {
-        // TODO: 500 -> show error instead of login
+        // TODO: 500 -> show error instead of login  // eslint-disable-line
       }
     }
     return

@@ -178,6 +178,42 @@
             </span>
           </v-col>
         </v-row>
+        <v-row v-if="reportEndpoint && availableAttributes.length">
+          <v-col
+            cols="auto"
+            class="font-weight-light align-self-center text-center"
+          >
+            Filters
+          </v-col>
+          <v-col>
+            <template
+              v-for="attr in availableAttributes"
+              :key="attr"
+            >
+              <v-select
+                v-if="possibleAttributeValues(cop, attr)"
+                v-model="filters[attr]"
+                :items="possibleAttributeValues(cop, attr)"
+                :label="attr"
+                outlined
+                clearable
+                multiple
+                :hide-details="true"
+                min-width="320px"
+              />
+              <v-text-field
+                v-else
+                v-model="filters[attr]"
+                :label="attr"
+                outlined
+                clearable
+                multiple
+                :hide-details="true"
+                min-width="320px"
+              />
+            </template>
+          </v-col>
+        </v-row>
       </v-form>
     </template>
 
@@ -230,6 +266,20 @@
                     </v-chip>
                   </td>
                 </tr>
+                <tr v-if="reportEndpoint">
+                  <th>Filters</th>
+                  <td>
+                    <table class="overview dense">
+                      <tr
+                        v-for="(v, k) in filters"
+                        :key="k"
+                      >
+                        <th class="font-weight-regular">{{ k }}</th>
+                        <td>{{ v || "-" }}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
               </tbody>
             </v-table>
           </v-col>
@@ -259,7 +309,7 @@
 import { CounterAPIEndpoint, Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
-import { CoP, ReportCode, reportDefinitions } from "@/lib/definitions/counter"
+import { CoP, getReportInfo, ReportCode, possibleAttributeValues } from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
@@ -305,12 +355,15 @@ const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] =
 const endpoint = ref(apiEndpoints[0])
 const reportEndpoint = computed(() => endpoint.value.code === "reports")
 
+const selectedReportInfo = computed(() => {
+  if (!reportEndpoint.value) return null
+  return getReportInfo(cop.value, reportCode.value)
+})
+
 const attributesToShow = ref([])
 const availableAttributes = computed<string[]>(() => {
-  if (!reportEndpoint.value) return []
-  let desc = reportDefinitions.find((r) => r.code === reportCode.value && r.cop === cop.value)
-  if (!desc) return []
-  return desc.attributes
+  if (selectedReportInfo.value) return selectedReportInfo.value.attributes
+  return []
 })
 
 watch(reportCode, () => {
@@ -318,7 +371,10 @@ watch(reportCode, () => {
   attributesToShow.value = []
 })
 
-// methods
+// filters
+const filters = ref({})
+
+// methods for API communication
 async function selectPlatform() {
   if (!platform.value) return
   loading.value = true
@@ -336,11 +392,22 @@ async function loadPlatformData() {
 async function create() {
   creatingValidation.value = true
   let extra = {}
+  // encode attributes to show
   if (reportEndpoint.value && attributesToShow.value.length > 0) {
     extra = {
       attributes_to_show: attributesToShow.value.join("|"),
     }
   }
+  // encode filters
+  Object.entries(filters.value).forEach(([k, v]) => {
+    if (v && v.length) {
+      if (Array.isArray(v)) {
+        extra[k.toLowerCase()] = v.join("|")
+      } else {
+        extra[k.toLowerCase()] = v
+      }
+    }
+  })
   try {
     await validateCounterAPI(
       credentials,

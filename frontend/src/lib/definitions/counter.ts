@@ -24,6 +24,7 @@ export const reportDefinitions: {
   code: ReportCode
   name: string
   attributes: string[]
+  metrics?: string[]
 }[] = [
   // cop 5, title report
   {
@@ -31,6 +32,16 @@ export const reportDefinitions: {
     code: ReportCode.TR,
     name: "Title Master Report",
     attributes: ["Access_Method", "Access_Type", "Data_Type", "Section_Type", "YOP"],
+    metrics: [
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Unique_Title_Investigations",
+      "Unique_Title_Requests",
+      "Limit_Exceeded",
+      "No_License",
+    ],
   },
   {
     cop: "5",
@@ -80,6 +91,19 @@ export const reportDefinitions: {
     code: ReportCode.DR,
     name: "Database Master Report",
     attributes: ["Access_Method", "Data_Type"],
+    metrics: [
+      "Searches_Automated",
+      "Searches_Federated",
+      "Searches_Regular",
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Unique_Title_Investigations",
+      "Unique_Title_Requests",
+      "Limit_Exceeded",
+      "No_License",
+    ],
   },
   {
     cop: "5",
@@ -99,6 +123,15 @@ export const reportDefinitions: {
     code: ReportCode.PR,
     name: "Platform Master Report",
     attributes: ["Access_Method", "Data_Type"],
+    metrics: [
+      "Searches_Platform",
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Unique_Title_Investigations",
+      "Unique_Title_Requests",
+    ],
   },
   {
     cop: "5",
@@ -141,6 +174,14 @@ export const reportDefinitions: {
       "Publication_Date",
       "YOP",
     ],
+    metrics: [
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Limit_Exceeded",
+      "No_License",
+    ],
   },
   {
     cop: "5",
@@ -162,6 +203,16 @@ export const reportDefinitions: {
     code: ReportCode.TR,
     name: "Title Report",
     attributes: ["Access_Method", "Access_Type", "YOP"],
+    metrics: [
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Unique_Title_Investigations",
+      "Unique_Title_Requests",
+      "Limit_Exceeded",
+      "No_License",
+    ],
   },
   {
     cop: "5.1",
@@ -211,6 +262,19 @@ export const reportDefinitions: {
     code: ReportCode.DR,
     name: "Database Report",
     attributes: ["Access_Method"],
+    metrics: [
+      "Searches_Automated",
+      "Searches_Federated",
+      "Searches_Regular",
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Unique_Title_Investigations",
+      "Unique_Title_Requests",
+      "Limit_Exceeded",
+      "No_License",
+    ],
   },
   {
     cop: "5.1",
@@ -230,6 +294,15 @@ export const reportDefinitions: {
     code: ReportCode.PR,
     name: "Platform Report",
     attributes: ["Access_Method"],
+    metrics: [
+      "Searches_Platform",
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Unique_Title_Investigations",
+      "Unique_Title_Requests",
+    ],
   },
   {
     cop: "5.1",
@@ -271,6 +344,14 @@ export const reportDefinitions: {
       "Publication_Date",
       "YOP",
     ],
+    metrics: [
+      "Total_Item_Investigations",
+      "Total_Item_Requests",
+      "Unique_Item_Investigations",
+      "Unique_Item_Requests",
+      "Limit_Exceeded",
+      "No_License",
+    ],
   },
   {
     cop: "5.1",
@@ -285,3 +366,87 @@ export const reportDefinitions: {
     attributes: [],
   },
 ]
+
+export const attributeValues: { cop: CoP; attr: string; values?: string[] }[] = [
+  // -- COP 5 --
+  { cop: "5", attr: "Access_Method", values: ["Regular", "TDM"] },
+  { cop: "5", attr: "Access_Type", values: ["Controlled", "OA_Gold", "Other_Free_To_Read"] },
+  {
+    cop: "5",
+    attr: "Data_Type",
+    values: [
+      "Article",
+      "Book",
+      "Book_Segment",
+      "Database",
+      "Dataset",
+      "Journal",
+      "Multimedia",
+      "Newspaper_or_Newsletter",
+      "Other",
+      "Platform",
+      "Report",
+      "Repository_Item",
+      "Thesis_or_Dissertation",
+      "Unspecified",
+    ],
+  },
+  {
+    cop: "5",
+    attr: "Section_Type",
+    values: ["Article", "Book", "Chapter", "Other", "Section"],
+  },
+  {
+    cop: "5",
+    attr: "YOP",
+  },
+  // -- COP 5.1 --
+  { cop: "5.1", attr: "Access_Method", values: ["Regular", "TDM"] },
+  { cop: "5.1", attr: "Access_Type", values: ["Controlled", "Open", "Free_To_Read"] },
+  {
+    cop: "5.1",
+    attr: "Data_Type",
+    values: [
+      "Article",
+      "Audiovisual",
+      "Book",
+      "Book_Segment",
+      "Conference",
+      "Conference_Item",
+      "Database_Aggregated",
+      "Database_AI",
+      "Database_Full",
+      "Database_Full_Item",
+      "Dataset",
+      "Image",
+      "Interactive_Resource",
+      "Journal",
+      "Multimedia",
+      "News_Item",
+      "Newspaper_or_Newsletter",
+      "Other",
+      "Patent",
+      "Platform",
+      "Reference_Item",
+      "Reference_Work",
+      "Report",
+      "Software",
+      "Sound",
+      "Standard",
+      "Thesis_or_Dissertation",
+      "Unspecified",
+    ],
+  },
+  {
+    cop: "5.1",
+    attr: "YOP",
+  },
+]
+
+export function getReportInfo(cop: CoP, code: ReportCode) {
+  return reportDefinitions.find((r) => r.cop === cop && r.code === code)
+}
+
+export function possibleAttributeValues(cop: CoP, attr: string) {
+  return attributeValues.find((r) => r.cop === cop && r.attr === attr)?.values
+}

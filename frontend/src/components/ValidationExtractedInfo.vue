@@ -20,7 +20,7 @@
       <tr>
         <th>Date range</th>
         <td>
-          {{ validation.result_data.header.begin_date }} -
+          {{ validation.result_data.header.begin_date }} &ndash;
           {{ validation.result_data.header.end_date }}
         </td>
       </tr>
