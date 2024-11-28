@@ -1,11 +1,14 @@
 <template>
   <v-data-table
+    v-model="selected"
     :headers="headers"
     :items="items"
     :mobile="null"
     no-data-text="No validations in your history"
     :loading="loading"
     color="primary"
+    :show-select="props.selectable"
+    item-value="id"
   >
     <template #item.status="{ item }">
       <validation-status :validation="item" />
@@ -71,6 +74,17 @@ import { getValidation, getValidations } from "@/lib/http/validation"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 
+const props = withDefaults(
+  defineProps<{
+    selectable?: boolean
+  }>(),
+  {
+    selectable: false,
+  },
+)
+
+const selected = defineModel<string[]>("selected")
+
 const items = ref<Validation[]>([])
 let loading = ref(false)
 
@@ -90,13 +104,21 @@ const headers: ReadonlyHeaders = [
   { key: "created", title: "Time" },
 ]
 
-async function start() {
+async function loadValidations() {
   loading.value = true
   try {
     items.value = await getValidations()
   } finally {
     loading.value = false
   }
+}
+
+defineExpose({
+  loadValidations,
+})
+
+async function start() {
+  await loadValidations()
   await checkUnfinished()
 }
 

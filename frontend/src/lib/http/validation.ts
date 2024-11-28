@@ -91,3 +91,9 @@ export async function validateCounterAPI(
     json: data,
   })
 }
+
+export async function deleteValidation(id: string) {
+  return wrapFetch(`${urls.list}${id}/`, {
+    method: "DELETE",
+  })
+}
