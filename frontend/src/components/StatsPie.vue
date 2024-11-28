@@ -32,7 +32,6 @@
 <script setup lang="ts">
 import { defineProps } from "vue"
 import { ValidationBase, severityLevelColorMap } from "@/lib/definitions/api"
-import SimplePie from "@/components/SimplePie.vue"
 import { useTheme } from "vuetify"
 import type { Entries } from "type-fest"
 

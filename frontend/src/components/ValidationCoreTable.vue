@@ -52,10 +52,8 @@
 <script setup lang="ts">
 import { ValidationCore } from "@/lib/definitions/api"
 import { getValidationCores } from "@/lib/http/validation"
-import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
-import StatsPie from "@/components/StatsPie.vue"
 
 const items = ref<ValidationCore[]>([])
 

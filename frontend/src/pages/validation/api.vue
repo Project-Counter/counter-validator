@@ -7,6 +7,4 @@
   </v-sheet>
 </template>
 
-<script setup lang="ts">
-import NewCounterAPIValidation from "@/components/NewCounterAPIValidation.vue"
-</script>
+<script setup lang="ts"></script>

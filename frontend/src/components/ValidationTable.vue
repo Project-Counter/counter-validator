@@ -52,7 +52,6 @@
 <script setup lang="ts">
 import { Status, Validation } from "@/lib/definitions/api"
 import { getValidation, getValidations } from "@/lib/http/validation"
-import SeverityLevelChip from "@/components/SeverityLevelChip.vue"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 

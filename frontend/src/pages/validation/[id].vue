@@ -110,7 +110,6 @@
 import { Message, ValidationDetail } from "@/lib/definitions/api"
 import { getValidationDetail } from "@/lib/http/validation"
 import ValidationMessagesTable from "@/components/ValidationMessagesTable.vue"
-import ValidationBasicInfo from "@/components/ValidationBasicInfo.vue"
 
 const tab = ref("info")
 
