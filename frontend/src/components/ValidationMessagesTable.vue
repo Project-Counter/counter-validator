@@ -73,6 +73,7 @@ import { getValidationMessagesFromUrl } from "@/lib/http/message"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { urls } from "@/lib/http/validation"
 import { HttpStatusError } from "@/lib/http/util"
+import debounce from "lodash/debounce"
 
 const props = defineProps<{
   validation: Validation
@@ -149,8 +150,11 @@ watch(selectedLevels, () => {
   getMessages()
 })
 
-watchEffect(() => {
-  filters.search = search.value || ""
-  getMessages()
-})
+watch(
+  search,
+  debounce(() => {
+    filters.search = search.value || ""
+    getMessages()
+  }, 300),
+)
 </script>

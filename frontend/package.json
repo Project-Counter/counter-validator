@@ -13,6 +13,7 @@
     "core-js": "^3.38.1",
     "date-fns": "^4.1.0",
     "filesize": "^10.1.6",
+    "lodash": "^4.17.21",
     "roboto-fontface": "^0.10.0",
     "vue": "^3.4.38",
     "vuetify": "^3.7.3"
@@ -28,7 +29,6 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.0.0",
     "eslint-plugin-node": "^11.1.0",
