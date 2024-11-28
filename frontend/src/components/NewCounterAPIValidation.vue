@@ -405,23 +405,24 @@ async function loadPlatformData() {
 async function create() {
   creatingValidation.value = true
   let extra: Record<string, string> = {}
-  // encode attributes to show
-  if (reportEndpoint.value && attributesToShow.value.length > 0) {
-    extra = {
-      attributes_to_show: attributesToShow.value.join("|"),
+
+  // encode attributes to show and filters
+  if (reportEndpoint.value) {
+    if (attributesToShow.value.length > 0) {
+      extra["attributes_to_show"] = attributesToShow.value.join("|")
     }
+    Object.entries(multiValueFilters.value).forEach(([k, v]) => {
+      if (v && v.length) {
+        extra[k.toLowerCase()] = v.join("|")
+      }
+    })
+    Object.entries(textFilters.value).forEach(([k, v]) => {
+      if (v && v.length) {
+        extra[k.toLowerCase()] = v
+      }
+    })
   }
-  // encode filters
-  Object.entries(multiValueFilters.value).forEach(([k, v]) => {
-    if (v && v.length) {
-      extra[k.toLowerCase()] = v.join("|")
-    }
-  })
-  Object.entries(textFilters.value).forEach(([k, v]) => {
-    if (v && v.length) {
-      extra[k.toLowerCase()] = v
-    }
-  })
+
   try {
     await validateCounterAPI(
       credentials,
