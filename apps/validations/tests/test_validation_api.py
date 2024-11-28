@@ -375,6 +375,7 @@ class TestCounterAPIValidationAPI:
         assert res.status_code == 200
         data = res.json()
         assert "id" in data
+        assert "url" in data
         assert "credentials" in data
         assert data["credentials"] == val.credentials
         assert "requested_cop_version" in data

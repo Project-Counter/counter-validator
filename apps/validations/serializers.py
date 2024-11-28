@@ -36,6 +36,7 @@ class ValidationSerializer(serializers.ModelSerializer):
     data_source = serializers.SerializerMethodField()
     # attrs from optional counterapivalidation
     credentials = CredentialsSerializer(source="counterapivalidation.credentials", read_only=True)
+    url = serializers.CharField(source="counterapivalidation.url", read_only=True)
     requested_cop_version = serializers.CharField(
         source="counterapivalidation.requested_cop_version", read_only=True
     )
@@ -74,6 +75,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "data_source",
             # optional fields from CounterAPIValidation
             "credentials",
+            "url",
             "requested_cop_version",
             "requested_report_code",
             "api_endpoint",

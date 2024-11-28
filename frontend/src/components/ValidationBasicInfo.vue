@@ -90,6 +90,7 @@ const p = defineProps<{
 
 let sushiAttrs: {
   attr:
+    | "url"
     | "requested_cop_version"
     | "api_endpoint"
     | "requested_report_code"
@@ -98,6 +99,7 @@ let sushiAttrs: {
     | "requested_extra_attributes"
   name: string
 }[] = [
+  { attr: "url", name: "API URL" },
   { attr: "requested_cop_version", name: "CoP version" },
   { attr: "api_endpoint", name: "API endpoint" },
 ]

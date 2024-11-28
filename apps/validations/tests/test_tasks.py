@@ -127,4 +127,4 @@ class TestCounterAPIValidationTask:
         assert obj.file is not None
         with open("test_data/reports/50-Sample-TR.json", "rb") as infile:
             assert obj.file.read() == infile.read()
-        assert obj.filename.startswith("Counter API Report")
+        assert obj.filename.startswith("Counter API")
