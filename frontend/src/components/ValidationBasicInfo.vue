@@ -1,5 +1,5 @@
 <template>
-  <table class="overview">
+  <table class="overview ml-4">
     <tbody>
       <tr>
         <th>Filename</th>
@@ -39,7 +39,7 @@
   </h3>
   <table
     v-if="validation.credentials"
-    class="overview"
+    class="overview ml-4"
   >
     <tbody>
       <tr>

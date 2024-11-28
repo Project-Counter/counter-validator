@@ -146,23 +146,21 @@
           >
             Attributes to show
             <br />
-            <v-btn-group
-              density="compact"
+            <v-btn
+              size="small"
               variant="tonal"
+              class="mr-1"
+              @click="attributesToShow = availableAttributes"
             >
-              <v-btn
-                size="small"
-                @click="attributesToShow = availableAttributes"
-              >
-                All
-              </v-btn>
-              <v-btn
-                size="small"
-                @click="attributesToShow = []"
-              >
-                None
-              </v-btn>
-            </v-btn-group>
+              All
+            </v-btn>
+            <v-btn
+              size="small"
+              variant="tonal"
+              @click="attributesToShow = []"
+            >
+              None
+            </v-btn>
           </v-col>
           <v-col class="d-flex flex-1-1-0 align-self-center flex-wrap">
             <span
@@ -196,7 +194,17 @@
                 </tr>
                 <tr>
                   <th>Credentials</th>
-                  <td>{{ credentials }}</td>
+                  <td>
+                    <table class="overview dense">
+                      <tr
+                        v-for="(v, k) in credentials"
+                        :key="k"
+                      >
+                        <th class="font-weight-regular">{{ k }}</th>
+                        <td>{{ v || "-" }}</td>
+                      </tr>
+                    </table>
+                  </td>
                 </tr>
                 <tr>
                   <th>API endpoint</th>
@@ -212,7 +220,15 @@
                 </tr>
                 <tr v-if="reportEndpoint">
                   <th>Attributes to show</th>
-                  <td>{{ attributesToShow.join("|") }}</td>
+                  <td>
+                    <v-chip
+                      v-for="a in attributesToShow"
+                      :key="a"
+                      class="mt-1 mr-1"
+                    >
+                      {{ a }}
+                    </v-chip>
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -281,7 +297,7 @@ const credentials = reactive<Credentials>({
 })
 
 const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] = [
-  { name: "Reports", path: "/reports/[id]", code: "reports" },
+  { name: "Report", path: "/reports/[id]", code: "reports" },
   { name: "Report list", path: "/reports", code: "report-list" },
   { name: "Members", path: "/members", code: "members" },
   { name: "Status", path: "/status", code: "status" },
