@@ -140,87 +140,98 @@
           </v-col>
         </v-row>
         <v-row v-if="reportEndpoint && availableAttributes.length">
-          <v-col
-            cols="auto"
-            class="font-weight-light align-self-center text-center"
-          >
-            Attributes to show
-            <br />
-            <v-btn
-              size="small"
-              variant="tonal"
-              class="mr-1"
-              @click="attributesToShow = availableAttributes"
+          <v-col>
+            <v-card
+              class="ma-0 light-border"
+              variant="outlined"
             >
-              All
-            </v-btn>
-            <v-btn
-              size="small"
-              variant="tonal"
-              @click="attributesToShow = []"
-            >
-              None
-            </v-btn>
-          </v-col>
-          <v-col class="d-flex flex-1-1-0 align-self-center flex-wrap">
-            <span
-              v-for="attr in availableAttributes"
-              :key="attr"
-            >
-              <v-checkbox
-                v-model="attributesToShow"
-                :label="attr"
-                :value="attr"
-                density="compact"
-                class="pr-5"
-                hide-details
-              />
-            </span>
+              <v-card-title
+                >Attributes to show
+
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  class="mr-1 ml-2"
+                  @click="attributesToShow = availableAttributes"
+                >
+                  All
+                </v-btn>
+                <v-btn
+                  size="small"
+                  variant="tonal"
+                  @click="attributesToShow = []"
+                >
+                  None
+                </v-btn>
+              </v-card-title>
+              <v-card-text>
+                <div class="d-flex flex-wrap">
+                  <span
+                    v-for="attr in availableAttributes"
+                    :key="attr"
+                  >
+                    <v-checkbox
+                      v-model="attributesToShow"
+                      :label="attr"
+                      :value="attr"
+                      density="compact"
+                      class="pr-5"
+                      hide-details
+                    />
+                  </span>
+                </div>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
         <v-row v-if="reportEndpoint && availableAttributes.length">
-          <v-col
-            cols="auto"
-            class="font-weight-light align-self-center text-center"
-          >
-            Filters
-          </v-col>
           <v-col>
-            <v-select
-              v-if="selectedReportInfo?.metrics"
-              v-model="multiValueFilters['Metric_Type']"
-              :items="selectedReportInfo.metrics"
-              label="Metric_Type"
-              clearable
-              multiple
-              :hide-details="true"
-              min-width="320px"
-            />
-            <template
-              v-for="attr in availableAttributes"
-              :key="attr"
+            <v-card
+              class="ma-0 light-border"
+              variant="outlined"
             >
-              <v-select
-                v-if="possibleAttributeValues(cop, attr)"
-                v-model="multiValueFilters[attr]"
-                :items="possibleAttributeValues(cop, attr)"
-                :label="attr"
-                clearable
-                multiple
-                :hide-details="true"
-                min-width="320px"
-              />
-              <v-text-field
-                v-else
-                v-model="textFilters[attr]"
-                :label="attr"
-                outlined
-                clearable
-                multiple
-                :hide-details="true"
-                min-width="320px"
-              />
-            </template>
+              <v-card-title>Filters</v-card-title>
+              <v-card-text>
+                <v-select
+                  v-if="selectedReportInfo?.metrics"
+                  v-model="multiValueFilters['Metric_Type']"
+                  :items="selectedReportInfo.metrics"
+                  label="Metric_Type"
+                  clearable
+                  multiple
+                  :hide-details="true"
+                  min-width="320px"
+                  class="pb-2"
+                />
+                <template
+                  v-for="attr in availableAttributes"
+                  :key="attr"
+                >
+                  <v-select
+                    v-if="possibleAttributeValues(cop, attr)"
+                    v-model="multiValueFilters[attr]"
+                    :items="possibleAttributeValues(cop, attr)"
+                    :label="attr"
+                    clearable
+                    multiple
+                    :hide-details="true"
+                    min-width="320px"
+                    class="pb-2"
+                  />
+                  <v-text-field
+                    v-else
+                    v-model="textFilters[attr]"
+                    :label="attr"
+                    outlined
+                    clearable
+                    multiple
+                    :hide-details="true"
+                    min-width="320px"
+                    class="pb-2"
+                  />
+                </template>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </v-form>
