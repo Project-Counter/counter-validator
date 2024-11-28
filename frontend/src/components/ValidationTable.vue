@@ -30,7 +30,16 @@
     </template>
 
     <template #item.api_key_prefix="{ item }">
-      <v-icon color="disabled">{{ item.api_key_prefix === "" ? "mdi-account" : "mdi-api" }}</v-icon>
+      <v-tooltip>
+        <template #activator="{ props }">
+          <v-icon
+            v-bind="props"
+            color="disabled"
+            >{{ item.api_key_prefix === "" ? "mdi-account" : "mdi-api" }}
+          </v-icon>
+        </template>
+        {{ item.api_key_prefix === "" ? "Manual" : "API" }}
+      </v-tooltip>
     </template>
 
     <template #item.stats="{ item }">
@@ -42,9 +51,16 @@
     </template>
 
     <template #item.data_source="{ item }">
-      <v-icon color="disabled">{{
-        item.data_source === "file" ? "mdi-file-outline" : "mdi-cloud-outline"
-      }}</v-icon>
+      <v-tooltip>
+        <template #activator="{ props }">
+          <v-icon
+            v-bind="props"
+            color="disabled"
+            >{{ item.data_source === "file" ? "mdi-file-outline" : "mdi-cloud-outline" }}
+          </v-icon>
+        </template>
+        <span>{{ item.data_source === "file" ? "File" : "COUNTER API" }}</span>
+      </v-tooltip>
     </template>
   </v-data-table>
 </template>

@@ -1,25 +1,49 @@
 <template>
-  <v-icon
-    v-if="!validation"
-    color="grey"
-    icon="mdi-question"
-  />
-  <v-icon
-    v-else-if="validation.status == Status.WAITING"
-    color="grey"
-    icon="mdi-clock"
-  />
-  <v-progress-circular
-    v-else-if="validation.status == Status.RUNNING"
-    color="grey"
-    indeterminate
-    :size="18"
-  />
-  <v-icon
-    v-else-if="validation.status == Status.SUCCESS"
-    color="grey"
-    icon="mdi-check"
-  />
+  <v-tooltip v-if="!validation">
+    <template #activator="{ props }">
+      <v-icon
+        v-bind="props"
+        color="grey"
+        icon="mdi-question"
+      />
+    </template>
+    Unknown
+  </v-tooltip>
+
+  <v-tooltip v-else-if="validation.status == Status.WAITING">
+    <template #activator="{ props }">
+      <v-icon
+        v-bind="props"
+        color="grey"
+        icon="mdi-clock"
+      />
+    </template>
+    Waiting
+  </v-tooltip>
+
+  <v-tooltip v-else-if="validation.status == Status.RUNNING">
+    <template #activator="{ props }">
+      <v-progress-circular
+        v-bind="props"
+        color="grey"
+        indeterminate
+        :size="18"
+      />
+    </template>
+    Running
+  </v-tooltip>
+
+  <v-tooltip v-else-if="validation.status == Status.SUCCESS">
+    <template #activator="{ props }">
+      <v-icon
+        v-bind="props"
+        color="grey"
+        icon="mdi-check"
+      />
+    </template>
+    Finished successfully
+  </v-tooltip>
+
   <v-tooltip v-else>
     <template #activator="{ props }">
       <v-icon

@@ -10,7 +10,6 @@ import requests
 from celery.contrib.django.task import DjangoTask
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db.transaction import atomic
 
 from validations.enums import ValidationStatus
 from validations.hashing import checksum_bytes
@@ -27,7 +26,6 @@ class ValidationTask(DjangoTask):
 
 
 @celery.shared_task(base=ValidationTask)
-@atomic
 def validate_file(pk: uuid.UUID):
     start = time.monotonic()
     obj = Validation.objects.select_related("core").get(pk=pk)
@@ -68,8 +66,8 @@ def validate_file(pk: uuid.UUID):
 def validate_counter_api(pk):
     start = time.monotonic()
     obj = CounterAPIValidation.objects.select_related("core").get(pk=pk)
-    obj.status = ValidationStatus.RUNNING
-    obj.save()
+    obj.core.status = ValidationStatus.RUNNING
+    obj.core.save()
 
     req_url = obj.get_url()
     logger.debug("Requesting URL: %s", req_url)
