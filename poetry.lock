@@ -1429,6 +1429,16 @@ dev = ["build", "hatch"]
 doc = ["sphinx"]
 
 [[package]]
+name = "tailslide"
+version = "0.2.0"
+description = "Median and percentile for Django and MongoEngine"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "tailslide-0.2.0-py2.py3-none-any.whl", hash = "sha256:2e91a8fd299380e14f7944caff3d5bb460aabf2772dca1aa04f9270731462d2f"},
+]
+
+[[package]]
 name = "termcolor"
 version = "2.5.0"
 description = "ANSI color formatting for output in terminal"
@@ -1582,4 +1592,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "1b24d663df218f55b9db579ee350ff35726c18571a7ba388ef64b1dee6649f97"
+content-hash = "6d555f604a6ad354c01d781f14273ac3190453c0914db0d96e88e562c8d744cc"

@@ -83,6 +83,11 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         return ValidationCore.objects.select_related("platform").order_by("-created")
 
+    @action(detail=False, methods=("GET",))
+    def stats(self, request):
+        stats = ValidationCore.get_stats()
+        return Response(stats)
+
 
 class MessagePagination(PageNumberPagination):
     page_size = 50

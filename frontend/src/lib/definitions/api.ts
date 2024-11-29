@@ -148,3 +148,17 @@ export type SushiService = {
 }
 
 export type CounterAPIEndpoint = "/reports/[id]" | "/reports" | "/status" | "/members"
+
+export type MinMaxStats = {
+  min: number
+  max: number
+  avg: number
+  median?: number
+}
+
+export type Stats = {
+  total: number
+  duration: MinMaxStats
+  file_size: MinMaxStats
+  used_memory: MinMaxStats
+}

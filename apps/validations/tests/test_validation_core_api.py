@@ -44,3 +44,17 @@ class TestValidationCoreAPI:
         v = ValidationCoreFactory()
         res = admin_client.delete(reverse("validation-core-detail", args=[v.pk]))
         assert res.status_code == 405
+
+    def test_stats(self, admin_client, django_assert_max_num_queries):
+        ValidationCoreFactory.create_batch(10)
+        with django_assert_max_num_queries(9):
+            res = admin_client.get(reverse("validation-core-stats"))
+            assert res.status_code == 200
+            data = res.json()
+            assert "total" in data
+            for key in ["duration", "file_size", "used_memory"]:
+                assert key in data
+                assert "min" in data[key]
+                assert "max" in data[key]
+                assert "avg" in data[key]
+                assert "median" in data[key]

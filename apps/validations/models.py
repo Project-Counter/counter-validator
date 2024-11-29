@@ -11,6 +11,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from rest_framework_api_key.models import APIKey
+from tailslide import Median
 
 from validations.enums import SeverityLevel, ValidationStatus
 from validations.hashing import checksum_dict, checksum_fileobj, checksum_string
@@ -90,6 +91,33 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
 
     def __str__(self):
         return f"{self.pk}: {self.created} - {self.get_status_display()}"
+
+    @classmethod
+    def get_stats(cls) -> dict:
+        """
+        Get statistics of the validations.
+        """
+        return {
+            "total": cls.objects.count(),
+            "duration": cls.objects.aggregate(
+                avg=models.Avg("duration"),
+                max=models.Max("duration"),
+                min=models.Min("duration"),
+                median=Median("duration"),
+            ),
+            "file_size": cls.objects.aggregate(
+                avg=models.Avg("file_size"),
+                max=models.Max("file_size"),
+                min=models.Min("file_size"),
+                median=Median("file_size"),
+            ),
+            "used_memory": cls.objects.aggregate(
+                avg=models.Avg("used_memory"),
+                max=models.Max("used_memory"),
+                min=models.Min("used_memory"),
+                median=Median("used_memory"),
+            ),
+        }
 
 
 class Validation(UUIDPkMixin, models.Model):

@@ -1,4 +1,10 @@
-import { Credentials, Validation, ValidationCore, ValidationDetail } from "../definitions/api"
+import {
+  Credentials,
+  Stats,
+  Validation,
+  ValidationCore,
+  ValidationDetail,
+} from "../definitions/api"
 import { FUpload } from "../definitions/upload"
 import { jsonFetch, wrapFetch } from "./util"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
@@ -10,6 +16,7 @@ export const urls = {
   file: "validations/validation/file/",
   sushi: "validations/counter-api-validation/",
   coreList: "validations/validation-core/",
+  stats: "validations/validation-core/stats/",
 }
 
 export async function getValidation(id: string) {
@@ -96,4 +103,8 @@ export async function deleteValidation(id: string) {
   return wrapFetch(`${urls.list}${id}/`, {
     method: "DELETE",
   })
+}
+
+export async function getStats(): Promise<Stats> {
+  return jsonFetch<Stats>(urls.stats)
 }

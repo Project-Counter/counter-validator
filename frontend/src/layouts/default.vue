@@ -28,6 +28,12 @@
           title="Validation history"
           to="/history"
         />
+        <v-list-item
+          prepend-icon="mdi-chart-bar"
+          subtitle="Basic stats about validations"
+          title="Stats"
+          to="/stats"
+        />
       </v-list>
       <template #append>
         <v-divider />
