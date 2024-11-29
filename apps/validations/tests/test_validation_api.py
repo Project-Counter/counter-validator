@@ -20,7 +20,7 @@ from validations.models import CounterAPIValidation, Validation, ValidationCore
 
 @pytest.mark.django_db
 class TestFileValidationAPI:
-    def test_api_okay(self, client_authenticated_user):
+    def test_create(self, client_authenticated_user):
         filename = "tr.json"
         file = SimpleUploadedFile(filename, content=b"xxx")
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
@@ -37,7 +37,7 @@ class TestFileValidationAPI:
         assert val.core.platform_name == "test"
         assert str(val.pk) == res.json()["id"]
 
-    def test_api_empty(self, client_authenticated_user):
+    def test_create_with_empty_file(self, client_authenticated_user):
         file = SimpleUploadedFile("tr.json", content=b"")
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
@@ -49,7 +49,7 @@ class TestFileValidationAPI:
         assert res.status_code == 400
         assert "empty" in res.json()["file"][0]
 
-    def test_api_large(self, settings, client_authenticated_user):
+    def test_create_with_too_large_a_file(self, settings, client_authenticated_user):
         settings.MAX_FILE_SIZE = 1023
         file = SimpleUploadedFile("tr.json", content=b"X" * (settings.MAX_FILE_SIZE + 1))
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
@@ -71,7 +71,7 @@ class TestFileValidationAPI:
             ("", None, ""),
         ],
     )
-    def test_platform_name_and_id(
+    def test_create_with_platform_name_and_id(
         self, client_authenticated_user, platform_name, platform_id, exp_name
     ):
         """
@@ -176,6 +176,14 @@ class TestFileValidationAPI:
 
         assert not Validation.objects.filter(pk=v.pk).exists()
         assert ValidationCore.objects.filter(pk=core_id).exists()
+
+    @pytest.mark.parametrize("method", ["put", "patch"])
+    def test_validation_update_not_allowed(self, client_authenticated_user, normal_user, method):
+        v = ValidationFactory(user=normal_user)
+        res = getattr(client_authenticated_user, method)(
+            reverse("validation-detail", args=[v.pk]), data={}, format="json"
+        )
+        assert res.status_code == 405
 
     def test_validation_list_with_api_key(self, client_with_api_key, normal_user):
         ValidationFactory.create_batch(10, user=normal_user)
@@ -386,6 +394,22 @@ class TestCounterAPIValidationAPI:
         assert "requested_extra_attributes" in data
         assert "requested_begin_date" in data
         assert "requested_end_date" in data
+
+    def test_create_with_api_key(self, client_with_api_key, normal_user):
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_with_api_key.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        val = Validation.objects.select_related("core").get()
+        assert str(val.pk) == res.json()["id"]
+        assert val.user == normal_user
+        assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
+        assert val.core.api_key_prefix == res.json()["api_key_prefix"]
 
 
 @pytest.mark.django_db

@@ -148,7 +148,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
     def validate(self, attrs):
         attrs = super().validate(attrs)
         if attrs.get("api_endpoint") == "/reports/[id]":
-            for attr in ("cop_version", "begin_date", "end_date"):
+            for attr in ("cop_version", "begin_date", "end_date", "report_code"):
                 if not attrs.get(attr):
                     raise ValidationError(f"{attr} is required if api_endpoint is /reports/[id]")
         return attrs
