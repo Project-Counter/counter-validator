@@ -97,27 +97,25 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         """
         Get statistics of the validations.
         """
-        return {
-            "total": cls.objects.count(),
-            "duration": cls.objects.aggregate(
-                avg=models.Avg("duration"),
-                max=models.Max("duration"),
-                min=models.Min("duration"),
-                median=Median("duration"),
-            ),
-            "file_size": cls.objects.aggregate(
-                avg=models.Avg("file_size"),
-                max=models.Max("file_size"),
-                min=models.Min("file_size"),
-                median=Median("file_size"),
-            ),
-            "used_memory": cls.objects.aggregate(
-                avg=models.Avg("used_memory"),
-                max=models.Max("used_memory"),
-                min=models.Min("used_memory"),
-                median=Median("used_memory"),
-            ),
-        }
+        attrs = {"total": models.Count("pk")}
+        min_max_attrs = ["duration", "file_size", "used_memory"]
+        for attr in min_max_attrs:
+            attrs[f"{attr}__min"] = models.Min(attr)
+            attrs[f"{attr}__max"] = models.Max(attr)
+            attrs[f"{attr}__avg"] = models.Avg(attr)
+            attrs[f"{attr}__median"] = Median(attr)
+
+        data = cls.objects.aggregate(**attrs)
+        # remap the keys to a nested structure
+        out = {"total": data["total"]}
+        for key in min_max_attrs:
+            out[key] = {
+                "min": data.pop(f"{key}__min"),
+                "max": data.pop(f"{key}__max"),
+                "avg": data.pop(f"{key}__avg"),
+                "median": data.pop(f"{key}__median"),
+            }
+        return out
 
 
 class Validation(UUIDPkMixin, models.Model):

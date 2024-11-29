@@ -5,7 +5,7 @@
       <span>{{ title }}</span>
     </v-card-title>
     <v-card-subtitle>{{ unit }}</v-card-subtitle>
-    <v-card-text class="text-center pt-2">
+    <v-card-text class="text-center pt-2 pb-8">
       <div>
         <div class="text-caption">Min</div>
         <div class="text-h4 text-green-darken-4">{{ formattedStats.min }}</div>
