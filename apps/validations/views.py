@@ -88,6 +88,11 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
         stats = ValidationCore.get_stats()
         return Response(stats)
 
+    @action(detail=False, methods=("GET",), url_path="time-stats")
+    def time_stats(self, request):
+        stats = ValidationCore.get_time_stats()
+        return Response(stats)
+
 
 class MessagePagination(PageNumberPagination):
     page_size = 50

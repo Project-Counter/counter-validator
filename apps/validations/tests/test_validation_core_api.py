@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 
+from validations.enums import SeverityLevel
 from validations.fake_data import ValidationCoreFactory
 
 
@@ -58,3 +59,17 @@ class TestValidationCoreAPI:
                 assert "max" in data[key]
                 assert "avg" in data[key]
                 assert "median" in data[key]
+
+    def test_time_stats(self, admin_client, django_assert_max_num_queries):
+        ValidationCoreFactory.create_batch(10)
+        with django_assert_max_num_queries(9):
+            res = admin_client.get(reverse("validation-core-time-stats"))
+            assert res.status_code == 200
+            data = res.json()
+            assert len(data) == 1, "just today"
+            assert "total" in data[0]
+            assert data[0]["total"] == 10
+            assert "date" in data[0]
+            for severity in SeverityLevel:
+                if severity.label:
+                    assert severity.label in data[0]

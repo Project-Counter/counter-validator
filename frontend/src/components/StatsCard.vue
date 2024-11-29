@@ -3,24 +3,44 @@
     <v-card-title v-if="title">
       <v-icon v-if="icon">{{ icon }}</v-icon>
       <span>{{ title }}</span>
+      <span class="text-caption float-right pt-1">{{ unit }}</span>
     </v-card-title>
-    <v-card-subtitle>{{ unit }}</v-card-subtitle>
     <v-card-text class="text-center pt-2 pb-8">
       <div>
         <div class="text-caption">Min</div>
-        <div class="text-h4 text-green-darken-4">{{ formattedStats.min }}</div>
+        <div
+          class="text-green-darken-4"
+          :class="numSizeClass"
+        >
+          {{ formattedStats.min }}
+        </div>
       </div>
       <div v-if="stats.median">
         <div class="text-caption">Median</div>
-        <div class="text-h4 text-blue-darken-4">{{ formattedStats.median }}</div>
+        <div
+          class="text-blue-darken-4"
+          :class="numSizeClass"
+        >
+          {{ formattedStats.median }}
+        </div>
       </div>
       <div>
         <div class="text-caption">Avg</div>
-        <div class="text-h4 text-indigo-darken-4">{{ formattedStats.avg }}</div>
+        <div
+          class="text-indigo-darken-4"
+          :class="numSizeClass"
+        >
+          {{ formattedStats.avg }}
+        </div>
       </div>
       <div>
         <div class="text-caption">Max</div>
-        <div class="text-h4 text-red-darken-4">{{ formattedStats.max }}</div>
+        <div
+          class="text-red-darken-4"
+          :class="numSizeClass"
+        >
+          {{ formattedStats.max }}
+        </div>
       </div>
     </v-card-text>
   </v-card>
@@ -41,6 +61,8 @@ const props = withDefaults(
   }>(),
   { format: "float", title: "", unit: "", icon: "", color: "grey-lighten-3" },
 )
+
+const numSizeClass = "text-h5"
 
 const formattedStats = computed(() => {
   return {

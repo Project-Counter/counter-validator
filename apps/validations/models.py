@@ -8,6 +8,7 @@ from core.models import User
 from counter.models import Platform
 from django.conf import settings
 from django.db import models
+from django.db.models import F, Q
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from rest_framework_api_key.models import APIKey
@@ -115,6 +116,33 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
                 "avg": data.pop(f"{key}__avg"),
                 "median": data.pop(f"{key}__median"),
             }
+        return out
+
+    @classmethod
+    def get_time_stats(cls) -> dict:
+        """
+        Stats of validations by day.
+        """
+        result_aggregs = {
+            res.name: models.Count("pk", filter=Q(validation_result=res)) for res in SeverityLevel
+        }
+        sl_map = {res.name: res.label for res in SeverityLevel}
+
+        data = (
+            cls.objects.values(date=F("created__date"))
+            .annotate(total=models.Count("pk"), **result_aggregs)
+            .order_by("date")
+        )
+        # remap severity level to labels
+        out = []
+        for rec in data:
+            out.append(
+                {
+                    "date": rec["date"],
+                    "total": rec["total"],
+                    **{sl_map[k]: v for k, v in rec.items() if k in sl_map},
+                }
+            )
         return out
 
 

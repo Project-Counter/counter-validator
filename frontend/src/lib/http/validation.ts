@@ -1,6 +1,7 @@
 import {
   Credentials,
   Stats,
+  TimeStats,
   Validation,
   ValidationCore,
   ValidationDetail,
@@ -17,6 +18,7 @@ export const urls = {
   sushi: "validations/counter-api-validation/",
   coreList: "validations/validation-core/",
   stats: "validations/validation-core/stats/",
+  timeStats: "validations/validation-core/time-stats/",
 }
 
 export async function getValidation(id: string) {
@@ -107,4 +109,8 @@ export async function deleteValidation(id: string) {
 
 export async function getStats(): Promise<Stats> {
   return jsonFetch<Stats>(urls.stats)
+}
+
+export async function getTimeStats(): Promise<TimeStats> {
+  return jsonFetch<TimeStats>(urls.timeStats)
 }

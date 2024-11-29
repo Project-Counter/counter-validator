@@ -32,10 +32,7 @@
 <script setup lang="ts">
 import { defineProps } from "vue"
 import { ValidationBase, severityLevelColorMap } from "@/lib/definitions/api"
-import { useTheme } from "vuetify"
 import type { Entries } from "type-fest"
-
-const vTheme = useTheme()
 
 let p = defineProps<{
   item: ValidationBase
@@ -44,7 +41,7 @@ let p = defineProps<{
 const statParts = computed(() =>
   (Object.entries(p.item.stats) as Entries<typeof p.item.stats>).map(([level, value]) => ({
     size: value,
-    color: vTheme.current.value.colors[severityLevelColorMap.get(level) ?? "grey"],
+    color: severityLevelColorMap.get(level) || "#aaaaaa",
   })),
 )
 </script>

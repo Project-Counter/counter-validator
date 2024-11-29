@@ -29,12 +29,12 @@ export type SeverityLevel =
   | ""
 
 export const severityLevelColorMap = new Map<SeverityLevel, string>([
-  ["Passed", "success"],
-  ["Notice", "info"],
-  ["Warning", "warning"],
-  ["Error", "error"],
-  ["Critical error", "error"],
-  ["Fatal error", "error"],
+  ["Passed", "#0fa40f"],
+  ["Notice", "#0267b4"],
+  ["Warning", "#fc6100"],
+  ["Error", "#dd0000"],
+  ["Critical error", "#aa0000"],
+  ["Fatal error", "#500043"],
 ])
 
 export const severityLevelIconMap = new Map<SeverityLevel, string>([
@@ -162,3 +162,10 @@ export type Stats = {
   file_size: MinMaxStats
   used_memory: MinMaxStats
 }
+
+type LevelToCount = Record<SeverityLevel, number>
+
+export type TimeStats = (LevelToCount & {
+  date: string
+  total: number
+})[]
