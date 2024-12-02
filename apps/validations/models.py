@@ -166,7 +166,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
                 ),
                 result=Case(*results, default=Value("unknown")),
             )
-            .values("source", "method", "result")
+            .values("source", "method", "result", "cop_version", "report_code")
             .annotate(count=models.Count("pk"))
         )
         return data

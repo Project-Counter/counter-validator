@@ -84,4 +84,6 @@ class TestValidationCoreAPI:
             assert "result" in first
             assert "source" in first
             assert "method" in first
+            assert "cop_version" in first
+            assert "report_code" in first
             assert "count" in first
