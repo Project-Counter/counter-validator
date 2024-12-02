@@ -4,7 +4,7 @@ from django.db import models
 
 
 class SeverityLevel(models.IntegerChoices):
-    UNKNOWN = 0, ""
+    UNKNOWN = 0, "Unknown"
     PASSED = 10, "Passed"
     NOTICE = 20, "Notice"
     WARNING = 30, "Warning"

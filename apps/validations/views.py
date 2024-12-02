@@ -93,6 +93,11 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
         stats = ValidationCore.get_time_stats()
         return Response(stats)
 
+    @action(detail=False, methods=("GET",), url_path="split-stats")
+    def split_stats(self, request):
+        stats = ValidationCore.get_split_stats()
+        return Response(stats)
+
 
 class MessagePagination(PageNumberPagination):
     page_size = 50

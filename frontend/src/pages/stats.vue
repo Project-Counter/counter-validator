@@ -60,6 +60,17 @@
 
     <v-row>
       <v-col>
+        <h2>Parametrized overview</h2>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <SplitStatsVisualization />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
         <h2>Time stats</h2>
       </v-col>
     </v-row>
@@ -68,9 +79,8 @@
         lg="8"
         xl="6"
       >
-        <Bar
+        <BarChart
           v-if="timeChartData"
-          id="time-chart"
           :options="{ responsive: true }"
           :data="timeChartData"
         />
@@ -83,19 +93,7 @@
 import { getStats, getTimeStats } from "@/lib/http/validation"
 import { formatInteger } from "@/lib/formatting"
 import { Stats, TimeStats, severityLevelColorMap, SeverityLevel } from "@/lib/definitions/api"
-import { Bar } from "vue-chartjs"
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-} from "chart.js"
 import Color from "color"
-
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 // display
 const colSizes = {

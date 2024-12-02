@@ -8,7 +8,7 @@ from core.models import User
 from counter.models import Platform
 from django.conf import settings
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import Case, F, Q, Value, When
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from rest_framework_api_key.models import APIKey
@@ -144,6 +144,32 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
                 }
             )
         return out
+
+    @classmethod
+    def get_split_stats(cls) -> dict:
+        """
+        Total number of validations split by the following criteria:
+
+        * source
+        * method
+        * result
+        """
+        results = [
+            When(validation_result=Value(sl.value), then=Value(sl.label)) for sl in SeverityLevel
+        ]
+        data = (
+            cls.objects.annotate(
+                method=Case(When(api_key_prefix="", then=Value("manual")), default=Value("api")),
+                source=Case(
+                    When(sushi_credentials_checksum="", then=Value("file")),
+                    default=Value("counter_api"),
+                ),
+                result=Case(*results, default=Value("unknown")),
+            )
+            .values("source", "method", "result")
+            .annotate(count=models.Count("pk"))
+        )
+        return data
 
 
 class Validation(UUIDPkMixin, models.Model):

@@ -73,3 +73,15 @@ class TestValidationCoreAPI:
             for severity in SeverityLevel:
                 if severity.label:
                     assert severity.label in data[0]
+
+    def test_split_stats(self, admin_client, django_assert_max_num_queries):
+        ValidationCoreFactory.create_batch(10)
+        with django_assert_max_num_queries(9):
+            res = admin_client.get(reverse("validation-core-split-stats"))
+            assert res.status_code == 200
+            data = res.json()
+            first = data[0]
+            assert "result" in first
+            assert "source" in first
+            assert "method" in first
+            assert "count" in first

@@ -26,15 +26,16 @@ export type SeverityLevel =
   | "Error"
   | "Critical error"
   | "Fatal error"
-  | ""
+  | "Unknown"
 
 export const severityLevelColorMap = new Map<SeverityLevel, string>([
+  ["Unknown", "#aaaaaa"],
   ["Passed", "#0fa40f"],
   ["Notice", "#0267b4"],
   ["Warning", "#fc6100"],
   ["Error", "#dd0000"],
   ["Critical error", "#aa0000"],
-  ["Fatal error", "#500043"],
+  ["Fatal error", "#8f0026"],
 ])
 
 export const severityLevelIconMap = new Map<SeverityLevel, string>([
@@ -169,3 +170,12 @@ export type TimeStats = (LevelToCount & {
   date: string
   total: number
 })[]
+
+export type SplitStatsRec = {
+  source: string
+  method: string
+  validation_result: string
+  count: number
+}
+
+export type SplitStats = SplitStatsRec[]

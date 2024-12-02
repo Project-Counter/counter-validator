@@ -1,5 +1,6 @@
 import {
   Credentials,
+  SplitStats,
   Stats,
   TimeStats,
   Validation,
@@ -19,6 +20,7 @@ export const urls = {
   coreList: "validations/validation-core/",
   stats: "validations/validation-core/stats/",
   timeStats: "validations/validation-core/time-stats/",
+  splitStats: "validations/validation-core/split-stats/",
 }
 
 export async function getValidation(id: string) {
@@ -113,4 +115,8 @@ export async function getStats(): Promise<Stats> {
 
 export async function getTimeStats(): Promise<TimeStats> {
   return jsonFetch<TimeStats>(urls.timeStats)
+}
+
+export async function getSplitStats(): Promise<SplitStats> {
+  return jsonFetch<SplitStats>(urls.splitStats)
 }
