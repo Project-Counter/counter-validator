@@ -45,6 +45,7 @@ export const severityLevelIconMap = new Map<SeverityLevel, string>([
   ["Error", "alert-circle"],
   ["Critical error", "alert-circle"],
   ["Fatal error", "alert-circle"],
+  ["Unknown", "help-circle"],
 ])
 
 export type Message = {
@@ -59,7 +60,17 @@ export type Message = {
 export type Result = {
   datetime: string
   result: string
-  header: Record<string, string>
+  header: {
+    begin_date: string
+    cop_version: string
+    created: string
+    created_by: string
+    end_date: string
+    format: string
+    institution_name: string
+    report: Record<string, string>
+    report_id: string
+  }
 }
 
 export enum Status {
@@ -90,6 +101,7 @@ export type ValidationBase = {
   validation_result: SeverityLevel
   status: Status
   created: string
+  expiration_date: string
   platform: string
   platform_name: string
   error_message: string

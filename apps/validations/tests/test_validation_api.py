@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 from uuid import UUID
 
@@ -6,6 +7,7 @@ import pytest
 from counter.fake_data import PlatformFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from django.utils.timezone import now
 
 from validations.enums import SeverityLevel
 from validations.fake_data import (
@@ -20,7 +22,8 @@ from validations.models import CounterAPIValidation, Validation, ValidationCore
 
 @pytest.mark.django_db
 class TestFileValidationAPI:
-    def test_create(self, client_authenticated_user):
+    def test_create(self, client_authenticated_user, settings):
+        settings.VALIDATION_LIFETIME = 1
         filename = "tr.json"
         file = SimpleUploadedFile(filename, content=b"xxx")
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
@@ -36,6 +39,10 @@ class TestFileValidationAPI:
         assert val.filename == filename
         assert val.core.platform_name == "test"
         assert str(val.pk) == res.json()["id"]
+        assert (
+            res.json()["expiration_date"][:16]
+            == (val.core.created + timedelta(days=1)).isoformat()[:16]
+        ), "We only compare the first 16 characters"
 
     def test_create_with_empty_file(self, client_authenticated_user):
         file = SimpleUploadedFile("tr.json", content=b"")
@@ -127,6 +134,7 @@ class TestFileValidationAPI:
             assert "report_code" in first
             assert "api_key_prefix" in first
             assert "data_source" in first
+            assert "expiration_date" in first
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -235,6 +243,24 @@ class TestFileValidationAPI:
             {"summary": "Bbb", "severity": "Notice", "count": 2},
         ]
 
+    def test_list_with_expired_validations(self, client_authenticated_user, normal_user):
+        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create_batch(
+            5, user=normal_user, core__expiration_date=now() - timedelta(hours=1)
+        )
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 3
+
+    def test_list_with_unexpirable_validations(
+        self, client_authenticated_user, normal_user, settings
+    ):
+        settings.VALIDATION_LIFETIME = 0
+        ValidationFactory.create_batch(3, user=normal_user)
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 3
+
 
 @pytest.mark.django_db
 class TestValidationAPIThrottling:
@@ -266,7 +292,9 @@ class TestValidationAPIThrottling:
 
 @pytest.mark.django_db
 class TestCounterAPIValidationAPI:
-    def test_create(self, client_authenticated_user):
+    @pytest.mark.parametrize("expiration_days", [1, 3, 7])
+    def test_create(self, client_authenticated_user, expiration_days, settings):
+        settings.VALIDATION_LIFETIME = expiration_days
         data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
         with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
             res = client_authenticated_user.post(
@@ -277,17 +305,23 @@ class TestCounterAPIValidationAPI:
             assert res.status_code == 201
             p.assert_called_once_with(UUID(res.json()["id"]))
         val = Validation.objects.select_related("core").get()
-        assert str(val.pk) == res.json()["id"]
-        assert "url" in res.json()
-        assert "credentials" in res.json()
-        assert "requested_cop_version" in res.json()
-        assert "cop_version" in res.json()
-        assert "requested_report_code" in res.json()
-        assert "report_code" in res.json()
-        assert "api_endpoint" in res.json()
-        assert "requested_extra_attributes" in res.json()
-        assert "requested_begin_date" in res.json()
-        assert "requested_end_date" in res.json()
+        out = res.json()
+        assert str(val.pk) == out["id"]
+        assert "url" in out
+        assert "credentials" in out
+        assert "requested_cop_version" in out
+        assert "cop_version" in out
+        assert "requested_report_code" in out
+        assert "report_code" in out
+        assert "api_endpoint" in out
+        assert "requested_extra_attributes" in out
+        assert "requested_begin_date" in out
+        assert "requested_end_date" in out
+        assert "expiration_date" in out
+        assert (
+            out["expiration_date"][:16]
+            == (val.core.created + timedelta(days=expiration_days)).isoformat()[:16]
+        ), "We only compare the first 16 characters"
 
     @pytest.mark.parametrize(
         ["empty_credential_fields", "status_code"],
@@ -410,6 +444,15 @@ class TestCounterAPIValidationAPI:
         assert val.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
+
+    def test_list_with_expired_validations(self, client_authenticated_user, normal_user):
+        CounterAPIValidationFactory.create_batch(3, user=normal_user)
+        CounterAPIValidationFactory.create_batch(
+            5, user=normal_user, core__expiration_date=now() - timedelta(hours=1)
+        )
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert len(res.json()) == 3
 
 
 @pytest.mark.django_db

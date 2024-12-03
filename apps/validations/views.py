@@ -30,7 +30,8 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
 
     def get_queryset(self):
         qs = (
-            self.request.user.validation_set.select_related("core")
+            self.request.user.validation_set.current()
+            .select_related("core")
             .prefetch_related("counterapivalidation")
             .defer("result_data")
             .order_by("-core__created")

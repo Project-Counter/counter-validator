@@ -17,6 +17,10 @@
         <td>{{ validation?.created }} ({{ relCreated }})</td>
       </tr>
       <tr>
+        <th>Expiration date</th>
+        <td>{{ validation?.expiration_date }} ({{ relExpirationDate }})</td>
+      </tr>
+      <tr>
         <th>Task status</th>
         <td>
           {{ validation && (statusMap.get(validation.status) ?? "Unknown") }}
@@ -114,6 +118,12 @@ if (p.validation.api_endpoint === "/reports/[id]") {
 const relCreated = computed(() => {
   if (p.validation && p.validation.created)
     return intlFormatDistance(p.validation.created, Date.now())
+  return ""
+})
+
+const relExpirationDate = computed(() => {
+  if (p.validation && p.validation.expiration_date)
+    return intlFormatDistance(p.validation.expiration_date, Date.now())
   return ""
 })
 

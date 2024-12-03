@@ -22,6 +22,14 @@
       <date-tooltip :date="item.created" />
     </template>
 
+    <template #item.expiration_date="{ item }">
+      <date-tooltip
+        v-if="item.expiration_date"
+        :date="item.expiration_date"
+      />
+      <span v-else>-</span>
+    </template>
+
     <template #item.filename="{ item }">
       <router-link :to="'validation/' + item.id + '/'">
         {{ item.filename || "Unknown" }}
@@ -101,7 +109,8 @@ const headers: ReadonlyHeaders = [
   { key: "report_code", title: "Report code" },
   { key: "validation_result", title: "Validation result" },
   { key: "stats", title: "Stats" },
-  { key: "created", title: "Time" },
+  { key: "created", title: "Created" },
+  { key: "expiration_date", title: "Expiration" },
 ]
 
 async function loadValidations() {

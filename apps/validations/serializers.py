@@ -23,6 +23,8 @@ class ValidationSerializer(serializers.ModelSerializer):
     )
     status = serializers.IntegerField(read_only=True, source="core.status")
     created = serializers.DateTimeField(read_only=True, source="core.created")
+    expiration_date = serializers.DateTimeField(read_only=True, source="core.expiration_date")
+
     platform = serializers.SlugRelatedField(
         read_only=True, slug_field="name", source="core.platform"
     )
@@ -62,6 +64,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "file_url",
             "status",
             "created",
+            "expiration_date",
             "filename",
             "platform",
             "platform_name",

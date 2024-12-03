@@ -1,5 +1,6 @@
 import os
 import string
+from datetime import timedelta
 from typing import IO
 from urllib.parse import urlencode, urljoin
 
@@ -47,6 +48,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     status = models.SmallIntegerField(choices=ValidationStatus, default=ValidationStatus.WAITING)
     user_email_checksum = models.CharField(max_length=2 * settings.HASHING_DIGEST_SIZE)
     api_key_prefix = models.CharField(max_length=8, blank=True)
+    expiration_date = models.DateTimeField(null=True, blank=True)
 
     platform = models.ForeignKey(
         Platform,
@@ -92,6 +94,11 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
 
     def __str__(self):
         return f"{self.pk}: {self.created} - {self.get_status_display()}"
+
+    def save(self, *args, **kwargs):
+        if not self.expiration_date and settings.VALIDATION_LIFETIME:
+            self.expiration_date = now() + timedelta(days=settings.VALIDATION_LIFETIME)
+        super().save(*args, **kwargs)
 
     @classmethod
     def get_stats(cls) -> dict:
@@ -172,6 +179,13 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         return data
 
 
+class ValidationQuerySet(models.QuerySet):
+    def current(self):
+        return self.filter(
+            Q(core__expiration_date__isnull=True) | Q(core__expiration_date__gte=now())
+        )
+
+
 class Validation(UUIDPkMixin, models.Model):
     core = models.OneToOneField(ValidationCore, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -187,6 +201,8 @@ class Validation(UUIDPkMixin, models.Model):
     file = models.FileField(upload_to=validation_upload_to, null=True)
     result_data = models.JSONField(null=True)
     user_note = models.TextField(blank=True)
+
+    objects = ValidationQuerySet.as_manager()
 
     class Meta:
         ordering = ["pk"]

@@ -66,7 +66,20 @@
               v-bind="cardAttrs"
             >
               <v-card-title>Report Header</v-card-title>
-              <v-card-text>
+              <v-card-text v-if="header.format === 'tabular'">
+                <table class="src">
+                  <tbody>
+                    <tr
+                      v-for="(row, idx) in tableHeader"
+                      :key="idx"
+                    >
+                      <th>{{ row[0] }}</th>
+                      <td>{{ row[1] }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </v-card-text>
+              <v-card-text v-else>
                 <div
                   v-for="(line, key) in header.report ?? []"
                   :key="key"
@@ -134,6 +147,21 @@ const colAttrs = {
 // computed
 const header = computed(() => validation.value?.result_data?.header)
 
+const tableHeader = computed(() => {
+  if (!header.value || header.value.format !== "tabular") return []
+
+  let out = []
+  for (let i = 1; i < 100; i++) {
+    let a = header.value.report[`A${i}`] || ""
+    let b = header.value.report[`B${i}`] || ""
+    if (a === "" && b === "") {
+      break
+    }
+    out.push([a, b])
+  }
+  return out
+})
+
 async function load() {
   if ("id" in route.params) {
     // check needed for TS to narrow down the type
@@ -160,5 +188,18 @@ onMounted(load)
   font-family: monospace;
   font-size: 0.875em;
   color: #555555;
+}
+
+table.src {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 0.875em;
+  color: #555555;
+
+  th {
+    font-weight: bold;
+    text-align: left;
+    padding-right: 1rem;
+  }
 }
 </style>
