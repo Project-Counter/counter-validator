@@ -44,7 +44,6 @@
 
     <template #item.stats="{ item }">
       <StatsPie :item="item" />
-      <!--      <StatsChip :item="item" />-->
     </template>
   </v-data-table>
 </template>
