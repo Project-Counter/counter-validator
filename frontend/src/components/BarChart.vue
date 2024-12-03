@@ -21,7 +21,7 @@ import {
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
-defineProps<{ data: ChartData; options: object }>()
+defineProps<{ data: ChartData<"bar">; options: object }>()
 </script>
 
 <style scoped></style>

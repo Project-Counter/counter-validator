@@ -60,7 +60,7 @@
 
     <v-row>
       <v-col>
-        <h2>Parametrized overview</h2>
+        <h2>Validations composition</h2>
       </v-col>
     </v-row>
     <v-row>

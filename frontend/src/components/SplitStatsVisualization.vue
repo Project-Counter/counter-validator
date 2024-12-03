@@ -43,7 +43,8 @@
 <script setup lang="ts">
 import { severityLevelColorMap, SplitStats } from "@/lib/definitions/api"
 import { getSplitStats } from "@/lib/http/validation"
-import { DataFrame } from "dataframe-js"
+import { ChartData } from "chart.js"
+import { DataFrame } from "data-forge"
 
 const stats = ref<SplitStats>([])
 const df = ref<DataFrame>()
@@ -58,16 +59,17 @@ const colSizes = {
   xl: 2,
 }
 
-function byAttr(attr: string, colors: Record<string, string> | null = null) {
-  if (!df.value) return
-  console.debug("updating", attr)
-  const col = [
-    ...df.value
-      .groupBy(attr)
-      .aggregate((group) => group.stat.sum("count"))
-      .toCollection(),
-  ]
-  let out = {
+function byAttr(df: DataFrame, attr: string, colors: Record<string, string> | null = null) {
+  if (!df) return
+  const col = df
+    .groupBy((row) => row[attr])
+    .select((group) => ({
+      [attr]: group.first()[attr],
+      aggregation: group.deflate((row) => row.count).sum(),
+    }))
+    .toArray()
+
+  let out: ChartData<"doughnut"> = {
     labels: col.map((row) => row[attr]),
     datasets: [
       {
@@ -91,19 +93,14 @@ const byReportCode = ref()
 
 onMounted(async () => {
   stats.value = await getSplitStats()
-  df.value = new DataFrame(stats.value, [
-    "method",
-    "source",
-    "result",
-    "cop_version",
-    "report_code",
-    "count",
-  ])
-  byMethod.value = byAttr("method")
-  bySource.value = byAttr("source")
-  byResult.value = byAttr("result", Object.fromEntries(severityLevelColorMap.entries()))
-  byCoP.value = byAttr("cop_version")
-  byReportCode.value = byAttr("report_code")
+  df.value = new DataFrame({
+    values: stats.value,
+  })
+  byMethod.value = byAttr(df.value, "method")
+  bySource.value = byAttr(df.value, "source")
+  byResult.value = byAttr(df.value, "result", Object.fromEntries(severityLevelColorMap.entries()))
+  byCoP.value = byAttr(df.value, "cop_version")
+  byReportCode.value = byAttr(df.value, "report_code")
 })
 </script>
 
