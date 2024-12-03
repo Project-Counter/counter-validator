@@ -147,7 +147,7 @@ class TestFileValidationAPI:
         with django_assert_max_num_queries(9):
             res = client_authenticated_user.get(reverse("validation-list"))
             assert res.status_code == 200
-            assert len(res.json()) == 3
+            assert res.json()["count"] == 3
 
     def test_validation_detail(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -200,7 +200,7 @@ class TestFileValidationAPI:
         ValidationFactory.create_batch(10, user=normal_user)
         res = client_with_api_key.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 10
+        assert res.json()["count"] == 10
 
     def test_create_with_api_key(self, client_with_api_key, normal_user):
         filename = "tr.json"
@@ -253,7 +253,7 @@ class TestFileValidationAPI:
         )
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 3
+        assert res.json()["count"] == 3
 
     def test_list_with_unexpirable_validations(
         self, client_authenticated_user, normal_user, settings
@@ -262,7 +262,7 @@ class TestFileValidationAPI:
         ValidationFactory.create_batch(3, user=normal_user)
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 3
+        assert res.json()["count"] == 3
 
     def test_list_filters_cop_version(self, client_authenticated_user, normal_user):
         ValidationFactory.create_batch(3, user=normal_user, core__cop_version="5")
@@ -323,7 +323,7 @@ class TestValidationAPIThrottling:
         ValidationFactory.create_batch(10, user=normal_user)
         res = client_with_api_key.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 10
+        assert res.json()["count"] == 10
         # second request should be throttled
         res = client_with_api_key.get(reverse("validation-list"))
         assert res.status_code == 429
@@ -337,11 +337,11 @@ class TestValidationAPIThrottling:
         ValidationFactory.create_batch(10, user=normal_user)
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 10
+        assert res.json()["count"] == 10
         # second request should not be throttled
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 10
+        assert res.json()["count"] == 10
 
 
 @pytest.mark.django_db
@@ -506,7 +506,7 @@ class TestCounterAPIValidationAPI:
         )
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
-        assert len(res.json()) == 3
+        assert res.json()["count"] == 3
 
 
 @pytest.mark.django_db
