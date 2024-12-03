@@ -2,6 +2,10 @@ export type CoP = "5" | "5.1"
 
 export enum ReportCode {
   TR = "TR",
+  DR = "DR",
+  PR = "PR",
+  IR = "IR",
+
   TR_J1 = "TR_J1",
   TR_J2 = "TR_J2",
   TR_J3 = "TR_J3",
@@ -9,14 +13,11 @@ export enum ReportCode {
   TR_B1 = "TR_B1",
   TR_B2 = "TR_B2",
   TR_B3 = "TR_B3",
-  PR = "PR",
-  PR_P1 = "PR_P1",
-  IR = "IR",
-  IR_A1 = "IR_A1",
-  IR_M1 = "IR_M1",
-  DR = "DR",
   DR_D1 = "DR_D1",
   DR_D2 = "DR_D2",
+  PR_P1 = "PR_P1",
+  IR_A1 = "IR_A1",
+  IR_M1 = "IR_M1",
 }
 
 export const reportDefinitions: {
@@ -48,43 +49,36 @@ export const reportDefinitions: {
     cop: "5",
     code: ReportCode.TR_B1,
     name: "Book Requests (Excluding OA_Gold)",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.TR_B2,
     name: "Book Access Denied",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.TR_B3,
     name: "Book Usage by Access Type",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.TR_J1,
     name: "Journal Requests (Excluding OA_Gold)",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.TR_J2,
     name: "Journal Access Denied",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.TR_J3,
     name: "Journal Usage by Access Type",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.TR_J4,
     name: "Journal Requests by YOP (Excluding OA_Gold)",
-    attributes: [],
   },
   // cop 5, database report
   {
@@ -110,13 +104,11 @@ export const reportDefinitions: {
     cop: "5",
     code: ReportCode.DR_D1,
     name: "Database Search and Item Usage",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.DR_D2,
     name: "Database Access Denied",
-    attributes: [],
   },
   // cop 5, platform report
   {
@@ -138,7 +130,6 @@ export const reportDefinitions: {
     cop: "5",
     code: ReportCode.PR_P1,
     name: "Platform Usage",
-    attributes: [],
   },
   // cop 5, item report
   {
@@ -168,13 +159,11 @@ export const reportDefinitions: {
     cop: "5",
     code: ReportCode.IR_A1,
     name: "Journal Article Requests",
-    attributes: [],
   },
   {
     cop: "5",
     code: ReportCode.IR_M1,
     name: "Multimedia Item Requests",
-    attributes: [],
   },
 
   // -- COP 5.1 --
@@ -199,43 +188,36 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.TR_B1,
     name: "Book Requests (Controlled)",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.TR_B2,
     name: "Book Access Denied",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.TR_B3,
     name: "Book Usage by Access Type",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.TR_J1,
     name: "Journal Requests (Controlled)",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.TR_J2,
     name: "Journal Access Denied",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.TR_J3,
     name: "Journal Usage by Access Type",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.TR_J4,
     name: "Journal Requests by YOP (Controlled)",
-    attributes: [],
   },
   // cop 5.1, database report
   {
@@ -261,13 +243,11 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.DR_D1,
     name: "Database Search and Item Usage",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.DR_D2,
     name: "Database Access Denied",
-    attributes: [],
   },
   // cop 5.1, platform report
   {
@@ -289,7 +269,6 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.PR_P1,
     name: "Platform Usage",
-    attributes: [],
   },
   // cop 5.1, item report
   {
@@ -318,13 +297,11 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.IR_A1,
     name: "Journal Article Requests",
-    attributes: [],
   },
   {
     cop: "5.1",
     code: ReportCode.IR_M1,
     name: "Multimedia Item Requests",
-    attributes: [],
   },
 ]
 

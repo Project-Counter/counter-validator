@@ -3,7 +3,7 @@
     <template #activator="{ props }">
       <v-icon
         v-bind="props"
-        color="grey"
+        color="subdued"
         icon="mdi-question"
       />
     </template>
@@ -14,7 +14,7 @@
     <template #activator="{ props }">
       <v-icon
         v-bind="props"
-        color="grey"
+        color="subdued"
         icon="mdi-clock"
       />
     </template>
@@ -25,7 +25,7 @@
     <template #activator="{ props }">
       <v-progress-circular
         v-bind="props"
-        color="grey"
+        color="subdued"
         indeterminate
         :size="18"
       />
@@ -37,11 +37,11 @@
     <template #activator="{ props }">
       <v-icon
         v-bind="props"
-        color="grey"
-        icon="mdi-check"
+        color="subdued"
+        icon="mdi-magnify"
       />
     </template>
-    Finished successfully
+    Validation has finished
   </v-tooltip>
 
   <v-tooltip v-else>

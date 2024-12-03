@@ -11,19 +11,36 @@
     item-value="id"
   >
     <template #item.status="{ item }">
-      <validation-status :validation="item" />
+      <router-link
+        v-if="item.id && item.status === Status.SUCCESS"
+        :to="`validation/${item.id}/`"
+      >
+        <ValidationStatus :validation="item" />
+      </router-link>
+      <ValidationStatus
+        v-else
+        :validation="item"
+      />
     </template>
 
     <template #item.validation_result="{ item }">
-      <SeverityLevelChip :severity="item.validation_result" />
+      <v-tooltip>
+        <template #activator="{ props }">
+          <SeverityLevelChip
+            :severity="item.validation_result"
+            v-bind="props"
+          />
+        </template>
+        <StatsTableSimple :stats="item.stats" />
+      </v-tooltip>
     </template>
 
     <template #item.created="{ item }">
-      <date-tooltip :date="item.created" />
+      <DateTooltip :date="item.created" />
     </template>
 
     <template #item.expiration_date="{ item }">
-      <date-tooltip
+      <DateTooltip
         v-if="item.expiration_date"
         :date="item.expiration_date"
       />
@@ -51,10 +68,6 @@
         </template>
         {{ item.api_key_prefix === "" ? "Manual" : "API" }}
       </v-tooltip>
-    </template>
-
-    <template #item.stats="{ item }">
-      <StatsPie :item="item" />
     </template>
 
     <template #loading>
@@ -108,7 +121,6 @@ const headers: ReadonlyHeaders = [
   { key: "cop_version", title: "COP version" },
   { key: "report_code", title: "Report code" },
   { key: "validation_result", title: "Validation result" },
-  { key: "stats", title: "Stats" },
   { key: "created", title: "Created" },
   { key: "expiration_date", title: "Expiration" },
 ]

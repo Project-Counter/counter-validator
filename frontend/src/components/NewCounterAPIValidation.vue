@@ -452,12 +452,17 @@ const filters = computed(() => {
 })
 
 // when report code changes, reset attributes to show and filters
-watch(reportCode, () => {
-  attributesToShow.value = []
-  switches.value = []
-  multiValueFilters.value = {}
-  textFilters.value = {}
-})
+watch(
+  reportCode,
+  () => {
+    // reset attributes to show to all attributes for the selected report
+    attributesToShow.value = selectedReportInfo.value?.attributes || []
+    switches.value = []
+    multiValueFilters.value = {}
+    textFilters.value = {}
+  },
+  { immediate: true },
+)
 
 // methods for API communication
 async function selectPlatform() {

@@ -22,6 +22,7 @@ const light: ThemeDefinition = {
   colors: {
     primary: counterBlue,
     secondary: "#bfe4f1",
+    subdued: "#707070",
   },
 }
 const dark: ThemeDefinition = {

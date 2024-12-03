@@ -30,6 +30,7 @@ declare module 'vue' {
     StatsCard: typeof import('./components/StatsCard.vue')['default']
     StatsChip: typeof import('./components/StatsChip.vue')['default']
     StatsPie: typeof import('./components/StatsPie.vue')['default']
+    StatsTableSimple: typeof import('./components/StatsTableSimple.vue')['default']
     TextTooltip: typeof import('./components/TextTooltip.vue')['default']
     UserForm: typeof import('./components/UserForm.vue')['default']
     ValidationBasicInfo: typeof import('./components/ValidationBasicInfo.vue')['default']

@@ -20,6 +20,9 @@ class Platform(models.Model):
     reports = models.ManyToManyField(Report, through="ReportToPlatform", related_name="platforms")
     deprecated = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ["name", "abbrev"]
+
     def __str__(self):
         if self.abbrev:
             return f"{self.name} ({self.abbrev})"
