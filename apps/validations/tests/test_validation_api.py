@@ -115,10 +115,13 @@ class TestFileValidationAPI:
     ):
         ValidationFactory.create_batch(10, user=normal_user)
         with django_assert_max_num_queries(9):
-            res = client_authenticated_user.get(reverse("validation-list"))
+            res = client_authenticated_user.get(reverse("validation-list"), {"page_size": 8})
             assert res.status_code == 200
-            assert len(res.json()) == 10
-            first = res.json()[0]
+            assert "count" in res.json()
+            assert "next" in res.json()
+            assert "results" in res.json()
+            assert len(res.json()["results"]) == 8
+            first = res.json()["results"][0]
             assert "id" in first
             assert "filename" in first
             assert "file_url" in first
@@ -260,6 +263,57 @@ class TestFileValidationAPI:
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
         assert len(res.json()) == 3
+
+    def test_list_filters_cop_version(self, client_authenticated_user, normal_user):
+        ValidationFactory.create_batch(3, user=normal_user, core__cop_version="5")
+        ValidationFactory.create_batch(5, user=normal_user, core__cop_version="5.1")
+        res = client_authenticated_user.get(reverse("validation-list"), {"cop_version": "5"})
+        assert res.status_code == 200
+        assert res.json()["count"] == 3
+
+    def test_list_filters_validation_result(self, client_authenticated_user, normal_user):
+        vs = ValidationFactory.create_batch(3, user=normal_user)
+        for v in vs:
+            # validation result is set in `save()` method, so we need to set it after creation
+            v.core.validation_result = SeverityLevel.NOTICE
+            v.core.save()
+        ValidationFactory.create_batch(
+            5, user=normal_user, core__validation_result=SeverityLevel.ERROR
+        )
+        res = client_authenticated_user.get(
+            reverse("validation-list"), {"validation_result": SeverityLevel.NOTICE.label}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == 3
+
+    @pytest.mark.parametrize("desc", [True, False])
+    @pytest.mark.parametrize(
+        "attr",
+        [
+            "cop_version",
+            "created",
+            "expiration_date",
+            "file_size",
+            "filename",
+            "platform_name",
+            "report_code",
+            "status",
+            "validation_result",
+        ],
+    )
+    def test_list_filters_order_by_filesize(
+        self, client_authenticated_user, normal_user, desc, attr
+    ):
+        ValidationFactory.create_batch(3, user=normal_user)
+        res = client_authenticated_user.get(
+            reverse("validation-list"), {"order_by": attr, "order_desc": desc}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == 3
+        if desc:
+            assert res.json()["results"][0][attr] >= res.json()["results"][-1][attr]
+        else:
+            assert res.json()["results"][0][attr] <= res.json()["results"][-1][attr]
 
 
 @pytest.mark.django_db

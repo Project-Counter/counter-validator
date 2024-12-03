@@ -39,6 +39,17 @@ export async function getValidations() {
   return jsonFetch<Validation[]>(urls.list)
 }
 
+type PaginatedValidations = {
+  count: number
+  next: string
+  previous: string
+  results: Validation[]
+}
+
+export async function getValidationsFromUrl(url: string) {
+  return jsonFetch<PaginatedValidations>(url)
+}
+
 export async function getValidationCores() {
   return jsonFetch<ValidationCore[]>(urls.coreList)
 }

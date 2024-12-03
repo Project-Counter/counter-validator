@@ -18,6 +18,7 @@ class ValidationCoreFactory(factory.django.DjangoModelFactory):
     platform_name = factory.lazy_attribute(
         lambda o: o.platform.name if o.platform else fake.company()
     )
+    validation_result = SeverityLevel.NOTICE  # factory.fuzzy.FuzzyChoice(SeverityLevel.values)
 
 
 class ValidationFactory(factory.django.DjangoModelFactory):

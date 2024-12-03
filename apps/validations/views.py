@@ -10,7 +10,14 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 import validations.serializers
-from validations.filters import MessagesSearchFilter, OrderByFilter, SeverityFilter
+from validations.filters import (
+    MessagesSearchFilter,
+    OrderByFilter,
+    SeverityFilter,
+    ValidationCoPVersionFilter,
+    ValidationOrderByFilter,
+    ValidationValidationResultFilter,
+)
 from validations.models import Validation, ValidationCore, ValidationMessage
 from validations.serializers import (
     CounterAPIValidationCreateSerializer,
@@ -19,9 +26,21 @@ from validations.serializers import (
 from validations.tasks import validate_counter_api, validate_file
 
 
+class StandardPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
+
 class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated | HasUserAPIKey]
     serializer_class = validations.serializers.ValidationSerializer
+    pagination_class = StandardPagination
+    filter_backends = [
+        ValidationOrderByFilter,
+        ValidationValidationResultFilter,
+        ValidationCoPVersionFilter,
+    ]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -100,16 +119,10 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
         return Response(stats)
 
 
-class MessagePagination(PageNumberPagination):
-    page_size = 50
-    page_size_query_param = "page_size"
-    max_page_size = 1000
-
-
 class ValidationMessageViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = validations.serializers.ValidationMessageSerializer
-    pagination_class = MessagePagination
+    pagination_class = StandardPagination
     filter_backends = [OrderByFilter, SeverityFilter, MessagesSearchFilter]
     search_fields = ["message", "hint", "summary", "data"]
 

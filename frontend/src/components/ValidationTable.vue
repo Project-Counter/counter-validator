@@ -1,6 +1,9 @@
 <template>
-  <v-data-table
+  <v-data-table-server
     v-model="selected"
+    v-model:items-per-page="params.pageSize"
+    v-model:page="params.page"
+    v-model:sort-by="params.sortBy"
     :headers="headers"
     :items="items"
     :mobile="null"
@@ -9,6 +12,8 @@
     color="primary"
     :show-select="props.selectable"
     item-value="id"
+    :items-length="totalCount"
+    @update:options="loadValidations"
   >
     <template #item.status="{ item }">
       <router-link
@@ -86,14 +91,43 @@
         <span>{{ item.data_source === "file" ? "File" : "COUNTER API" }}</span>
       </v-tooltip>
     </template>
-  </v-data-table>
+
+    <template #top>
+      <v-select
+        v-model="validationResultFilter"
+        :items="severityLevels"
+        label="Filter by validation result"
+        multiple
+        clearable
+      >
+        <template #selection="{ item }">
+          <v-icon
+            size="x-small"
+            class="mr-1"
+            :color="severityLevelColorMap.get(item.value)"
+          >
+            mdi-{{ severityLevelIconMap.get(item.value) }}
+          </v-icon>
+          {{ item.title }}
+        </template>
+      </v-select>
+    </template>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
-import { Status, Validation } from "@/lib/definitions/api"
-import { getValidation, getValidations } from "@/lib/http/validation"
+import {
+  SeverityLevel,
+  severityLevelColorMap,
+  severityLevelIconMap,
+  Status,
+  Validation,
+} from "@/lib/definitions/api"
+import { getValidation, getValidations, getValidationsFromUrl } from "@/lib/http/validation"
+import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
+import { urls } from "@/lib/http/validation"
 
 const props = withDefaults(
   defineProps<{
@@ -113,8 +147,8 @@ type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
 const headers: ReadonlyHeaders = [
   { key: "status", title: "Status", width: 1 },
-  { key: "data_source", title: "Data source" },
-  { key: "api_key_prefix", title: "Submission method" },
+  { key: "data_source", title: "Data source", sortable: false },
+  { key: "api_key_prefix", title: "Submission method", sortable: false },
   { key: "filename", title: "Filename" },
   { key: "file_size", title: "File size", align: "end" },
   { key: "platform_name", title: "Platform" },
@@ -125,15 +159,41 @@ const headers: ReadonlyHeaders = [
   { key: "expiration_date", title: "Expiration" },
 ]
 
+// validations list
+const { url, params, filters } = usePaginatedAPI(urls.list)
+const totalCount = ref(0)
+const validationResultFilter = ref<SeverityLevel[]>([])
+
 async function loadValidations() {
   loading.value = true
   try {
-    items.value = await getValidations()
+    const { count, results } = await getValidationsFromUrl(url.value)
+    items.value = results
+    totalCount.value = count
   } finally {
     loading.value = false
   }
 }
 
+// filters
+const severityLevels = computed(() => [
+  ...severityLevelIconMap.keys().map((k) => ({
+    value: k,
+    title: k,
+    props: {
+      "prepend-icon": "mdi-" + severityLevelIconMap.get(k),
+      "append-icon": "mdi-" + severityLevelIconMap.get(k),
+      "base-color": severityLevelColorMap.get(k),
+    },
+  })),
+])
+
+watch(validationResultFilter, () => {
+  filters.validation_result = validationResultFilter.value.join(",")
+  loadValidations()
+})
+
+// expose loadValidations for parent components to refresh the list
 defineExpose({
   loadValidations,
 })
