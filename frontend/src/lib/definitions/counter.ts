@@ -24,7 +24,7 @@ export const reportDefinitions: {
   cop: CoP
   code: ReportCode
   name: string
-  attributes: string[]
+  attributes?: string[]
   metrics?: string[]
   switches?: string[]
 }[] = [
