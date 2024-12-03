@@ -123,11 +123,10 @@ import {
   Status,
   Validation,
 } from "@/lib/definitions/api"
-import { getValidation, getValidations, getValidationsFromUrl } from "@/lib/http/validation"
+import { getValidation, getValidationsFromUrl, urls } from "@/lib/http/validation"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
-import { urls } from "@/lib/http/validation"
 
 const props = withDefaults(
   defineProps<{
