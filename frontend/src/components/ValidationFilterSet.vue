@@ -1,6 +1,12 @@
 <template>
   <v-row>
-    <v-col>
+    <v-col
+      cols="12"
+      sm="6"
+      md="4"
+      lg="2"
+      xl="2"
+    >
       <v-select
         v-model="sourceFilter"
         :items="dataSources"
@@ -10,7 +16,13 @@
       />
     </v-col>
 
-    <v-col>
+    <v-col
+      cols="12"
+      sm="6"
+      md="5"
+      lg="3"
+      xxl="2"
+    >
       <v-select
         v-model="validationResultFilter"
         :items="severityLevels"
@@ -31,7 +43,13 @@
       </v-select>
     </v-col>
 
-    <v-col>
+    <v-col
+      cols="12"
+      :sm="true"
+      md="3"
+      lg="2"
+      xxl="1"
+    >
       <v-select
         v-model="copVersionFilter"
         :items="copVersions"
@@ -41,7 +59,13 @@
       />
     </v-col>
 
-    <v-col>
+    <v-col
+      cols="12"
+      sm="5"
+      md="4"
+      lg="3"
+      xl="2"
+    >
       <v-select
         v-model="endpointFilter"
         :items="counterAPIEndpoints"
@@ -51,7 +75,14 @@
       />
     </v-col>
 
-    <v-col>
+    <v-col
+      cols="12"
+      :sm="true"
+      md="3"
+      lg="2"
+      xl="2"
+      xxl="1"
+    >
       <v-select
         v-model="reportCodeFilter"
         :items="reportCodes"
