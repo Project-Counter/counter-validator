@@ -15,13 +15,17 @@ class TestValidationCoreAPI:
         res = admin_client.get(reverse("validation-core-list"))
         assert res.status_code == 200
 
-    def test_list(self, admin_client, django_assert_max_num_queries):
+    @pytest.mark.parametrize("page_size", [5, 10, 20])
+    def test_list(self, admin_client, django_assert_max_num_queries, page_size):
         ValidationCoreFactory.create_batch(10)
         with django_assert_max_num_queries(9):
-            res = admin_client.get(reverse("validation-core-list"))
+            res = admin_client.get(reverse("validation-core-list"), {"page_size": page_size})
             assert res.status_code == 200
-            assert len(res.json()) == 10
-            first = res.json()[0]
+            assert res.json()["count"] == 10
+            assert "next" in res.json()
+            data = res.json()["results"]
+            assert len(data) == min(page_size, 10)
+            first = data[0]
             # check fields that should be there
             assert "id" in first
             assert "status" in first

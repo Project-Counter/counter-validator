@@ -1,8 +1,14 @@
 <template>
-  <v-data-table
+  <v-data-table-server
+    v-model:items-per-page="params.pageSize"
+    v-model:page="params.page"
+    v-model:sort-by="params.sortBy"
     :headers="headers"
     :items="items"
     density="compact"
+    :items-length="totalCount"
+    :loading="loading"
+    @update:options="load"
   >
     <template #item.created="{ item }">
       <IsoDateTime :date-string="item.created" />
@@ -45,14 +51,15 @@
     <template #item.stats="{ item }">
       <StatsPie :item="item" />
     </template>
-  </v-data-table>
+  </v-data-table-server>
 </template>
 
 <script setup lang="ts">
 import { ValidationCore } from "@/lib/definitions/api"
-import { getValidationCores } from "@/lib/http/validation"
+import { getValidationCoresFromUrl, urls } from "@/lib/http/validation"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
+import { usePaginatedAPI } from "@/composables/paginatedAPI"
 
 const items = ref<ValidationCore[]>([])
 
@@ -71,8 +78,22 @@ const headers: ReadonlyHeaders = [
   { key: "stats", title: "Stats", align: "end" },
 ]
 
+const { url, params, filters } = usePaginatedAPI(urls.coreList)
+const loading = ref(false)
+const totalCount = ref(0)
+
 async function load() {
-  items.value = await getValidationCores()
+  loading.value = true
+  try {
+    const { count, results } = await getValidationCoresFromUrl(url.value)
+    items.value = results
+    totalCount.value = count
+  } finally {
+    loading.value = false
+  }
 }
-load().then()
+
+onMounted(() => {
+  load()
+})
 </script>

@@ -106,6 +106,7 @@ class CounterAPIValidationViewSet(ModelViewSet):
 class ValidationCoreViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminUser,)
     serializer_class = validations.serializers.ValidationCoreSerializer
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         return ValidationCore.objects.select_related("platform").order_by("-created")

@@ -75,10 +75,6 @@
       </v-tooltip>
     </template>
 
-    <template #loading>
-      <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
-    </template>
-
     <template #item.data_source="{ item }">
       <v-tooltip>
         <template #activator="{ props }">
