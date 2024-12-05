@@ -216,14 +216,16 @@ const endpointFilter = ref<CounterAPIEndpoint[]>([])
 const sourceFilter = ref<DataSource[]>([])
 
 // filters
-const severityLevels = severityLevelIconMap.keys().map((k) => ({
-  value: k,
-  title: k,
-  props: {
-    "append-icon": "mdi-" + severityLevelIconMap.get(k),
-    "base-color": severityLevelColorMap.get(k),
-  },
-}))
+const severityLevels = [
+  ...severityLevelIconMap.keys().map((k) => ({
+    value: k,
+    title: k,
+    props: {
+      "append-icon": "mdi-" + severityLevelIconMap.get(k),
+      "base-color": severityLevelColorMap.get(k),
+    },
+  })),
+]
 
 const dataSources = dataSourcesRaw.map((ds) => {
   return {
