@@ -32,6 +32,7 @@ class ValidationSerializer(serializers.ModelSerializer):
     error_message = serializers.CharField(read_only=True, source="core.error_message")
     file_size = serializers.IntegerField(read_only=True, source="core.file_size")
     cop_version = serializers.CharField(read_only=True, source="core.cop_version")
+    api_endpoint = serializers.CharField(source="core.api_endpoint", read_only=True)
     report_code = serializers.CharField(read_only=True, source="core.report_code")
     stats = serializers.JSONField(read_only=True, source="core.stats")
     api_key_prefix = serializers.CharField(read_only=True, source="core.api_key_prefix")
@@ -45,7 +46,6 @@ class ValidationSerializer(serializers.ModelSerializer):
     requested_report_code = serializers.CharField(
         source="counterapivalidation.requested_report_code", read_only=True
     )
-    api_endpoint = serializers.CharField(source="counterapivalidation.api_endpoint", read_only=True)
     requested_extra_attributes = serializers.JSONField(
         source="counterapivalidation.requested_extra_attributes", read_only=True
     )
@@ -163,6 +163,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             status=ValidationStatus.WAITING,
             user_email_checksum=checksum_string(user.email),
             api_key_prefix=api_key.prefix if api_key else "",
+            api_endpoint=validated_data["api_endpoint"],
         )
         credentials = validated_data["credentials"]
         if "platform" in credentials and not credentials["platform"]:
@@ -173,7 +174,6 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             core=core,
             user=user,
             url=validated_data["url"],
-            api_endpoint=validated_data["api_endpoint"],
             requested_cop_version=validated_data["cop_version"],
             requested_report_code=validated_data.get("report_code", ""),
             requested_begin_date=validated_data.get("begin_date"),

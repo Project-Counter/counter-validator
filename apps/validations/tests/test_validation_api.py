@@ -325,9 +325,11 @@ class TestFileValidationAPI:
     def test_list_filters_by_api_endpoint(
         self, client_authenticated_user, normal_user, query, expected_count
     ):
-        CounterAPIValidationFactory.create_batch(1, user=normal_user, api_endpoint="/members")
-        CounterAPIValidationFactory.create_batch(2, user=normal_user, api_endpoint="/status")
-        CounterAPIValidationFactory.create_batch(3, user=normal_user, api_endpoint="/reports/[id]")
+        CounterAPIValidationFactory.create_batch(1, user=normal_user, core__api_endpoint="/members")
+        CounterAPIValidationFactory.create_batch(2, user=normal_user, core__api_endpoint="/status")
+        CounterAPIValidationFactory.create_batch(
+            3, user=normal_user, core__api_endpoint="/reports/[id]"
+        )
         res = client_authenticated_user.get(reverse("validation-list"), {"api_endpoint": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
@@ -521,7 +523,7 @@ class TestCounterAPIValidationAPI:
             p.assert_called_once_with(UUID(res.json()["id"]))
         val = CounterAPIValidation.objects.select_related("core").get()
         assert str(val.pk) == res.json()["id"]
-        assert val.api_endpoint == endpoint
+        assert val.core.api_endpoint == endpoint
         assert val.requested_report_code == ""
         assert val.requested_begin_date is None
         assert val.requested_end_date is None

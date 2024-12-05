@@ -60,6 +60,7 @@ class CounterAPIValidationRequestDataFactory(factory.Factory):
         lambda: factory.build(dict, FACTORY_CLASS=CounterAPICredentialsFactory)
     )
     url = factory.Faker("url")
+    api_endpoint = "/reports/[id]"
     report_code = factory.fuzzy.FuzzyChoice(REPORT_TYPE_CODES)
     cop_version = factory.fuzzy.FuzzyChoice(COP_VERSIONS)
     begin_date = factory.LazyFunction(
@@ -74,7 +75,6 @@ class CounterAPIValidationFactory(ValidationFactory):
         model = CounterAPIValidation
 
     url = factory.Faker("url")
-    api_endpoint = "/reports/[id]"
     requested_report_code = factory.fuzzy.FuzzyChoice(REPORT_TYPE_CODES)
     requested_cop_version = factory.fuzzy.FuzzyChoice(COP_VERSIONS)
     requested_begin_date = factory.LazyFunction(

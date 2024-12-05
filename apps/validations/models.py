@@ -60,6 +60,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         blank=True,
         help_text="COUNTER CoP version as reported by the validation module",
     )
+    api_endpoint = models.CharField(default="/reports/[id]", max_length=64)
     report_code = models.CharField(
         max_length=16,
         blank=True,
@@ -347,7 +348,6 @@ class CounterAPIValidation(Validation):
         default=dict, help_text="Credentials for the SUSHI service used for the validation"
     )
     url = models.URLField(help_text="URL of the SUSHI service")
-    api_endpoint = models.CharField(default="/reports/[id]", max_length=64)
     requested_cop_version = models.CharField(
         max_length=16,
         blank=True,
@@ -378,7 +378,7 @@ class CounterAPIValidation(Validation):
             clean_creds["begin_date"] = self.requested_begin_date
         if self.requested_end_date:
             clean_creds["end_date"] = self.requested_end_date
-        path = self.api_endpoint
+        path = self.core.api_endpoint
         if path == "/reports/[id]":
             path = f"/reports/{self.requested_report_code.lower()}"
         return (

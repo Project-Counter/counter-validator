@@ -96,7 +96,7 @@ class TestCounterAPIValidation:
         Test that the get_url method returns the correct URL for non-report endpoints
         """
         validation = CounterAPIValidationFactory(
-            api_endpoint=endpoint,
+            core__api_endpoint=endpoint,
             url="http://example.com",
             requested_cop_version="5",
             requested_report_code="",

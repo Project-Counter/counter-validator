@@ -117,7 +117,7 @@ class ValidationAPIEndpointFilter(BaseMultiValueFilter):
     """
 
     query_param = "api_endpoint"
-    attr_name = "counterapivalidation__api_endpoint"
+    attr_name = "core__api_endpoint"
 
 
 class ValidationCoreAPIEndpointFilter(BaseMultiValueFilter):

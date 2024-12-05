@@ -82,7 +82,6 @@ class TestValidationCoreAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
-    @pytest.mark.skip("not implemented")
     @pytest.mark.parametrize(
         ["query", "expected_count"],
         [
