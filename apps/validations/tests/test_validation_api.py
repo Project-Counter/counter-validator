@@ -264,27 +264,53 @@ class TestFileValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == 3
 
-    def test_list_filters_cop_version(self, client_authenticated_user, normal_user):
-        ValidationFactory.create_batch(3, user=normal_user, core__cop_version="5")
-        ValidationFactory.create_batch(5, user=normal_user, core__cop_version="5.1")
-        res = client_authenticated_user.get(reverse("validation-list"), {"cop_version": "5"})
+    @pytest.mark.parametrize(
+        ["query", "expected_count"], [["5", 1], ["5,5.1", 3], ["5.1", 2], ["", 3]]
+    )
+    def test_list_filters_cop_version(
+        self, client_authenticated_user, normal_user, query, expected_count
+    ):
+        ValidationFactory.create_batch(1, user=normal_user, core__cop_version="5")
+        ValidationFactory.create_batch(2, user=normal_user, core__cop_version="5.1")
+        res = client_authenticated_user.get(reverse("validation-list"), {"cop_version": query})
         assert res.status_code == 200
-        assert res.json()["count"] == 3
+        assert res.json()["count"] == expected_count
 
     def test_list_filters_validation_result(self, client_authenticated_user, normal_user):
-        vs = ValidationFactory.create_batch(3, user=normal_user)
-        for v in vs:
+        vs_notice = ValidationFactory.create_batch(3, user=normal_user)
+        for v in vs_notice:
             # validation result is set in `save()` method, so we need to set it after creation
             v.core.validation_result = SeverityLevel.NOTICE
             v.core.save()
-        ValidationFactory.create_batch(
-            5, user=normal_user, core__validation_result=SeverityLevel.ERROR
-        )
+        vs_error = ValidationFactory.create_batch(5, user=normal_user)
+        for v in vs_error:
+            v.core.validation_result = SeverityLevel.ERROR
+            v.core.save()
+
         res = client_authenticated_user.get(
             reverse("validation-list"), {"validation_result": SeverityLevel.NOTICE.label}
         )
         assert res.status_code == 200
         assert res.json()["count"] == 3
+        # test with multiple values
+        res = client_authenticated_user.get(
+            reverse("validation-list"),
+            {"validation_result": f"{SeverityLevel.ERROR.label},{SeverityLevel.NOTICE.label}"},
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == 8
+
+    @pytest.mark.parametrize(
+        ["query", "expected_count"], [["TR", 1], ["TR,DR", 3], ["", 3], ["DR", 2]]
+    )
+    def test_list_filters_by_report_code(
+        self, client_authenticated_user, normal_user, query, expected_count
+    ):
+        ValidationFactory.create_batch(1, user=normal_user, core__report_code="TR")
+        ValidationFactory.create_batch(2, user=normal_user, core__report_code="DR")
+        res = client_authenticated_user.get(reverse("validation-list"), {"report_code": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
 
     @pytest.mark.parametrize("desc", [True, False])
     @pytest.mark.parametrize(

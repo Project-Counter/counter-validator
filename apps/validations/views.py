@@ -16,6 +16,7 @@ from validations.filters import (
     SeverityFilter,
     ValidationCoPVersionFilter,
     ValidationOrderByFilter,
+    ValidationReportCodeFilter,
     ValidationValidationResultFilter,
 )
 from validations.models import Validation, ValidationCore, ValidationMessage
@@ -40,6 +41,7 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         ValidationOrderByFilter,
         ValidationValidationResultFilter,
         ValidationCoPVersionFilter,
+        ValidationReportCodeFilter,
     ]
 
     def get_serializer_class(self):

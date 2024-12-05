@@ -11,6 +11,9 @@ from validations.enums import SeverityLevel
 logger = logging.getLogger(__name__)
 
 
+# base filter classes
+
+
 class OrderByFilter(filters.BaseFilterBackend):
     """
     A filter backend that allows ordering by fields.
@@ -25,6 +28,19 @@ class OrderByFilter(filters.BaseFilterBackend):
             if request.query_params.get("order_desc", None) in ("true", "1", "desc", "True"):
                 ordering = f"-{ordering}"
             return queryset.order_by(ordering)
+        return queryset
+
+
+class BaseMultiValueFilter(filters.BaseFilterBackend):
+    query_param = ""
+    attr_name = ""
+
+    def filter_queryset(self, request, queryset, view):
+        if not self.query_param:
+            raise NotImplementedError("query_param must be set in a subclass")
+        attr_name = self.attr_name or self.query_param
+        if param := request.query_params.get(self.query_param, "").strip():
+            return queryset.filter(**{f"{attr_name}__in": param.split(",")})
         return queryset
 
 
@@ -58,17 +74,22 @@ class MessagesSearchFilter(filters.SearchFilter):
     search_param = "search"
 
 
-class ValidationCoPVersionFilter(filters.BaseFilterBackend):
+class ValidationCoPVersionFilter(BaseMultiValueFilter):
     """
-    A filter backend that allows filtering by CoP version.
+    A filter that allows filtering Validations by CoP version.
     """
 
-    attr_prefix = "core__"
+    query_param = "cop_version"
+    attr_name = "core__cop_version"
 
-    def filter_queryset(self, request, queryset, view):
-        if cop := request.query_params.get("cop_version", None):
-            return queryset.filter(**{f"{self.attr_prefix}cop_version": cop})
-        return queryset
+
+class ValidationReportCodeFilter(BaseMultiValueFilter):
+    """
+    A filter that allows filtering Validations by report code.
+    """
+
+    query_param = "report_code"
+    attr_name = "core__report_code"
 
 
 class ValidationValidationResultFilter(SeverityFilter):

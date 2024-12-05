@@ -1,5 +1,7 @@
 export type CoP = "5" | "5.1"
 
+export const copVersions: CoP[] = ["5", "5.1"]
+
 export enum ReportCode {
   TR = "TR",
   DR = "DR",

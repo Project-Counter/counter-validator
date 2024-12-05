@@ -93,24 +93,48 @@
     </template>
 
     <template #top>
-      <v-select
-        v-model="validationResultFilter"
-        :items="severityLevels"
-        label="Filter by validation result"
-        multiple
-        clearable
-      >
-        <template #selection="{ item }">
-          <v-icon
-            size="x-small"
-            class="mr-1"
-            :color="severityLevelColorMap.get(item.value)"
+      <v-row>
+        <v-col>
+          <v-select
+            v-model="validationResultFilter"
+            :items="severityLevels"
+            label="Filter by validation result"
+            multiple
+            clearable
           >
-            mdi-{{ severityLevelIconMap.get(item.value) }}
-          </v-icon>
-          {{ item.title }}
-        </template>
-      </v-select>
+            <template #selection="{ item }">
+              <v-icon
+                size="x-small"
+                class="mr-1"
+                :color="severityLevelColorMap.get(item.value)"
+              >
+                mdi-{{ severityLevelIconMap.get(item.value) }}
+              </v-icon>
+              {{ item.title }}
+            </template>
+          </v-select>
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="copVersionFilter"
+            :items="copVersions"
+            label="Filter by CoP version"
+            multiple
+            clearable
+          />
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="reportCodeFilter"
+            :items="reportCodes"
+            label="Filter by report code"
+            multiple
+            clearable
+          />
+        </v-col>
+      </v-row>
     </template>
   </v-data-table-server>
 </template>
@@ -127,6 +151,7 @@ import { getValidation, getValidationsFromUrl, urls } from "@/lib/http/validatio
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
+import { copVersions, ReportCode, CoP } from "@/lib/definitions/counter"
 
 const props = withDefaults(
   defineProps<{
@@ -162,17 +187,8 @@ const headers: ReadonlyHeaders = [
 const { url, params, filters } = usePaginatedAPI(urls.list)
 const totalCount = ref(0)
 const validationResultFilter = ref<SeverityLevel[]>([])
-
-async function loadValidations() {
-  loading.value = true
-  try {
-    const { count, results } = await getValidationsFromUrl(url.value)
-    items.value = results
-    totalCount.value = count
-  } finally {
-    loading.value = false
-  }
-}
+const copVersionFilter = ref<CoP[]>([])
+const reportCodeFilter = ref<ReportCode[]>([])
 
 // filters
 const severityLevels = computed(() => [
@@ -187,20 +203,32 @@ const severityLevels = computed(() => [
   })),
 ])
 
-watch(validationResultFilter, () => {
+const reportCodes = Object.values(ReportCode)
+
+watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
+  filters.cop_version = copVersionFilter.value.join(",")
+  filters.report_code = reportCodeFilter.value.join(",")
   loadValidations()
 })
+
+async function loadValidations() {
+  loading.value = true
+  try {
+    const { count, results } = await getValidationsFromUrl(url.value)
+    items.value = results
+    totalCount.value = count
+  } finally {
+    loading.value = false
+  }
+}
 
 // expose loadValidations for parent components to refresh the list
 defineExpose({
   loadValidations,
 })
 
-async function start() {
-  await loadValidations()
-  await checkUnfinished()
-}
+// check for unfinished validations and periodically update the list
 
 async function checkUnfinished() {
   let unfinished = items.value.filter(
@@ -215,6 +243,13 @@ async function checkUnfinished() {
   if (unfinished.length > 0) {
     setTimeout(checkUnfinished, 1000)
   }
+}
+
+// start
+
+async function start() {
+  await loadValidations()
+  await checkUnfinished()
 }
 
 onMounted(() => {

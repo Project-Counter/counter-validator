@@ -97,7 +97,7 @@
             <v-select
               v-model="cop"
               label="CoP version"
-              :items="copItems"
+              :items="copVersions"
             ></v-select>
           </v-col>
           <v-col>
@@ -379,7 +379,13 @@
 import { CounterAPIEndpoint, Credentials } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
-import { CoP, getReportInfo, ReportCode, possibleAttributeValues } from "@/lib/definitions/counter"
+import {
+  CoP,
+  getReportInfo,
+  ReportCode,
+  possibleAttributeValues,
+  copVersions,
+} from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
@@ -399,7 +405,6 @@ const platforms = shallowRef()
 const platform = ref(null)
 
 const cop = ref<CoP>("5")
-const copItems: CoP[] = ["5", "5.1"]
 
 const url = ref("https://sashimi.celus.net/")
 
