@@ -27,6 +27,26 @@ def validation_upload_to(instance: "Validation", filename):
     return f"file_validations/{ts}-{random_suffix}{ext}"
 
 
+class ValidationCoreQuerySet(models.QuerySet):
+    def annotate_source(self):
+        return self.annotate(
+            source=Case(
+                When(sushi_credentials_checksum="", then=Value("file")),
+                default=Value("counter_api"),
+                output_field=models.CharField(),
+            )
+        )
+
+    def annotate_method(self):
+        return self.annotate(
+            method=Case(
+                When(api_key_prefix="", then=Value("manual")),
+                default=Value("api"),
+                output_field=models.CharField(),
+            )
+        )
+
+
 class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     """
     This stores the core information about the validation, without the result data
@@ -88,6 +108,8 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         max_length=2 * settings.HASHING_DIGEST_SIZE, blank=True
     )
     error_message = models.TextField(blank=True)
+
+    objects = ValidationCoreQuerySet.as_manager()
 
     class Meta:
         ordering = ["pk"]
@@ -165,12 +187,9 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
             When(validation_result=Value(sl.value), then=Value(sl.label)) for sl in SeverityLevel
         ]
         data = (
-            cls.objects.annotate(
-                method=Case(When(api_key_prefix="", then=Value("manual")), default=Value("api")),
-                source=Case(
-                    When(sushi_credentials_checksum="", then=Value("file")),
-                    default=Value("counter_api"),
-                ),
+            cls.objects.annotate_source()
+            .annotate_method()
+            .annotate(
                 result=Case(*results, default=Value("unknown")),
             )
             .values("source", "method", "result", "cop_version", "report_code")
@@ -183,6 +202,23 @@ class ValidationQuerySet(models.QuerySet):
     def current(self):
         return self.filter(
             Q(core__expiration_date__isnull=True) | Q(core__expiration_date__gte=now())
+        )
+
+    def annotate_source(self):
+        return self.annotate(
+            source=Case(
+                When(core__sushi_credentials_checksum="", then=Value("file")),
+                default=Value("counter_api"),
+            )
+        )
+
+    def annotate_method(self):
+        return self.annotate(
+            method=Case(
+                When(core__api_key_prefix="", then=Value("manual")),
+                default=Value("api"),
+                output_field=models.CharField(),
+            )
         )
 
 

@@ -14,9 +14,11 @@ from validations.filters import (
     MessagesSearchFilter,
     OrderByFilter,
     SeverityFilter,
+    ValidationAPIEndpointFilter,
     ValidationCoPVersionFilter,
     ValidationOrderByFilter,
     ValidationReportCodeFilter,
+    ValidationSourceFilter,
     ValidationValidationResultFilter,
 )
 from validations.models import Validation, ValidationCore, ValidationMessage
@@ -42,6 +44,8 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         ValidationValidationResultFilter,
         ValidationCoPVersionFilter,
         ValidationReportCodeFilter,
+        ValidationAPIEndpointFilter,
+        ValidationSourceFilter,
     ]
 
     def get_serializer_class(self):
@@ -53,6 +57,7 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         qs = (
             self.request.user.validation_set.current()
             .select_related("core")
+            .annotate_source()
             .prefetch_related("counterapivalidation")
             .defer("result_data")
             .order_by("-core__created")

@@ -312,6 +312,41 @@ class TestFileValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
+    @pytest.mark.parametrize(
+        ["query", "expected_count"],
+        [
+            ["/members", 1],
+            ["/status", 2],
+            ["/reports/[id]", 3],
+            ["", 6],
+            ["/status,/reports/[id]", 5],
+        ],
+    )
+    def test_list_filters_by_api_endpoint(
+        self, client_authenticated_user, normal_user, query, expected_count
+    ):
+        CounterAPIValidationFactory.create_batch(1, user=normal_user, api_endpoint="/members")
+        CounterAPIValidationFactory.create_batch(2, user=normal_user, api_endpoint="/status")
+        CounterAPIValidationFactory.create_batch(3, user=normal_user, api_endpoint="/reports/[id]")
+        res = client_authenticated_user.get(reverse("validation-list"), {"api_endpoint": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
+    @pytest.mark.parametrize(
+        ["query", "expected_count"],
+        [["file", 1], ["counter_api", 2], ["", 3], ["file,counter_api", 3]],
+    )
+    def test_list_filters_by_data_source(
+        self, client_authenticated_user, normal_user, query, expected_count
+    ):
+        v = ValidationFactory.create_batch(1, user=normal_user)
+        cvs = CounterAPIValidationFactory.create_batch(2, user=normal_user)
+        assert v[0].core.sushi_credentials_checksum == ""
+        assert all(c.core.sushi_credentials_checksum != "" for c in cvs)
+        res = client_authenticated_user.get(reverse("validation-list"), {"data_source": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
     @pytest.mark.parametrize("desc", [True, False])
     @pytest.mark.parametrize(
         "attr",

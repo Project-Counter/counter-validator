@@ -3,7 +3,10 @@ Basic filters for the REST API.
 """
 
 import logging
+import operator
+from functools import reduce
 
+from django.db.models import Q
 from rest_framework import filters
 
 from validations.enums import SeverityLevel
@@ -90,6 +93,40 @@ class ValidationReportCodeFilter(BaseMultiValueFilter):
 
     query_param = "report_code"
     attr_name = "core__report_code"
+
+
+class ValidationAPIEndpointFilter(BaseMultiValueFilter):
+    """
+    A filter that allows filtering Validations by API endpoint.
+    """
+
+    query_param = "api_endpoint"
+    attr_name = "counterapivalidation__api_endpoint"
+
+
+class ValidationSourceFilter(filters.BaseFilterBackend):
+    """
+    A filter that allows filtering Validations by source.
+    """
+
+    attr_prefix = "core__"
+
+    def filter_queryset(self, request, queryset, view):
+        qs = []
+        # source is computed on the fly from the presence of sushi_credentials_checksum
+        # so we need some extra code for that
+        if param := request.query_params.get("data_source", "").strip():
+            params = param.split(",")
+            for param in params:
+                if param == "file":
+                    qs.append(Q(**{f"{self.attr_prefix}sushi_credentials_checksum": ""}))
+                elif param == "counter_api":
+                    qs.append(~Q(**{f"{self.attr_prefix}sushi_credentials_checksum": ""}))
+                else:
+                    # silently ignore unknown sources
+                    logger.warning(f"Unknown source: {param}")
+            return queryset.filter(reduce(operator.or_, qs))
+        return queryset
 
 
 class ValidationValidationResultFilter(SeverityFilter):

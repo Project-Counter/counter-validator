@@ -1,6 +1,15 @@
+import { CounterAPIEndpoint } from "@/lib/definitions/api"
+
 export type CoP = "5" | "5.1"
 
 export const copVersions: CoP[] = ["5", "5.1"]
+
+export const counterAPIEndpoints: CounterAPIEndpoint[] = [
+  "/reports/[id]",
+  "/reports",
+  "/status",
+  "/members",
+]
 
 export enum ReportCode {
   TR = "TR",

@@ -96,9 +96,19 @@
       <v-row>
         <v-col>
           <v-select
+            v-model="sourceFilter"
+            :items="dataSources"
+            label="Data source"
+            multiple
+            clearable
+          />
+        </v-col>
+
+        <v-col>
+          <v-select
             v-model="validationResultFilter"
             :items="severityLevels"
-            label="Filter by validation result"
+            label="Validation result"
             multiple
             clearable
           >
@@ -119,7 +129,17 @@
           <v-select
             v-model="copVersionFilter"
             :items="copVersions"
-            label="Filter by CoP version"
+            label="CoP version"
+            multiple
+            clearable
+          />
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="endpointFilter"
+            :items="counterAPIEndpoints"
+            label="Endpoint"
             multiple
             clearable
           />
@@ -129,7 +149,7 @@
           <v-select
             v-model="reportCodeFilter"
             :items="reportCodes"
-            label="Filter by report code"
+            label="Report code"
             multiple
             clearable
           />
@@ -141,6 +161,9 @@
 
 <script setup lang="ts">
 import {
+  CounterAPIEndpoint,
+  DataSource,
+  dataSources as dataSourcesRaw,
   SeverityLevel,
   severityLevelColorMap,
   severityLevelIconMap,
@@ -151,7 +174,7 @@ import { getValidation, getValidationsFromUrl, urls } from "@/lib/http/validatio
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
-import { copVersions, ReportCode, CoP } from "@/lib/definitions/counter"
+import { copVersions, ReportCode, CoP, counterAPIEndpoints } from "@/lib/definitions/counter"
 
 const props = withDefaults(
   defineProps<{
@@ -189,19 +212,28 @@ const totalCount = ref(0)
 const validationResultFilter = ref<SeverityLevel[]>([])
 const copVersionFilter = ref<CoP[]>([])
 const reportCodeFilter = ref<ReportCode[]>([])
+const endpointFilter = ref<CounterAPIEndpoint[]>([])
+const sourceFilter = ref<DataSource[]>([])
 
 // filters
-const severityLevels = computed(() => [
-  ...severityLevelIconMap.keys().map((k) => ({
-    value: k,
-    title: k,
+const severityLevels = severityLevelIconMap.keys().map((k) => ({
+  value: k,
+  title: k,
+  props: {
+    "append-icon": "mdi-" + severityLevelIconMap.get(k),
+    "base-color": severityLevelColorMap.get(k),
+  },
+}))
+
+const dataSources = dataSourcesRaw.map((ds) => {
+  return {
+    value: ds,
+    title: ds === "file" ? "File" : "COUNTER API",
     props: {
-      "prepend-icon": "mdi-" + severityLevelIconMap.get(k),
-      "append-icon": "mdi-" + severityLevelIconMap.get(k),
-      "base-color": severityLevelColorMap.get(k),
+      "append-icon": ds === "file" ? "mdi-file-outline" : "mdi-cloud-outline",
     },
-  })),
-])
+  }
+})
 
 const reportCodes = Object.values(ReportCode)
 
@@ -209,6 +241,8 @@ watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
   filters.cop_version = copVersionFilter.value.join(",")
   filters.report_code = reportCodeFilter.value.join(",")
+  filters.api_endpoint = endpointFilter.value.join(",")
+  filters.data_source = sourceFilter.value.join(",")
   loadValidations()
 })
 

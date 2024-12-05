@@ -114,6 +114,10 @@ export type ValidationCore = {
   duration: number
 } & ValidationBase
 
+export type DataSource = "counter_api" | "file"
+
+export const dataSources: DataSource[] = ["counter_api", "file"]
+
 export type Validation = {
   api_key?: number
   filename?: string
