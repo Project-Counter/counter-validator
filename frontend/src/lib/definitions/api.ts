@@ -133,6 +133,7 @@ export type Validation = {
   requested_extra_attributes: string | null
   requested_begin_date: string | null
   requested_end_date: string | null
+  public_id: string | null
 } & ValidationBase
 
 export type ValidationDetail = Validation & {

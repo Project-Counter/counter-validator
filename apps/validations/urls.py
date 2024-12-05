@@ -9,6 +9,7 @@ router.register(r"validation-core", views.ValidationCoreViewSet, basename="valid
 router.register(
     r"counter-api-validation", views.CounterAPIValidationViewSet, basename="counter-api-validation"
 )
+router.register("public/validation", views.PublicValidationViewSet, basename="public-validation")
 
 validation_router = NestedSimpleRouter(router, r"validation", lookup="validation")
 validation_router.register(

@@ -102,6 +102,13 @@ class ValidationDetailSerializer(ValidationSerializer):
         fields = ValidationSerializer.Meta.fields + ["result_data"]
 
 
+class PublicValidationDetailSerializer(ValidationDetailSerializer):
+    credentials = serializers.SerializerMethodField()
+
+    def get_credentials(self, obj):
+        return None
+
+
 class FileValidationCreateSerializer(serializers.Serializer):
     """
     Serializer used to create a new validation from a file upload.

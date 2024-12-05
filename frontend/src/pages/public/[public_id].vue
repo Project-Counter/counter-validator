@@ -2,20 +2,21 @@
   <ValidationDetailWidget
     v-if="validation"
     :validation="validation"
+    public-view
   />
 </template>
 
 <script setup lang="ts">
 import { ValidationDetail } from "@/lib/definitions/api"
-import { getValidationDetail } from "@/lib/http/validation"
+import { getPublicValidationDetail } from "@/lib/http/validation"
 
 const validation = ref<ValidationDetail>()
 const route = useRoute()
 
 async function load() {
-  if ("id" in route.params) {
+  if ("public_id" in route.params) {
     // check needed for TS to narrow down the type
-    validation.value = await getValidationDetail(route.params.id)
+    validation.value = await getPublicValidationDetail(route.params.public_id)
   }
 }
 

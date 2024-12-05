@@ -41,7 +41,7 @@
         icon="mdi-magnify"
       />
     </template>
-    Validation has finished
+    Validation has finished and is ready for viewing
   </v-tooltip>
 
   <v-tooltip v-else>

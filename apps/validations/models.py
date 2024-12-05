@@ -206,6 +206,9 @@ class ValidationQuerySet(models.QuerySet):
             Q(core__expiration_date__isnull=True) | Q(core__expiration_date__gte=now())
         )
 
+    def public(self):
+        return self.exclude(public_id__isnull=True)
+
     def annotate_source(self):
         return self.annotate(
             source=Case(

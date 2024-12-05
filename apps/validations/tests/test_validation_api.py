@@ -1,6 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import factory
 import pytest
@@ -719,3 +719,29 @@ class TestValidationMessagesAPI:
         )
         assert res.status_code == 200
         assert len(res.json()) == 4
+
+
+@pytest.mark.django_db
+class TestPublicValidationAPI:
+    def test_list_is_forbidden(self, client):
+        res = client.get(reverse("public-validation-list"))
+        assert res.status_code == 403
+
+    def test_detail(self, client):
+        val = CounterAPIValidationFactory(public_id=uuid4())
+        assert val.credentials is not None
+        res = client.get(reverse("public-validation-detail", args=[val.public_id]))
+        assert res.status_code == 200
+        out = res.json()
+        assert "id" in out
+        assert "url" in out
+        assert "credentials" in out
+        assert "requested_cop_version" in out
+        assert "cop_version" in out
+        assert "requested_report_code" in out
+        assert "report_code" in out
+        assert "api_endpoint" in out
+        assert "requested_extra_attributes" in out
+        assert "requested_begin_date" in out
+        assert "requested_end_date" in out
+        assert out["credentials"] is None, "credentials should not be exposed"

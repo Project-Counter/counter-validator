@@ -21,6 +21,7 @@ export const urls = {
   stats: "validations/validation-core/stats/",
   timeStats: "validations/validation-core/time-stats/",
   splitStats: "validations/validation-core/split-stats/",
+  publicList: "validations/public/validation/",
 }
 
 export async function getValidation(id: string) {
@@ -35,8 +36,26 @@ export async function getValidationDetail(id: string) {
   return jsonFetch<ValidationDetail>(url)
 }
 
-export async function getValidations() {
-  return jsonFetch<Validation[]>(urls.list)
+export async function getPublicValidationDetail(id: string) {
+  const url = `${urls.publicList}${id}/`
+
+  return jsonFetch<ValidationDetail>(url)
+}
+
+export async function publishValidation(id: string) {
+  const url = `${urls.list}${id}/publish/`
+
+  return jsonFetch<ValidationDetail>(url, {
+    method: "POST",
+  })
+}
+
+export async function unpublishValidation(id: string) {
+  const url = `${urls.list}${id}/unpublish/`
+
+  return jsonFetch<ValidationDetail>(url, {
+    method: "POST",
+  })
 }
 
 type PaginatedValidations = {
@@ -55,10 +74,6 @@ type PaginatedValidationCores = {
 
 export async function getValidationsFromUrl(url: string) {
   return jsonFetch<PaginatedValidations>(url)
-}
-
-export async function getValidationCores() {
-  return jsonFetch<ValidationCore[]>(urls.coreList)
 }
 
 export async function getValidationCoresFromUrl(url: string) {

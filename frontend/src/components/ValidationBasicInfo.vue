@@ -32,24 +32,79 @@
           <SeverityLevelChip :severity="validation.validation_result" />
         </td>
       </tr>
+      <tr v-if="!publicView">
+        <th>Visibility</th>
+        <td>
+          {{ publicId ? "Public" : "Private" }}
+          <v-tooltip
+            v-if="publicId"
+            bottom
+            max-width="600px"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="x-small"
+                class="ml-2"
+                @click="unpublish"
+              >
+                Unpublish
+              </v-btn>
+            </template>
+            Unpublishing the validation result will invalidate the unique link which allows
+            read-only access to the validation result. Unpublishing and re-publishing a result will
+            generate a new unique link.
+          </v-tooltip>
+
+          <v-tooltip
+            v-else
+            bottom
+            max-width="600px"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="x-small"
+                class="ml-2"
+                @click="publish"
+              >
+                Publish
+              </v-btn>
+            </template>
+            Publishing a validation result will create a unique link which will add read-only access
+            to the validation result to anyone with the link. Published result can be unpublished at
+            any time.
+          </v-tooltip>
+
+          <router-link
+            v-if="publicId"
+            :to="`/public/${publicId}`"
+            class="ml-4"
+            >Public link</router-link
+          >
+        </td>
+      </tr>
     </tbody>
   </table>
 
   <h3
-    v-if="validation.credentials"
+    v-if="validation.requested_cop_version"
     class="text-h6 mt-4 mb-2"
   >
     Requested COUNTER API parameters
   </h3>
   <table
-    v-if="validation.credentials"
+    v-if="validation.requested_cop_version"
     class="overview ml-4"
   >
     <tbody>
       <tr>
         <th>Credentials</th>
         <td>
-          <table class="dense">
+          <table
+            v-if="validation.credentials"
+            class="dense"
+          >
             <tr
               v-for="(value, key) in validation.credentials"
               :key="key"
@@ -58,6 +113,8 @@
               <td>{{ value }}</td>
             </tr>
           </table>
+          <!-- we don't have credentials for public view -->
+          <span v-else>-</span>
         </td>
       </tr>
       <tr
@@ -86,10 +143,19 @@
 import { statusMap, ValidationDetail } from "@/lib/definitions/api"
 import { intlFormatDistance } from "date-fns"
 import { filesize } from "filesize"
+import { publishValidation, unpublishValidation } from "@/lib/http/validation"
 
-const p = defineProps<{
-  validation: ValidationDetail
-}>()
+const p = withDefaults(
+  defineProps<{
+    validation: ValidationDetail
+    publicView?: boolean
+  }>(),
+  {
+    publicView: false,
+  },
+)
+
+const publicId = ref(p.validation.public_id)
 
 let sushiAttrs: {
   attr:
@@ -115,6 +181,8 @@ if (p.validation.api_endpoint === "/reports/[id]") {
   ])
 }
 
+// relative time
+
 const relCreated = computed(() => {
   if (p.validation && p.validation.created)
     return intlFormatDistance(p.validation.created, Date.now())
@@ -127,6 +195,8 @@ const relExpirationDate = computed(() => {
   return ""
 })
 
+// stringifying
+
 function stringify(obj: string | object | null): string {
   if (typeof obj === "string") {
     return obj
@@ -138,5 +208,17 @@ function stringify(obj: string | object | null): string {
     return obj.toString()
   }
   return ""
+}
+
+// publishing/unpublishing
+
+async function publish() {
+  const res = await publishValidation(p.validation.id)
+  publicId.value = res.public_id
+}
+
+async function unpublish() {
+  const res = await unpublishValidation(p.validation.id)
+  publicId.value = res.public_id
 }
 </script>

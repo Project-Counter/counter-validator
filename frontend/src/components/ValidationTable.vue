@@ -26,6 +26,21 @@
         v-else
         :validation="item"
       />
+
+      <v-tooltip
+        bottom
+        max-width="600px"
+      >
+        <template #activator="{ props }">
+          <v-icon
+            v-if="item.public_id"
+            v-bind="props"
+            color="subdued"
+            >mdi-eye</v-icon
+          >
+        </template>
+        This validation was made publicly visible using a unique link.
+      </v-tooltip>
     </template>
 
     <template #item.validation_result="{ item }">
