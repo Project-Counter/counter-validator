@@ -51,15 +51,81 @@
     <template #item.stats="{ item }">
       <StatsPie :item="item" />
     </template>
+
+    <template #top>
+      <v-row>
+        <v-col>
+          <v-select
+            v-model="sourceFilter"
+            :items="dataSources"
+            label="Data source"
+            multiple
+            clearable
+          />
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="validationResultFilter"
+            :items="severityLevels"
+            label="Validation result"
+            multiple
+            clearable
+          >
+            <template #selection="{ item }">
+              <v-icon
+                size="x-small"
+                class="mr-1"
+                :color="severityLevelColorMap.get(item.value)"
+              >
+                mdi-{{ severityLevelIconMap.get(item.value) }}
+              </v-icon>
+              {{ item.title }}
+            </template>
+          </v-select>
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="copVersionFilter"
+            :items="copVersions"
+            label="CoP version"
+            multiple
+            clearable
+          />
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="endpointFilter"
+            :items="counterAPIEndpoints"
+            label="Endpoint"
+            multiple
+            clearable
+          />
+        </v-col>
+
+        <v-col>
+          <v-select
+            v-model="reportCodeFilter"
+            :items="reportCodes"
+            label="Report code"
+            multiple
+            clearable
+          />
+        </v-col>
+      </v-row>
+    </template>
   </v-data-table-server>
 </template>
 
 <script setup lang="ts">
-import { ValidationCore } from "@/lib/definitions/api"
+import { severityLevelColorMap, severityLevelIconMap, ValidationCore } from "@/lib/definitions/api"
 import { getValidationCoresFromUrl, urls } from "@/lib/http/validation"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
+import { useValidationFilters } from "@/composables/validationFiltering"
 
 const items = ref<ValidationCore[]>([])
 
@@ -82,6 +148,29 @@ const { url, params, filters } = usePaginatedAPI(urls.coreList)
 const loading = ref(false)
 const totalCount = ref(0)
 
+const {
+  validationResultFilter,
+  copVersionFilter,
+  reportCodeFilter,
+  endpointFilter,
+  sourceFilter,
+  severityLevels,
+  dataSources,
+  reportCodes,
+  copVersions,
+  counterAPIEndpoints,
+} = useValidationFilters()
+
+watchEffect(() => {
+  filters.validation_result = validationResultFilter.value.join(",")
+  filters.cop_version = copVersionFilter.value.join(",")
+  filters.report_code = reportCodeFilter.value.join(",")
+  filters.api_endpoint = endpointFilter.value.join(",")
+  filters.data_source = sourceFilter.value.join(",")
+  load()
+})
+
+// loading of data
 async function load() {
   loading.value = true
   try {

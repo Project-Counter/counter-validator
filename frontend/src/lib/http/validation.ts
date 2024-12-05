@@ -46,6 +46,13 @@ type PaginatedValidations = {
   results: Validation[]
 }
 
+type PaginatedValidationCores = {
+  count: number
+  next: string
+  previous: string
+  results: ValidationCore[]
+}
+
 export async function getValidationsFromUrl(url: string) {
   return jsonFetch<PaginatedValidations>(url)
 }
@@ -55,7 +62,7 @@ export async function getValidationCores() {
 }
 
 export async function getValidationCoresFromUrl(url: string) {
-  return jsonFetch<ValidationCore[]>(url)
+  return jsonFetch<PaginatedValidationCores>(url)
 }
 
 export async function validateFile(file: FUpload) {

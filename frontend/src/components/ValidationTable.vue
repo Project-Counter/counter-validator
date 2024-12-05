@@ -157,10 +157,6 @@
 
 <script setup lang="ts">
 import {
-  CounterAPIEndpoint,
-  DataSource,
-  dataSources as dataSourcesRaw,
-  SeverityLevel,
   severityLevelColorMap,
   severityLevelIconMap,
   Status,
@@ -170,7 +166,7 @@ import { getValidation, getValidationsFromUrl, urls } from "@/lib/http/validatio
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
-import { copVersions, ReportCode, CoP, counterAPIEndpoints } from "@/lib/definitions/counter"
+import { useValidationFilters } from "@/composables/validationFiltering"
 
 const props = withDefaults(
   defineProps<{
@@ -205,35 +201,19 @@ const headers: ReadonlyHeaders = [
 // validations list
 const { url, params, filters } = usePaginatedAPI(urls.list)
 const totalCount = ref(0)
-const validationResultFilter = ref<SeverityLevel[]>([])
-const copVersionFilter = ref<CoP[]>([])
-const reportCodeFilter = ref<ReportCode[]>([])
-const endpointFilter = ref<CounterAPIEndpoint[]>([])
-const sourceFilter = ref<DataSource[]>([])
 
-// filters
-const severityLevels = [
-  ...severityLevelIconMap.keys().map((k) => ({
-    value: k,
-    title: k,
-    props: {
-      "append-icon": "mdi-" + severityLevelIconMap.get(k),
-      "base-color": severityLevelColorMap.get(k),
-    },
-  })),
-]
-
-const dataSources = dataSourcesRaw.map((ds) => {
-  return {
-    value: ds,
-    title: ds === "file" ? "File" : "COUNTER API",
-    props: {
-      "append-icon": ds === "file" ? "mdi-file-outline" : "mdi-cloud-outline",
-    },
-  }
-})
-
-const reportCodes = Object.values(ReportCode)
+const {
+  validationResultFilter,
+  copVersionFilter,
+  reportCodeFilter,
+  endpointFilter,
+  sourceFilter,
+  severityLevels,
+  dataSources,
+  reportCodes,
+  copVersions,
+  counterAPIEndpoints,
+} = useValidationFilters()
 
 watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
