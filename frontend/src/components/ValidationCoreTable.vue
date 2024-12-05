@@ -53,74 +53,19 @@
     </template>
 
     <template #top>
-      <v-row>
-        <v-col>
-          <v-select
-            v-model="sourceFilter"
-            :items="dataSources"
-            label="Data source"
-            multiple
-            clearable
-          />
-        </v-col>
-
-        <v-col>
-          <v-select
-            v-model="validationResultFilter"
-            :items="severityLevels"
-            label="Validation result"
-            multiple
-            clearable
-          >
-            <template #selection="{ item }">
-              <v-icon
-                size="x-small"
-                class="mr-1"
-                :color="severityLevelColorMap.get(item.value)"
-              >
-                mdi-{{ severityLevelIconMap.get(item.value) }}
-              </v-icon>
-              {{ item.title }}
-            </template>
-          </v-select>
-        </v-col>
-
-        <v-col>
-          <v-select
-            v-model="copVersionFilter"
-            :items="copVersions"
-            label="CoP version"
-            multiple
-            clearable
-          />
-        </v-col>
-
-        <v-col>
-          <v-select
-            v-model="endpointFilter"
-            :items="counterAPIEndpoints"
-            label="Endpoint"
-            multiple
-            clearable
-          />
-        </v-col>
-
-        <v-col>
-          <v-select
-            v-model="reportCodeFilter"
-            :items="reportCodes"
-            label="Report code"
-            multiple
-            clearable
-          />
-        </v-col>
-      </v-row>
+      <ValidationFilterSet
+        v-model:validation-result-filter="validationResultFilter"
+        v-model:cop-version-filter="copVersionFilter"
+        v-model:report-code-filter="reportCodeFilter"
+        v-model:endpoint-filter="endpointFilter"
+        v-model:source-filter="sourceFilter"
+      />
     </template>
   </v-data-table-server>
 </template>
 
 <script setup lang="ts">
-import { severityLevelColorMap, severityLevelIconMap, ValidationCore } from "@/lib/definitions/api"
+import { ValidationCore } from "@/lib/definitions/api"
 import { getValidationCoresFromUrl, urls } from "@/lib/http/validation"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
@@ -148,18 +93,8 @@ const { url, params, filters } = usePaginatedAPI(urls.coreList)
 const loading = ref(false)
 const totalCount = ref(0)
 
-const {
-  validationResultFilter,
-  copVersionFilter,
-  reportCodeFilter,
-  endpointFilter,
-  sourceFilter,
-  severityLevels,
-  dataSources,
-  reportCodes,
-  copVersions,
-  counterAPIEndpoints,
-} = useValidationFilters()
+const { validationResultFilter, copVersionFilter, reportCodeFilter, endpointFilter, sourceFilter } =
+  useValidationFilters()
 
 watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
