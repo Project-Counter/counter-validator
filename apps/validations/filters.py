@@ -86,6 +86,14 @@ class ValidationCoPVersionFilter(BaseMultiValueFilter):
     attr_name = "core__cop_version"
 
 
+class ValidationCoreCoPVersionFilter(BaseMultiValueFilter):
+    """
+    A filter that allows filtering Validation Cores by CoP version.
+    """
+
+    query_param = "cop_version"
+
+
 class ValidationReportCodeFilter(BaseMultiValueFilter):
     """
     A filter that allows filtering Validations by report code.
@@ -95,6 +103,14 @@ class ValidationReportCodeFilter(BaseMultiValueFilter):
     attr_name = "core__report_code"
 
 
+class ValidationCoreReportCodeFilter(BaseMultiValueFilter):
+    """
+    A filter that allows filtering Validation Cores by report code.
+    """
+
+    query_param = "report_code"
+
+
 class ValidationAPIEndpointFilter(BaseMultiValueFilter):
     """
     A filter that allows filtering Validations by API endpoint.
@@ -102,6 +118,14 @@ class ValidationAPIEndpointFilter(BaseMultiValueFilter):
 
     query_param = "api_endpoint"
     attr_name = "counterapivalidation__api_endpoint"
+
+
+class ValidationCoreAPIEndpointFilter(BaseMultiValueFilter):
+    """
+    A filter that allows filtering Validation Cores by API endpoint.
+    """
+
+    query_param = "api_endpoint"
 
 
 class ValidationSourceFilter(filters.BaseFilterBackend):
@@ -129,9 +153,18 @@ class ValidationSourceFilter(filters.BaseFilterBackend):
         return queryset
 
 
+class ValidationCoreSourceFilter(ValidationSourceFilter):
+    attr_prefix = ""
+
+
 class ValidationValidationResultFilter(SeverityFilter):
     query_param = "validation_result"
     attr_name = "core__validation_result"
+
+
+class ValidationCoreValidationResultFilter(SeverityFilter):
+    query_param = "validation_result"
+    attr_name = "validation_result"
 
 
 class ValidationOrderByFilter(OrderByFilter):

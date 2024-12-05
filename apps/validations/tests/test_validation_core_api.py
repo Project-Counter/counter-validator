@@ -45,6 +45,98 @@ class TestValidationCoreAPI:
             assert "filename" not in first
             assert "result_data" not in first
 
+    @pytest.mark.parametrize(
+        ["query", "expected_count"], [["5", 1], ["5,5.1", 3], ["5.1", 2], ["", 3]]
+    )
+    def test_list_filters_cop_version(self, admin_client, query, expected_count):
+        ValidationCoreFactory.create_batch(1, cop_version="5")
+        ValidationCoreFactory.create_batch(2, cop_version="5.1")
+        res = admin_client.get(reverse("validation-core-list"), {"cop_version": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
+    def test_list_filters_validation_result(self, admin_client):
+        ValidationCoreFactory.create_batch(3, validation_result=SeverityLevel.NOTICE)
+        ValidationCoreFactory.create_batch(5, validation_result=SeverityLevel.ERROR)
+
+        res = admin_client.get(
+            reverse("validation-core-list"), {"validation_result": SeverityLevel.NOTICE.label}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == 3
+        # test with multiple values
+        res = admin_client.get(
+            reverse("validation-core-list"),
+            {"validation_result": f"{SeverityLevel.ERROR.label},{SeverityLevel.NOTICE.label}"},
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == 8
+
+    @pytest.mark.parametrize(
+        ["query", "expected_count"], [["TR", 1], ["TR,DR", 3], ["", 3], ["DR", 2]]
+    )
+    def test_list_filters_by_report_code(self, admin_client, query, expected_count):
+        ValidationCoreFactory.create_batch(1, report_code="TR")
+        ValidationCoreFactory.create_batch(2, report_code="DR")
+        res = admin_client.get(reverse("validation-core-list"), {"report_code": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
+    @pytest.mark.skip("not implemented")
+    @pytest.mark.parametrize(
+        ["query", "expected_count"],
+        [
+            ["/members", 1],
+            ["/status", 2],
+            ["/reports/[id]", 3],
+            ["", 6],
+            ["/status,/reports/[id]", 5],
+        ],
+    )
+    def test_list_filters_by_api_endpoint(self, admin_client, query, expected_count):
+        ValidationCoreFactory.create_batch(1, api_endpoint="/members")
+        ValidationCoreFactory.create_batch(2, api_endpoint="/status")
+        ValidationCoreFactory.create_batch(3, api_endpoint="/reports/[id]")
+        res = admin_client.get(reverse("validation-core-list"), {"api_endpoint": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
+    @pytest.mark.parametrize(
+        ["query", "expected_count"],
+        [["file", 1], ["counter_api", 2], ["", 3], ["file,counter_api", 3]],
+    )
+    def test_list_filters_by_data_source(self, admin_client, query, expected_count):
+        ValidationCoreFactory.create_batch(1)
+        ValidationCoreFactory.create_batch(2, sushi_credentials_checksum="123")
+        res = admin_client.get(reverse("validation-core-list"), {"data_source": query})
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
+    @pytest.mark.parametrize("desc", [True, False])
+    @pytest.mark.parametrize(
+        "attr",
+        [
+            "cop_version",
+            "created",
+            "file_size",
+            "platform_name",
+            "report_code",
+            "status",
+            "validation_result",
+        ],
+    )
+    def test_list_filters_order_by_filesize(self, admin_client, desc, attr):
+        ValidationCoreFactory.create_batch(3)
+        res = admin_client.get(
+            reverse("validation-core-list"), {"order_by": attr, "order_desc": desc}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == 3
+        if desc:
+            assert res.json()["results"][0][attr] >= res.json()["results"][-1][attr]
+        else:
+            assert res.json()["results"][0][attr] <= res.json()["results"][-1][attr]
+
     def test_delete_not_allowed(self, admin_client):
         v = ValidationCoreFactory()
         res = admin_client.delete(reverse("validation-core-detail", args=[v.pk]))

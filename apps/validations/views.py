@@ -16,6 +16,11 @@ from validations.filters import (
     SeverityFilter,
     ValidationAPIEndpointFilter,
     ValidationCoPVersionFilter,
+    ValidationCoreAPIEndpointFilter,
+    ValidationCoreCoPVersionFilter,
+    ValidationCoreReportCodeFilter,
+    ValidationCoreSourceFilter,
+    ValidationCoreValidationResultFilter,
     ValidationOrderByFilter,
     ValidationReportCodeFilter,
     ValidationSourceFilter,
@@ -107,6 +112,14 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminUser,)
     serializer_class = validations.serializers.ValidationCoreSerializer
     pagination_class = StandardPagination
+    filter_backends = [
+        OrderByFilter,
+        ValidationCoreSourceFilter,
+        ValidationCoreCoPVersionFilter,
+        ValidationCoreValidationResultFilter,
+        ValidationCoreReportCodeFilter,
+        ValidationCoreAPIEndpointFilter,
+    ]
 
     def get_queryset(self):
         return ValidationCore.objects.select_related("platform").order_by("-created")
