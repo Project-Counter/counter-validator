@@ -110,7 +110,7 @@ class ValidationMessageFactory(factory.django.DjangoModelFactory):
         model = ValidationMessage
 
     validation = factory.SubFactory(ValidationFactory)
-    number = factory.Sequence()
+    number = factory.Sequence(lambda n: n)
     data = factory.Faker("text")
     severity = factory.fuzzy.FuzzyChoice(SeverityLevel.values)
     code = factory.Faker("bothify", text="?###")
