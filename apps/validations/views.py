@@ -92,6 +92,18 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         }
         return Response(stats)
 
+    @action(detail=True, methods=("POST",), url_path="publish")
+    def publish(self, request, pk=None):
+        validation: Validation = self.get_object()
+        validation.publish()
+        return Response(self.get_serializer(validation).data)
+
+    @action(detail=True, methods=("POST",), url_path="unpublish")
+    def unpublish(self, request, pk=None):
+        validation: Validation = self.get_object()
+        validation.unpublish()
+        return Response(self.get_serializer(validation).data)
+
 
 class CounterAPIValidationViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated | HasUserAPIKey]

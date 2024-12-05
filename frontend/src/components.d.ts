@@ -22,6 +22,7 @@ declare module 'vue' {
     MsgDialog: typeof import('./components/MsgDialog.vue')['default']
     NewCounterAPIValidation: typeof import('./components/NewCounterAPIValidation.vue')['default']
     NewFileValidation: typeof import('./components/NewFileValidation.vue')['default']
+    NewSushiValidation: typeof import('./components/NewSushiValidation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SeverityLevelChip: typeof import('./components/SeverityLevelChip.vue')['default']
@@ -40,6 +41,7 @@ declare module 'vue' {
     ValidationManagementWidget: typeof import('./components/ValidationManagementWidget.vue')['default']
     ValidationMessagesTable: typeof import('./components/ValidationMessagesTable.vue')['default']
     ValidationMessageStatsTable: typeof import('./components/ValidationMessageStatsTable.vue')['default']
+    ValidationResultChip: typeof import('./components/ValidationResultChip.vue')['default']
     ValidationStatus: typeof import('./components/ValidationStatus.vue')['default']
     ValidationTable: typeof import('./components/ValidationTable.vue')['default']
   }

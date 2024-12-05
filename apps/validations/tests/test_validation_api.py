@@ -4,6 +4,7 @@ from uuid import UUID
 
 import factory
 import pytest
+from core.fake_data import UserFactory
 from counter.fake_data import PlatformFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
@@ -138,6 +139,7 @@ class TestFileValidationAPI:
             assert "api_key_prefix" in first
             assert "data_source" in first
             assert "expiration_date" in first
+            assert "public_id" in first
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -172,6 +174,8 @@ class TestFileValidationAPI:
             assert "report_code" in data
             assert "api_key_prefix" in data
             assert "data_source" in data
+            assert "expiration_date" in data
+            assert "public_id" in data
 
     def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):
         """
@@ -377,6 +381,34 @@ class TestFileValidationAPI:
             assert res.json()["results"][0][attr] >= res.json()["results"][-1][attr]
         else:
             assert res.json()["results"][0][attr] <= res.json()["results"][-1][attr]
+
+    def test_validation_publish(self, client_authenticated_user, normal_user):
+        v = ValidationFactory.create(user=normal_user)
+        assert v.public_id is None
+        res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+        assert res.status_code == 200
+        v.refresh_from_db()
+        assert v.public_id is not None
+        assert str(v.public_id) == res.json()["public_id"]
+
+    def test_validation_unpublish(self, client_authenticated_user, normal_user):
+        v = ValidationFactory.create(user=normal_user)
+        v.publish()
+        assert v.public_id is not None
+        res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
+        assert res.status_code == 200
+        v.refresh_from_db()
+        assert v.public_id is None
+        assert res.json()["public_id"] is None
+
+    def test_validation_publish_unpublish_not_allowed_for_other_users(
+        self, client_authenticated_user, normal_user
+    ):
+        v = ValidationFactory.create(user=UserFactory())  # noqa: F821
+        res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+        assert res.status_code == 404
+        res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
+        assert res.status_code == 404
 
 
 @pytest.mark.django_db

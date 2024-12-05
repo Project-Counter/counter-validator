@@ -65,6 +65,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "status",
             "created",
             "expiration_date",
+            "public_id",
             "filename",
             "platform",
             "platform_name",

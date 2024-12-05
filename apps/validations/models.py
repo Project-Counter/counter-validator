@@ -3,6 +3,7 @@ import string
 from datetime import timedelta
 from typing import IO
 from urllib.parse import urlencode, urljoin
+from uuid import uuid4
 
 from core.mixins import CreatedUpdatedMixin, UUIDPkMixin
 from core.models import User
@@ -238,6 +239,7 @@ class Validation(UUIDPkMixin, models.Model):
     file = models.FileField(upload_to=validation_upload_to, null=True)
     result_data = models.JSONField(null=True)
     user_note = models.TextField(blank=True)
+    public_id = models.UUIDField(null=True, blank=True)
 
     objects = ValidationQuerySet.as_manager()
 
@@ -335,6 +337,20 @@ class Validation(UUIDPkMixin, models.Model):
         for rec in out:
             rec["severity"] = SeverityLevel(rec["severity"]).label
         return out
+
+    def publish(self):
+        """
+        Publish the validation results.
+        """
+        self.public_id = uuid4()
+        self.save()
+
+    def unpublish(self):
+        """
+        Unpublish the validation results.
+        """
+        self.public_id = None
+        self.save()
 
 
 class CounterAPIValidation(Validation):
