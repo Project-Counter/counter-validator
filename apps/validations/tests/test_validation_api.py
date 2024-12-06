@@ -369,7 +369,10 @@ class TestFileValidationAPI:
 
 @pytest.mark.django_db
 class TestValidationAPIThrottling:
-    def test_list_with_api_key(self, client_with_api_key, normal_user, settings):
+    def test_list_get_with_api_key(self, client_with_api_key, normal_user, settings):
+        """
+        Test that GET requests are not throttled.
+        """
         settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
         ValidationFactory.create_batch(10, user=normal_user)
         res = client_with_api_key.get(reverse("validation-list"))
@@ -377,8 +380,32 @@ class TestValidationAPIThrottling:
         assert res.json()["count"] == 10
         # second request should be throttled
         res = client_with_api_key.get(reverse("validation-list"))
-        assert res.status_code == 429
-        assert "Request was throttled" in res.json()["detail"]
+        assert res.status_code == 200, "GET requests should not be throttled"
+
+    def test_list_post_with_api_key(self, client_with_api_key, normal_user, settings):
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+
+        filename = "tr.json"
+        file = SimpleUploadedFile(filename, content=b"xxx")
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_with_api_key.post(
+                reverse("validation-file"),
+                data={"file": file, "user_note": "test"},
+                format="multipart",
+            )
+            p.assert_called_once_with(UUID(res.json()["id"]))
+            assert res.status_code == 201
+
+        # second request should be throttled
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_with_api_key.post(
+                reverse("validation-file"),
+                data={"file": file, "user_note": "test"},
+                format="multipart",
+            )
+            p.assert_not_called()
+            assert res.status_code == 429
+            assert "Request was throttled" in res.json()["detail"]
 
     def test_list_as_normal_user(self, client_authenticated_user, normal_user, settings):
         """

@@ -13,3 +13,9 @@ class APIKeyBasedThrottle(SimpleRateThrottle):
         if request.headers.get("Authorization") and request.user and request.user.is_authenticated:
             return str(request.user.id)
         return None
+
+    def allow_request(self, request, view):
+        """
+        Only throttle POST requests, let GET requests through.
+        """
+        return request.method != "POST" or super().allow_request(request, view)
