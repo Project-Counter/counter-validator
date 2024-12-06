@@ -84,14 +84,7 @@ export async function validateFile(file: FUpload) {
   // we need to send the data in a multipart form
   const form = new FormData()
   form.append("file", file.file)
-
-  if (typeof file.platform === "string") {
-    form.append("platform_name", file.platform)
-  } else if (file.platform === undefined) {
-    form.append("platform_name", "")
-  } else {
-    form.append("platform", file.platform.id)
-  }
+  form.append("user_note", file.user_note || "")
 
   return jsonFetch<Validation>(urls.file, {
     method: "POST",

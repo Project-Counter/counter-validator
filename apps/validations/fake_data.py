@@ -1,7 +1,7 @@
 import factory.fuzzy
 import faker
 from core.fake_data import UserFactory
-from counter.fake_data import COP_VERSIONS, REPORT_TYPE_CODES, PlatformFactory
+from counter.fake_data import COP_VERSIONS, REPORT_TYPE_CODES
 from counter.logic.dates import month_end
 
 from validations.enums import SeverityLevel
@@ -14,11 +14,7 @@ class ValidationCoreFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ValidationCore
 
-    platform = factory.SubFactory(PlatformFactory)
-    platform_name = factory.lazy_attribute(
-        lambda o: o.platform.name if o.platform else fake.company()
-    )
-    validation_result = SeverityLevel.NOTICE  # factory.fuzzy.FuzzyChoice(SeverityLevel.values)
+    validation_result = SeverityLevel.NOTICE
 
 
 class ValidationFactory(factory.django.DjangoModelFactory):

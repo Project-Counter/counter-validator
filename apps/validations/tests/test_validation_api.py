@@ -5,7 +5,6 @@ from uuid import UUID, uuid4
 import factory
 import pytest
 from core.fake_data import UserFactory
-from counter.fake_data import PlatformFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils.timezone import now
@@ -30,7 +29,7 @@ class TestFileValidationAPI:
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("validation-file"),
-                data={"file": file, "platform_name": "test"},
+                data={"file": file, "user_note": "test"},
                 format="multipart",
             )
             p.assert_called_once_with(UUID(res.json()["id"]))
@@ -38,7 +37,7 @@ class TestFileValidationAPI:
         assert res.json()["filename"] == filename
         val = Validation.objects.select_related("core").get()
         assert val.filename == filename
-        assert val.core.platform_name == "test"
+        assert val.user_note == "test"
         assert str(val.pk) == res.json()["id"]
         assert (
             res.json()["expiration_date"][:16]
@@ -70,47 +69,6 @@ class TestFileValidationAPI:
         assert res.status_code == 400
         assert "Max file size exceeded" in res.json()["file"][0]
 
-    @pytest.mark.parametrize(
-        ["platform_name", "platform_id", "exp_name"],
-        [
-            ("test", None, "test"),
-            ("test", "12345678-1234-5678-1234-567812345678", "FooBar"),
-            ("", "12345678-1234-5678-1234-567812345678", "FooBar"),
-            ("", None, ""),
-        ],
-    )
-    def test_create_with_platform_name_and_id(
-        self, client_authenticated_user, platform_name, platform_id, exp_name
-    ):
-        """
-        Test different combinations of platform_name and platform_id to make sure that the
-        platform_name is set correctly:
-
-        * if only platform_name is set, it should be used
-        * if both are set, platform_name should be taken from the platform object
-        * if only platform_id is set, platform_name should also be taken from the platform object
-        """
-        # create a platform object - it is there for every version of the test
-        PlatformFactory(id="12345678-1234-5678-1234-567812345678", name="FooBar")
-        file = SimpleUploadedFile("tr.json", content=b"xxx")
-        pl_data = {"platform_name": platform_name}
-        if platform_id:
-            pl_data["platform"] = platform_id
-        with patch("validations.tasks.validate_file.delay_on_commit") as p:
-            res = client_authenticated_user.post(
-                reverse("validation-file"),
-                data={"file": file, **pl_data},
-                format="multipart",
-            )
-            p.assert_called_once_with(UUID(res.json()["id"]))
-        assert res.status_code == 201
-        val = Validation.objects.select_related("core").get()
-        assert val.core.platform_name == exp_name
-        if platform_id:
-            assert str(val.core.platform_id) == platform_id
-        else:
-            assert val.core.platform_id is None
-
     def test_validation_list(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
     ):
@@ -127,10 +85,9 @@ class TestFileValidationAPI:
             assert "filename" in first
             assert "file_url" in first
             assert "status" in first
-            assert "platform_name" in first
+            assert "user_note" in first
             assert "validation_result" in first
             assert "created" in first
-            assert "platform" in first
             assert "result_data" not in first
             assert "error_message" in first
             assert "file_size" in first
@@ -163,10 +120,9 @@ class TestFileValidationAPI:
             assert "filename" in data
             assert "file_url" in data
             assert "status" in data
-            assert "platform_name" in data
+            assert "user_note" in data
             assert "validation_result" in data
             assert "created" in data
-            assert "platform" in data
             assert "result_data" in data
             assert "error_message" in data
             assert "file_size" in data
@@ -212,7 +168,7 @@ class TestFileValidationAPI:
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_with_api_key.post(
                 reverse("validation-file"),
-                data={"file": file, "platform_name": "test"},
+                data={"file": file, "user_note": "test"},
                 format="multipart",
             )
             p.assert_called_once_with(UUID(res.json()["id"]))
@@ -220,7 +176,7 @@ class TestFileValidationAPI:
         assert res.json()["filename"] == filename
         val = Validation.objects.select_related("core").get()
         assert val.filename == filename
-        assert val.core.platform_name == "test"
+        assert val.user_note == "test"
         assert str(val.pk) == res.json()["id"]
         assert val.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
@@ -362,7 +318,7 @@ class TestFileValidationAPI:
             "expiration_date",
             "file_size",
             "filename",
-            "platform_name",
+            "user_note",
             "report_code",
             "status",
             "validation_result",

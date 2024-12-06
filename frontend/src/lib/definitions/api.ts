@@ -102,8 +102,6 @@ export type ValidationBase = {
   status: Status
   created: string
   expiration_date: string
-  platform: string
-  platform_name: string
   error_message: string
   stats: Record<SeverityLevel, number>
 }
@@ -134,6 +132,7 @@ export type Validation = {
   requested_begin_date: string | null
   requested_end_date: string | null
   public_id: string | null
+  user_note: string | null
 } & ValidationBase
 
 export type ValidationDetail = Validation & {

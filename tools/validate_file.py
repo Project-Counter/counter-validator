@@ -9,30 +9,16 @@ from utils import create_arg_parser, make_request, validate_args
 if __name__ == "__main__":
     parser = create_arg_parser(__doc__)
     parser.add_argument("filename", help="Name of the file to upload for validation")
-    parser.add_argument("--platform-name", "-p", help="Name of the platform to store in the record")
-    parser.add_argument(
-        "--platform-id",
-        "-i",
-        help="ID of the platform to store in the record - should be a UUID string from the COUNTER "
-        "registry",
-    )
+    parser.add_argument("--note", "-n", help="Free text note to attach to the validation")
 
     args = parser.parse_args()
     # common validation of the arguments
     validate_args(args)
 
-    # validations specific to this script
-    if args.platform_name and args.platform_id:
-        raise ValueError("Please provide either --platform-name or --platform-id, not both")
-
-    print(
-        f"Uploading {args.filename} "
-        f"with platform {args.platform_name} "
-        f"for validation to {args.validator_url}..."
-    )
+    print(f"Uploading {args.filename} for validation to {args.validator_url}...")
 
     with open(args.filename, "rb") as f:
-        data = {"platform_name": args.platform_name, "platform": args.platform_id}
+        data = {"user_note": args.note or ""}
         response = make_request(
             args.validator_url,
             "/api/v1/validations/validation/file/",

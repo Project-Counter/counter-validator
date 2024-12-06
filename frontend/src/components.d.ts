@@ -25,6 +25,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SeverityLevelChip: typeof import('./components/SeverityLevelChip.vue')['default']
+    ShortenText: typeof import('./components/ShortenText.vue')['default']
     SimplePie: typeof import('./components/SimplePie.vue')['default']
     SplitStatsVisualization: typeof import('./components/SplitStatsVisualization.vue')['default']
     StatsCard: typeof import('./components/StatsCard.vue')['default']

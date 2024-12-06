@@ -72,8 +72,6 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
             .defer("result_data")
             .order_by("-core__created")
         )
-        if self.action not in ("sushi", "file"):
-            qs = qs.select_related("core__platform")
         if self.action == "detail":
             qs = qs.defer(None)
         return qs
@@ -159,7 +157,7 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
     ]
 
     def get_queryset(self):
-        return ValidationCore.objects.select_related("platform").order_by("-created")
+        return ValidationCore.objects.order_by("-created")
 
     @action(detail=False, methods=("GET",))
     def stats(self, request):

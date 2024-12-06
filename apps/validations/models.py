@@ -7,7 +7,6 @@ from uuid import uuid4
 
 from core.mixins import CreatedUpdatedMixin, UUIDPkMixin
 from core.models import User
-from counter.models import Platform
 from django.conf import settings
 from django.db import models
 from django.db.models import Case, F, Q, Value, When
@@ -71,19 +70,6 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     user_email_checksum = models.CharField(max_length=2 * settings.HASHING_DIGEST_SIZE)
     api_key_prefix = models.CharField(max_length=8, blank=True)
     expiration_date = models.DateTimeField(null=True, blank=True)
-
-    platform = models.ForeignKey(
-        Platform,
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="If the platform is in the registry, this can link it",
-    )
-    platform_name = models.CharField(
-        max_length=150,
-        blank=True,
-        help_text="Contains the platform name supplied by the user. If `platform` is set, "
-        "this is a copy of the platform name",
-    )
 
     validation_result = models.PositiveSmallIntegerField(
         choices=SeverityLevel,
@@ -268,8 +254,6 @@ class Validation(UUIDPkMixin, models.Model):
         cls,
         user: User,
         file: IO,
-        platform: Platform | None = None,
-        platform_name: str = "",
         user_note: str = "",
         api_key: APIKey | None = None,
     ) -> "Validation":
@@ -277,8 +261,6 @@ class Validation(UUIDPkMixin, models.Model):
         api_key_prefix = api_key.prefix if api_key else ""
         core = ValidationCore.objects.create(
             status=ValidationStatus.WAITING,
-            platform=platform,
-            platform_name=platform_name,
             file_size=file_size,
             file_checksum=file_checksum,
             user_email_checksum=checksum_string(user.email),

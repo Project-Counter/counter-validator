@@ -103,6 +103,14 @@
       </v-tooltip>
     </template>
 
+    <template #item.user_note="{ item }">
+      <ShortenText
+        v-if="item.user_note"
+        :text="item.user_note"
+        :length="20"
+      />
+    </template>
+
     <template #top>
       <ValidationFilterSet
         v-model:validation-result-filter="validationResultFilter"
@@ -145,7 +153,7 @@ const headers: ReadonlyHeaders = [
   { key: "api_key_prefix", title: "Submission method", sortable: false },
   { key: "filename", title: "Filename" },
   { key: "file_size", title: "File size", align: "end" },
-  { key: "platform_name", title: "Platform" },
+  { key: "user_note", title: "Note" },
   { key: "cop_version", title: "COP version" },
   { key: "report_code", title: "Report id" },
   { key: "validation_result", title: "Validation result" },

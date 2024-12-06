@@ -1,4 +1,3 @@
-from counter.models import Platform
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -25,10 +24,6 @@ class ValidationSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(read_only=True, source="core.created")
     expiration_date = serializers.DateTimeField(read_only=True, source="core.expiration_date")
 
-    platform = serializers.SlugRelatedField(
-        read_only=True, slug_field="name", source="core.platform"
-    )
-    platform_name = serializers.CharField(read_only=True, source="core.platform_name")
     error_message = serializers.CharField(read_only=True, source="core.error_message")
     file_size = serializers.IntegerField(read_only=True, source="core.file_size")
     cop_version = serializers.CharField(read_only=True, source="core.cop_version")
@@ -67,8 +62,6 @@ class ValidationSerializer(serializers.ModelSerializer):
             "expiration_date",
             "public_id",
             "filename",
-            "platform",
-            "platform_name",
             "validation_result",
             "error_message",
             "file_size",
@@ -77,6 +70,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "stats",
             "api_key_prefix",
             "data_source",
+            "user_note",
             # optional fields from CounterAPIValidation
             "credentials",
             "url",
@@ -115,8 +109,6 @@ class FileValidationCreateSerializer(serializers.Serializer):
     """
 
     file = serializers.FileField()
-    platform_name = serializers.CharField(required=False)
-    platform = serializers.PrimaryKeyRelatedField(queryset=Platform.objects.all(), required=False)
     user_note = serializers.CharField(required=False)
 
     def validate_file(self, value):
@@ -130,13 +122,10 @@ class FileValidationCreateSerializer(serializers.Serializer):
         return value
 
     def create(self, validated_data) -> Validation:
-        platform = validated_data.get("platform")
         api_key = getattr(self.context["request"], "api_key", None)
         return Validation.create_from_file(
             user=self.context["request"].user,
             file=validated_data["file"],
-            platform=platform,
-            platform_name=platform.name if platform else validated_data.get("platform_name", ""),
             user_note=validated_data.get("user_note", ""),
             api_key=api_key,
         )
@@ -192,7 +181,6 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
 
 
 class ValidationCoreSerializer(serializers.ModelSerializer):
-    platform_name = serializers.CharField(source="platform.name", read_only=True)
     validation_result = serializers.CharField(
         read_only=True, source="get_validation_result_display"
     )
@@ -205,8 +193,6 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
             "cop_version",
             "report_code",
             "status",
-            "platform",
-            "platform_name",
             "validation_result",
             "created",
             "file_size",

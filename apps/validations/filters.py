@@ -171,7 +171,6 @@ class ValidationOrderByFilter(OrderByFilter):
     attr_to_prefix = {
         "file_size": "core__",
         "created": "core__",
-        "platform_name": "core__",
         "validation_result": "core__",
         "expiration_date": "core__",
         "report_code": "core__",

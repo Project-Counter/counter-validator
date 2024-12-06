@@ -29,8 +29,6 @@ class TestValidationCoreAPI:
             # check fields that should be there
             assert "id" in first
             assert "status" in first
-            assert "platform" in first
-            assert "platform_name" in first
             assert "validation_result" in first
             assert "created" in first
             assert "cop_version" in first
@@ -118,7 +116,6 @@ class TestValidationCoreAPI:
             "cop_version",
             "created",
             "file_size",
-            "platform_name",
             "report_code",
             "status",
             "validation_result",

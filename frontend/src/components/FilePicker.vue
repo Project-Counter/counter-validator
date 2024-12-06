@@ -86,32 +86,17 @@
             :cols="12"
             :sm="6"
           >
-            <v-combobox
-              v-model="item.platform"
+            <v-text-field
+              v-model="item.user_note"
               append-inner-icon="mdi-content-copy"
               auto-select-first="exact"
               clearable
               density="compact"
               hide-details
-              item-subtitle="abbrev"
-              item-title="name"
-              item-value="id"
-              :items="platforms"
-              label="Platform"
-              :loading
-              persistent-clear
-              prepend-inner-icon="mdi-magnify"
-              return-object
+              label="Note"
               :disabled="uploading"
-              @click:append-inner="copyPlatform(item)"
+              @click:append-inner="copyNote(item)"
             />
-            <ul
-              v-if="index == 0"
-              class="ml-4 text-caption text-medium-emphasis"
-            >
-              <li>optional, type to search or write custom text for yourself</li>
-              <li>click <v-icon icon="mdi-content-copy" /> to copy to all other files</li>
-            </ul>
           </v-col>
         </v-row>
       </v-sheet>
@@ -146,7 +131,6 @@
 
 <script setup lang="ts">
 import { FUpload } from "@/lib/definitions/upload"
-import { loadPlatforms } from "@/lib/http/platform"
 import { validateFile } from "@/lib/http/validation"
 import { filesize } from "filesize"
 
@@ -154,22 +138,11 @@ const model = defineModel<FUpload[]>({ required: true })
 
 const inputRef = ref()
 const overlay = ref(false)
-const platforms = shallowRef()
-const loading = ref(true)
 const uploading = ref(false)
 const justUploading = ref<FUpload | null>(null)
 const router = useRouter()
 const anyError = ref(false)
 
-async function load() {
-  loading.value = true
-  try {
-    let recs = await loadPlatforms()
-    platforms.value = recs.sort((a, b) => a.name.localeCompare(b.name))
-  } finally {
-    loading.value = false
-  }
-}
 function addFiles(files: Iterable<File>) {
   for (const file of files) {
     if (!model.value.some((f) => f.file.name === file.name)) {
@@ -188,9 +161,9 @@ function onDrop(e: DragEvent) {
   overlay.value = false
   addFiles(e.dataTransfer?.files ?? [])
 }
-function copyPlatform(item: FUpload) {
+function copyNote(item: FUpload) {
   for (const rec of model.value) {
-    rec.platform = item.platform
+    rec.user_note = item.user_note
   }
 }
 
@@ -218,6 +191,4 @@ async function startUploading() {
     }
   }
 }
-
-load().then()
 </script>
