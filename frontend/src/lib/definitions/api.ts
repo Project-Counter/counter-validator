@@ -83,7 +83,7 @@ export enum Status {
 export const statusMap = new Map<Status, string>([
   [Status.WAITING, "Waiting"],
   [Status.RUNNING, "Running"],
-  [Status.SUCCESS, "Success"],
+  [Status.SUCCESS, "Finished"],
   [Status.FAILURE, "Failure"],
 ])
 

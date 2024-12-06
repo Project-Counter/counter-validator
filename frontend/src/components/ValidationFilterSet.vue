@@ -86,7 +86,7 @@
       <v-select
         v-model="reportCodeFilter"
         :items="reportCodes"
-        label="Report code"
+        label="Report id"
         multiple
         clearable
       />

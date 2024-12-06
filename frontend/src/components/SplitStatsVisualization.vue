@@ -19,7 +19,7 @@
         <DoughnutChart
           v-if="byReportCode"
           :data="byReportCode"
-          title="By report code"
+          title="By report id"
         />
       </v-col>
       <v-col v-bind="colSizes">

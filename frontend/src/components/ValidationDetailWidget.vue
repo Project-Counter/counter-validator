@@ -7,7 +7,7 @@
           color="info"
           icon="mdi-information"
         >
-          This is a public view of the validation. Some information is hidden.
+          This is a public view of the validation. Some information may be hidden.
         </v-alert>
       </v-col>
     </v-row>

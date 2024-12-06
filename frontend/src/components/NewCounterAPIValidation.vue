@@ -128,7 +128,7 @@
           >
             <v-select
               v-model="reportCode"
-              label="Report code"
+              label="Report id"
               :items="reportCodes"
             ></v-select>
           </v-col>

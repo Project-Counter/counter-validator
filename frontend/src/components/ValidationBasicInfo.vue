@@ -35,7 +35,14 @@
       <tr v-if="!publicView">
         <th>Visibility</th>
         <td>
+          <v-icon
+            color="subdued"
+            size="small"
+            class="pb-1"
+            >mdi-{{ publicId ? "eye" : "eye-off" }}</v-icon
+          >
           {{ publicId ? "Public" : "Private" }}
+
           <v-tooltip
             v-if="publicId"
             bottom
@@ -45,15 +52,16 @@
               <v-btn
                 v-bind="props"
                 size="x-small"
-                class="ml-2"
+                class="ml-2 mb-1"
+                color="error"
                 @click="unpublish"
               >
-                Unpublish
+                Hide
               </v-btn>
             </template>
-            Unpublishing the validation result will invalidate the unique link which allows
-            read-only access to the validation result. Unpublishing and re-publishing a result will
-            generate a new unique link.
+            Hiding the validation result will invalidate the unique link which allows read-only
+            access to the validation result. Hiding and re-sharing the result will generate a new
+            unique link.
           </v-tooltip>
 
           <v-tooltip
@@ -65,15 +73,16 @@
               <v-btn
                 v-bind="props"
                 size="x-small"
-                class="ml-2"
+                class="ml-2 mb-1"
+                color="success"
                 @click="publish"
               >
-                Publish
+                Share
               </v-btn>
             </template>
-            Publishing a validation result will create a unique link which will add read-only access
-            to the validation result to anyone with the link. Published result can be unpublished at
-            any time.
+            Sharing a validation result will create a unique link which will add read-only access to
+            the validation result to anyone with the link. Shared result can be hidden again at any
+            time. Shared validations do not show the used COUNTER API credentials.
           </v-tooltip>
 
           <router-link

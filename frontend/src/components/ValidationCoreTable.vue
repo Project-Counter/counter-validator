@@ -80,7 +80,7 @@ const headers: ReadonlyHeaders = [
   { key: "created", title: "Time" },
   { key: "status", title: "Status", width: 1 },
   { key: "cop_version", title: "COP version" },
-  { key: "report_code", title: "Report code" },
+  { key: "report_code", title: "Report id" },
   { key: "platform_name", title: "Platform" },
   { key: "validation_result", title: "Validation Result" },
   { key: "file_size", title: "File size", align: "end" },
