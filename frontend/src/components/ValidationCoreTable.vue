@@ -19,7 +19,15 @@
     </template>
 
     <template #item.validation_result="{ item }">
-      <SeverityLevelChip :severity="item.validation_result" />
+      <v-tooltip>
+        <template #activator="{ props }">
+          <SeverityLevelChip
+            :severity="item.validation_result"
+            v-bind="props"
+          />
+        </template>
+        <StatsTableSimple :stats="item.stats" />
+      </v-tooltip>
     </template>
 
     <template #item.file_size="{ item }">
@@ -31,10 +39,6 @@
     </template>
 
     <template #item.duration="{ item }"> {{ Math.round(1000 * item.duration) }} ms </template>
-
-    <template #item.stats="{ item }">
-      <StatsPie :item="item" />
-    </template>
 
     <template #top>
       <ValidationFilterSet
@@ -70,7 +74,6 @@ const headers: ReadonlyHeaders = [
   { key: "file_size", title: "File size", align: "end" },
   { key: "used_memory", title: "Used memory", align: "end" },
   { key: "duration", title: "Duration", align: "end" },
-  { key: "stats", title: "Stats", align: "end" },
 ]
 
 const { url, params, filters } = usePaginatedAPI(urls.coreList)

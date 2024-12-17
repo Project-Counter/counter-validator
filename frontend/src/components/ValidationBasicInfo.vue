@@ -93,6 +93,10 @@
           >
         </td>
       </tr>
+      <tr>
+        <th>Note</th>
+        <td>{{ validation.user_note }}</td>
+      </tr>
     </tbody>
   </table>
 

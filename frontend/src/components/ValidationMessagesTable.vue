@@ -59,6 +59,13 @@
         </v-col>
       </v-row>
     </template>
+
+    <template #item.severity="{ item }">
+      <SeverityLevelChip
+        :severity="item.severity"
+        variant="text"
+      />
+    </template>
   </v-data-table-server>
 </template>
 

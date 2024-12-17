@@ -25,7 +25,7 @@
       />
     </v-col>
 
-    <v-col>
+    <v-col cols="auto">
       <v-select
         v-model="validationResultFilter"
         :items="severityLevels"
@@ -34,6 +34,7 @@
         clearable
         hide-details
         min-width="16rem"
+        max-width="24rem"
       >
         <template #selection="{ item }">
           <v-icon
@@ -87,11 +88,12 @@
     <v-col v-if="showTextFilter">
       <v-text-field
         v-model="textFilter"
-        label="User note"
+        label="Note"
         hide-details
         clearable
         append-inner-icon="mdi-magnify"
         min-width="12rem"
+        max-width="24rem"
       />
     </v-col>
   </v-row>

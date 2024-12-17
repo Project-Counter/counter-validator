@@ -111,11 +111,19 @@
 
     <v-tabs-window-item value="statistics">
       <v-container>
-        <ValidationMessageStatsTable
-          v-if="validation"
-          :validation="validation"
-          @select-message="selectMessage"
-        />
+        <v-row>
+          <v-col v-bind="colAttrs">
+            <v-card v-bind="cardAttrs">
+              <v-card-text>
+                <ValidationMessageStatsTable
+                  v-if="validation"
+                  :validation="validation"
+                  @select-message="selectMessage"
+                />
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-container>
     </v-tabs-window-item>
 
@@ -123,12 +131,16 @@
       value="messages"
       eager
     >
-      <v-container>
-        <ValidationMessagesTable
-          v-if="validation"
-          ref="messagesComponent"
-          :validation="validation"
-        />
+      <v-container fluid>
+        <v-card v-bind="cardAttrs">
+          <v-card-text>
+            <ValidationMessagesTable
+              v-if="validation"
+              ref="messagesComponent"
+              :validation="validation"
+            />
+          </v-card-text>
+        </v-card>
       </v-container>
     </v-tabs-window-item>
   </v-tabs-window>

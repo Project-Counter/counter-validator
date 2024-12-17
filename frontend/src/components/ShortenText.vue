@@ -2,6 +2,7 @@
   <v-tooltip
     v-if="isClamped"
     bottom
+    max-width="600px"
   >
     <template #activator="{ props }">
       <span v-bind="props">{{ clampedText }}&hellip;</span>
