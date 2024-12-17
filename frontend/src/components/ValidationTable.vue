@@ -118,6 +118,8 @@
         v-model:report-code-filter="reportCodeFilter"
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
+        v-model:published-filter="publishedFilter"
+        class="pb-8"
       />
     </template>
   </v-data-table-server>
@@ -165,8 +167,14 @@ const headers: ReadonlyHeaders = [
 const { url, params, filters } = usePaginatedAPI(urls.list)
 const totalCount = ref(0)
 
-const { validationResultFilter, copVersionFilter, reportCodeFilter, endpointFilter, sourceFilter } =
-  useValidationFilters()
+const {
+  validationResultFilter,
+  copVersionFilter,
+  reportCodeFilter,
+  endpointFilter,
+  sourceFilter,
+  publishedFilter,
+} = useValidationFilters()
 
 watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
@@ -174,6 +182,8 @@ watchEffect(() => {
   filters.report_code = reportCodeFilter.value.join(",")
   filters.api_endpoint = endpointFilter.value.join(",")
   filters.data_source = sourceFilter.value.join(",")
+  if (publishedFilter.value !== null) filters.published = publishedFilter.value.toString()
+  else delete filters.published
   loadValidations()
 })
 

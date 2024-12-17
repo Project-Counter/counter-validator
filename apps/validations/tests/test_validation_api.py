@@ -309,6 +309,18 @@ class TestFileValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
+    @pytest.mark.parametrize(["published", "expected_count"], [(True, 1), (False, 3), (None, 4)])
+    def test_list_filters_by_published(
+        self, client_authenticated_user, normal_user, published, expected_count
+    ):
+        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create(user=normal_user, public_id=uuid4())
+        res = client_authenticated_user.get(
+            reverse("validation-list"), {"published": published} if published is not None else {}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
     @pytest.mark.parametrize("desc", [True, False])
     @pytest.mark.parametrize(
         "attr",
@@ -324,9 +336,7 @@ class TestFileValidationAPI:
             "validation_result",
         ],
     )
-    def test_list_filters_order_by_filesize(
-        self, client_authenticated_user, normal_user, desc, attr
-    ):
+    def test_list_filters_order_by(self, client_authenticated_user, normal_user, desc, attr):
         ValidationFactory.create_batch(3, user=normal_user)
         res = client_authenticated_user.get(
             reverse("validation-list"), {"order_by": attr, "order_desc": desc}

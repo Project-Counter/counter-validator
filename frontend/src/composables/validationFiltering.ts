@@ -14,6 +14,7 @@ export function useValidationFilters() {
   const reportCodeFilter = ref<ReportCode[]>([])
   const endpointFilter = ref<CounterAPIEndpoint[]>([])
   const sourceFilter = ref<DataSource[]>([])
+  const publishedFilter = ref<boolean | null>(null)
 
   // filters
   const severityLevels = [
@@ -45,6 +46,7 @@ export function useValidationFilters() {
     reportCodeFilter,
     endpointFilter,
     sourceFilter,
+    publishedFilter,
     severityLevels,
     dataSources,
     reportCodes,

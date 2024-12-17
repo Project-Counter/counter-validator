@@ -228,7 +228,7 @@ class Validation(UUIDPkMixin, models.Model):
     file = models.FileField(upload_to=validation_upload_to, null=True)
     result_data = models.JSONField(null=True)
     user_note = models.TextField(blank=True)
-    public_id = models.UUIDField(null=True, blank=True)
+    public_id = models.UUIDField(null=True, blank=True, unique=True)
 
     objects = ValidationQuerySet.as_manager()
 

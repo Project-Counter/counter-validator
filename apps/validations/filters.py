@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 # base filter classes
 
 
+def is_truthy(value: str | None, extra_values=None):
+    return value in ("true", "1", "True") + (extra_values or ())
+
+
 class OrderByFilter(filters.BaseFilterBackend):
     """
     A filter backend that allows ordering by fields.
@@ -28,7 +32,7 @@ class OrderByFilter(filters.BaseFilterBackend):
         ordering = request.query_params.get("order_by", None)
         if ordering:
             ordering = self.attr_to_prefix.get(ordering, "") + ordering
-            if request.query_params.get("order_desc", None) in ("true", "1", "desc", "True"):
+            if is_truthy(request.query_params.get("order_desc", None), extra_values=("desc",)):
                 ordering = f"-{ordering}"
             return queryset.order_by(ordering)
         return queryset
@@ -177,3 +181,18 @@ class ValidationOrderByFilter(OrderByFilter):
         "cop_version": "core__",
         "status": "core__",
     }
+
+
+class ValidationPublishedFilter(filters.BaseFilterBackend):
+    """
+    A filter backend that allows filtering by published status.
+    """
+
+    def filter_queryset(self, request, queryset, view):
+        if published := request.query_params.get("published"):
+            published = is_truthy(published)
+        if published:
+            return queryset.filter(public_id__isnull=False)
+        elif published is False:
+            return queryset.filter(public_id__isnull=True)
+        return queryset

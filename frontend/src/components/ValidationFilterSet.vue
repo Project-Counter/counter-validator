@@ -2,9 +2,24 @@
   <v-row>
     <v-col
       cols="12"
-      sm="6"
-      md="4"
+      sm="4"
+      md="3"
       lg="2"
+      xl="1"
+    >
+      <v-select
+        v-model="publishedFilter"
+        :items="booleanOptions"
+        label="Shared"
+        hide-details
+      />
+    </v-col>
+
+    <v-col
+      cols="12"
+      sm="8"
+      md="4"
+      lg="3"
       xl="2"
     >
       <v-select
@@ -13,14 +28,16 @@
         label="Data source"
         multiple
         clearable
+        hide-details
       />
     </v-col>
 
     <v-col
       cols="12"
-      sm="6"
+      sm="8"
       md="5"
-      lg="3"
+      lg="4"
+      xl="3"
       xxl="2"
     >
       <v-select
@@ -29,6 +46,7 @@
         label="Validation result"
         multiple
         clearable
+        hide-details
       >
         <template #selection="{ item }">
           <v-icon
@@ -45,9 +63,10 @@
 
     <v-col
       cols="12"
-      :sm="true"
+      sm="4"
       md="3"
       lg="2"
+      xl="2"
       xxl="1"
     >
       <v-select
@@ -56,12 +75,13 @@
         label="CoP version"
         multiple
         clearable
+        hide-details
       />
     </v-col>
 
     <v-col
       cols="12"
-      sm="5"
+      sm="6"
       md="4"
       lg="3"
       xl="2"
@@ -72,23 +92,25 @@
         label="Endpoint"
         multiple
         clearable
+        hide-details
       />
     </v-col>
 
     <v-col
       cols="12"
-      :sm="true"
+      sm="6"
       md="3"
-      lg="2"
+      lg="3"
       xl="2"
       xxl="1"
     >
       <v-select
         v-model="reportCodeFilter"
         :items="reportCodes"
-        label="Report id"
+        label="Report ID"
         multiple
         clearable
+        hide-details
       />
     </v-col>
   </v-row>
@@ -99,41 +121,21 @@ import { CoP, copVersions, counterAPIEndpoints, ReportCode } from "@/lib/definit
 import {
   CounterAPIEndpoint,
   DataSource,
-  dataSources as dataSourcesRaw,
   SeverityLevel,
   severityLevelColorMap,
   severityLevelIconMap,
 } from "@/lib/definitions/api"
+import { useValidationFilters } from "@/composables/validationFiltering"
+import { booleanOptions } from "@/lib/options"
 
 const validationResultFilter = defineModel<SeverityLevel[]>("validationResultFilter")
 const copVersionFilter = defineModel<CoP[]>("copVersionFilter")
 const reportCodeFilter = defineModel<ReportCode[]>("reportCodeFilter")
 const endpointFilter = defineModel<CounterAPIEndpoint[]>("endpointFilter")
 const sourceFilter = defineModel<DataSource[]>("sourceFilter")
+const publishedFilter = defineModel<boolean | null>("publishedFilter")
 
-// filters
-const severityLevels = [
-  ...severityLevelIconMap.keys().map((k) => ({
-    value: k,
-    title: k,
-    props: {
-      "append-icon": "mdi-" + severityLevelIconMap.get(k),
-      "base-color": severityLevelColorMap.get(k),
-    },
-  })),
-]
-
-const dataSources = dataSourcesRaw.map((ds) => {
-  return {
-    value: ds,
-    title: ds === "file" ? "File" : "COUNTER API",
-    props: {
-      "append-icon": ds === "file" ? "mdi-file-outline" : "mdi-cloud-outline",
-    },
-  }
-})
-
-const reportCodes = Object.values(ReportCode)
+const { severityLevels, dataSources, reportCodes } = useValidationFilters()
 </script>
 
 <style scoped></style>
