@@ -119,6 +119,7 @@
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
         v-model:published-filter="publishedFilter"
+        show-published-filter
         class="pb-8"
       />
     </template>

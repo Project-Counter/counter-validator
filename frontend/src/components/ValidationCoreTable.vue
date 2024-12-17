@@ -43,6 +43,7 @@
         v-model:report-code-filter="reportCodeFilter"
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
+        class="pb-8"
       />
     </template>
   </v-data-table-server>

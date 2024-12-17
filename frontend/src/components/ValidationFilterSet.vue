@@ -1,6 +1,7 @@
 <template>
   <v-row>
     <v-col
+      v-if="showPublishedFilter"
       cols="12"
       sm="4"
       md="3"
@@ -133,7 +134,8 @@ const copVersionFilter = defineModel<CoP[]>("copVersionFilter")
 const reportCodeFilter = defineModel<ReportCode[]>("reportCodeFilter")
 const endpointFilter = defineModel<CounterAPIEndpoint[]>("endpointFilter")
 const sourceFilter = defineModel<DataSource[]>("sourceFilter")
-const publishedFilter = defineModel<boolean | null>("publishedFilter")
+const publishedFilter = defineModel<boolean | null | undefined>("publishedFilter")
+const showPublishedFilter = defineModel<boolean>("showPublishedFilter")
 
 const { severityLevels, dataSources, reportCodes } = useValidationFilters()
 </script>
