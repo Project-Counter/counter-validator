@@ -7,13 +7,10 @@ from validations.fake_data import ValidationCoreFactory
 
 @pytest.mark.django_db
 class TestValidationCoreAPI:
-    def test_access(self, client):
+    def test_access(self, client_and_status_code_admin_only):
+        client, status_code = client_and_status_code_admin_only
         res = client.get(reverse("validation-core-list"))
-        assert res.status_code == 403
-
-    def test_access_admin(self, admin_client):
-        res = admin_client.get(reverse("validation-core-list"))
-        assert res.status_code == 200
+        assert res.status_code == status_code
 
     @pytest.mark.parametrize("page_size", [5, 10, 20])
     def test_list(self, admin_client, django_assert_max_num_queries, page_size):

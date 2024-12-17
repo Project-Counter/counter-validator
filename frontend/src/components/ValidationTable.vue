@@ -13,12 +13,11 @@
     :show-select="props.selectable"
     item-value="id"
     :items-length="totalCount"
-    @update:options="loadValidations"
   >
     <template #item.status="{ item }">
       <router-link
         v-if="item.id && item.status === Status.SUCCESS"
-        :to="`validation/${item.id}/`"
+        :to="`/validation/${item.id}/`"
       >
         <ValidationStatus :validation="item" />
       </router-link>
@@ -68,7 +67,7 @@
     </template>
 
     <template #item.filename="{ item }">
-      <router-link :to="'validation/' + item.id + '/'">
+      <router-link :to="'/validation/' + item.id + '/'">
         {{ item.filename || "Unknown" }}
       </router-link>
     </template>
@@ -111,6 +110,18 @@
       />
     </template>
 
+    <template #item.user="{ item }">
+      <span
+        v-if="item.user"
+        class="text-caption"
+        >{{
+          item.user.first_name || item.user.last_name
+            ? `${item.user.first_name} ${item.user.last_name}`
+            : item.user.email
+        }}
+      </span>
+    </template>
+
     <template #top>
       <ValidationFilterSet
         v-model:validation-result-filter="validationResultFilter"
@@ -133,16 +144,18 @@ import { Status, Validation } from "@/lib/definitions/api"
 import { getValidation, getValidationsFromUrl, urls } from "@/lib/http/validation"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
-import type { VDataTable } from "vuetify/components"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import debounce from "lodash/debounce"
+import { DataTableHeader } from "@/lib/vuetifyTypes"
 
 const props = withDefaults(
   defineProps<{
     selectable?: boolean
+    admin?: boolean
   }>(),
   {
     selectable: false,
+    admin: false,
   },
 )
 
@@ -151,9 +164,7 @@ const selected = defineModel<string[]>("selected")
 const items = ref<Validation[]>([])
 let loading = ref(false)
 
-type ReadonlyHeaders = VDataTable["$props"]["headers"]
-
-const headers: ReadonlyHeaders = [
+let headers: DataTableHeader[] = [
   { key: "status", title: "Status", width: 1 },
   { key: "data_source", title: "Data source", sortable: false },
   { key: "api_key_prefix", title: "Submission method", sortable: false },
@@ -167,8 +178,12 @@ const headers: ReadonlyHeaders = [
   { key: "expiration_date", title: "Expiration" },
 ]
 
+if (props.admin) {
+  headers.splice(2, 0, { key: "user", title: "User", sortable: false })
+}
+
 // validations list
-const { url, params, filters } = usePaginatedAPI(urls.list)
+const { url, params, filters } = usePaginatedAPI(props.admin ? urls.adminList : urls.list)
 const totalCount = ref(0)
 
 const {
@@ -236,7 +251,7 @@ async function checkUnfinished() {
 // start
 
 async function start() {
-  await loadValidations()
+  // validations will be loaded by watchEffect above
   await checkUnfinished()
 }
 

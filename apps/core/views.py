@@ -4,10 +4,12 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from . import serializers
 from .models import UserApiKey
+from .serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -33,3 +35,10 @@ class UserApiKeyViewSet(ModelViewSet):
         obj.revoked = True
         obj.save()
         return Response(self.get_serializer(obj).data)
+
+
+class UserDetailView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, **kwargs):
+        return Response(UserSerializer(request.user).data)

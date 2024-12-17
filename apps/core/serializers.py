@@ -17,3 +17,17 @@ class UserApiKeySerializer(serializers.ModelSerializer):
             "expiry_date",
             "has_expired",
         )
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+
+        fields = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "is_validator_admin",
+            "is_superuser",
+        )

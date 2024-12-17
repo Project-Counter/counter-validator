@@ -1,3 +1,4 @@
+from core.serializers import UserSerializer
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -94,6 +95,13 @@ class ValidationDetailSerializer(ValidationSerializer):
 
     class Meta(ValidationSerializer.Meta):
         fields = ValidationSerializer.Meta.fields + ["result_data"]
+
+
+class ValidationWithUserSerializer(ValidationSerializer):
+    user = UserSerializer()
+
+    class Meta(ValidationSerializer.Meta):
+        fields = ValidationSerializer.Meta.fields + ["user"]
 
 
 class PublicValidationDetailSerializer(ValidationDetailSerializer):

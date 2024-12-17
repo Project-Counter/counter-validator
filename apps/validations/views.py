@@ -1,4 +1,4 @@
-from core.permissions import HasUserAPIKey
+from core.permissions import HasUserAPIKey, IsValidatorAdminUser
 from django.db.transaction import atomic
 from django.http import HttpResponseForbidden
 from rest_framework import status
@@ -7,7 +7,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -36,6 +36,7 @@ from validations.serializers import (
     ValidationDetailSerializer,
     ValidationMessageSerializer,
     ValidationSerializer,
+    ValidationWithUserSerializer,
 )
 from validations.tasks import validate_counter_api, validate_file
 
@@ -60,25 +61,55 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         ValidationPublishedFilter,
         SearchFilter,
     ]
-    search_fields = ["user_note"]
+    search_fields = ["user_note", "user__first_name", "user__last_name", "user__email"]
 
     def get_serializer_class(self):
         if self.action == "list":
             return ValidationSerializer
         return ValidationDetailSerializer
 
-    def get_queryset(self):
+    def get_queryset(self, list_all=False):
+        base = self.request.user.validation_set
+        if (self.detail or list_all) and (
+            self.request.user.is_superuser or self.request.user.is_validator_admin
+        ):
+            # admins can see details of all validations, and can also list them all
+            # via a dedicated endpoint (which uses the `list_all` attr)
+            #
+            # but using the normal api, they get list of their own like everybody else
+            base = Validation.objects.all()
         qs = (
-            self.request.user.validation_set.current()
+            base.current()
             .select_related("core")
             .annotate_source()
             .prefetch_related("counterapivalidation")
             .defer("result_data")
             .order_by("-core__created")
         )
-        if self.action == "detail":
+        if self.detail:
             qs = qs.defer(None)
         return qs
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="all",
+        permission_classes=[IsValidatorAdminUser],
+    )
+    def list_all(self, request):
+        """
+        This is an almost one-to-one copy of the list method from `ListModelMixin`, but it passes
+        the `list_all` attribute to `get_queryset`.
+        """
+        queryset = self.filter_queryset(self.get_queryset(list_all=True).select_related("user"))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = ValidationWithUserSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=("POST",), url_path="file")
     @atomic
@@ -148,7 +179,7 @@ class CounterAPIValidationViewSet(ModelViewSet):
 
 
 class ValidationCoreViewSet(ReadOnlyModelViewSet):
-    permission_classes = (IsAdminUser,)
+    permission_classes = [IsValidatorAdminUser]
     serializer_class = ValidationCoreSerializer
     pagination_class = StandardPagination
     filter_backends = [

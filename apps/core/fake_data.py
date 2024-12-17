@@ -10,3 +10,4 @@ class UserFactory(factory.django.DjangoModelFactory):
     last_name = factory.Faker("last_name")
     email = factory.Faker("email")
     is_active = True
+    is_validator_admin = False

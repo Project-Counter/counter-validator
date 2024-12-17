@@ -23,6 +23,12 @@
         />
         <v-list-subheader>Admin</v-list-subheader>
         <v-list-item
+          prepend-icon="mdi-file-multiple"
+          subtitle="Current validations by all users"
+          title="All validations"
+          to="/validation/admin"
+        />
+        <v-list-item
           prepend-icon="mdi-clock"
           subtitle="Past validations by all users"
           title="Validation history"

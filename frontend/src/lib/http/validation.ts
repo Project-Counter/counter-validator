@@ -22,6 +22,7 @@ export const urls = {
   timeStats: "validations/validation-core/time-stats/",
   splitStats: "validations/validation-core/split-stats/",
   publicList: "validations/public/validation/",
+  adminList: "validations/validation/all/",
 }
 
 export async function getValidation(id: string) {

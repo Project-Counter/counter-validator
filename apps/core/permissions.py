@@ -1,6 +1,7 @@
 import typing
 
 from django.http import HttpRequest
+from rest_framework.permissions import BasePermission
 from rest_framework_api_key.permissions import BaseHasAPIKey
 
 from core.models import UserApiKey
@@ -22,3 +23,10 @@ class HasUserAPIKey(BaseHasAPIKey):
             request.api_key = api_key
             return True
         return False
+
+
+class IsValidatorAdminUser(BasePermission):
+    def has_permission(self, request: HttpRequest, view: typing.Any) -> bool:
+        return request.user.is_authenticated and (
+            request.user.is_superuser or request.user.is_validator_admin
+        )

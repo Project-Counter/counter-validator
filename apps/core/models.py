@@ -20,11 +20,17 @@ class UserManager(BaseUserManager):
         return user
 
     def create_user(self, email, password=None, **extra_fields):
+        """
+        Alternative implementation of create_user which does not require username
+        """
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password=None, **extra_fields):
+        """
+        Alternative implementation of create_superuser which does not require username
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -42,6 +48,7 @@ class User(AbstractUser):
     username_validator = None
     username = None
     email = models.EmailField(unique=True)
+    is_validator_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ()

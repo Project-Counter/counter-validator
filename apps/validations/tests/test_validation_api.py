@@ -21,53 +21,12 @@ from validations.models import CounterAPIValidation, Validation, ValidationCore
 
 
 @pytest.mark.django_db
-class TestFileValidationAPI:
-    def test_create(self, client_authenticated_user, settings):
-        settings.VALIDATION_LIFETIME = 1
-        filename = "tr.json"
-        file = SimpleUploadedFile(filename, content=b"xxx")
-        with patch("validations.tasks.validate_file.delay_on_commit") as p:
-            res = client_authenticated_user.post(
-                reverse("validation-file"),
-                data={"file": file, "user_note": "test"},
-                format="multipart",
-            )
-            p.assert_called_once_with(UUID(res.json()["id"]))
-        assert res.status_code == 201
-        assert res.json()["filename"] == filename
-        val = Validation.objects.select_related("core").get()
-        assert val.filename == filename
-        assert val.user_note == "test"
-        assert str(val.pk) == res.json()["id"]
-        assert (
-            res.json()["expiration_date"][:16]
-            == (val.core.created + timedelta(days=1)).isoformat()[:16]
-        ), "We only compare the first 16 characters"
-
-    def test_create_with_empty_file(self, client_authenticated_user):
-        file = SimpleUploadedFile("tr.json", content=b"")
-        with patch("validations.tasks.validate_file.delay_on_commit") as p:
-            res = client_authenticated_user.post(
-                reverse("validation-file"),
-                data={"file": file},
-                format="multipart",
-            )
-            p.assert_not_called()
-        assert res.status_code == 400
-        assert "empty" in res.json()["file"][0]
-
-    def test_create_with_too_large_a_file(self, settings, client_authenticated_user):
-        settings.MAX_FILE_SIZE = 1023
-        file = SimpleUploadedFile("tr.json", content=b"X" * (settings.MAX_FILE_SIZE + 1))
-        with patch("validations.tasks.validate_file.delay_on_commit") as p:
-            res = client_authenticated_user.post(
-                reverse("validation-file"),
-                data={"file": file},
-                format="multipart",
-            )
-            p.assert_not_called()
-        assert res.status_code == 400
-        assert "Max file size exceeded" in res.json()["file"][0]
+class TestValidationAPI:
+    """
+    This is a set of tests for the validation API which is shared by the file
+    and COUNTER API validations. Thus it does not test the actual creation
+    of those validations, which is tested in separate classes below.
+    """
 
     def test_validation_list(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -97,6 +56,7 @@ class TestFileValidationAPI:
             assert "data_source" in first
             assert "expiration_date" in first
             assert "public_id" in first
+            assert "user" not in first, "user should only be present when listing all for admin"
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -133,6 +93,21 @@ class TestFileValidationAPI:
             assert "expiration_date" in data
             assert "public_id" in data
 
+    def test_validation_detail_other_users(self, client_authenticated_user):
+        v = ValidationFactory()  # this belongs to some randomly created user
+        res = client_authenticated_user.get(reverse("validation-detail", args=[v.pk]))
+        assert res.status_code == 404, "user who is not an owner should not have access"
+
+    def test_validation_detail_admin(self, client_validator_admin_user, normal_user):
+        v = ValidationFactory(user=normal_user)
+        res = client_validator_admin_user.get(reverse("validation-detail", args=[v.pk]))
+        assert res.status_code == 200, "admin can see validation details"
+
+    def test_validation_detail_superuser(self, admin_client, normal_user):
+        v = ValidationFactory(user=normal_user)
+        res = admin_client.get(reverse("validation-detail", args=[v.pk]))
+        assert res.status_code == 200, "superuser can see validation details"
+
     def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):
         """
         Test that when deleting a validation through the API, the core is preserved.
@@ -161,26 +136,6 @@ class TestFileValidationAPI:
         res = client_with_api_key.get(reverse("validation-list"))
         assert res.status_code == 200
         assert res.json()["count"] == 10
-
-    def test_create_with_api_key(self, client_with_api_key, normal_user):
-        filename = "tr.json"
-        file = SimpleUploadedFile(filename, content=b"xxx")
-        with patch("validations.tasks.validate_file.delay_on_commit") as p:
-            res = client_with_api_key.post(
-                reverse("validation-file"),
-                data={"file": file, "user_note": "test"},
-                format="multipart",
-            )
-            p.assert_called_once_with(UUID(res.json()["id"]))
-        assert res.status_code == 201
-        assert res.json()["filename"] == filename
-        val = Validation.objects.select_related("core").get()
-        assert val.filename == filename
-        assert val.user_note == "test"
-        assert str(val.pk) == res.json()["id"]
-        assert val.user == normal_user
-        assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
-        assert val.core.api_key_prefix == res.json()["api_key_prefix"]
 
     def test_validation_stats(self, client_authenticated_user, normal_user):
         v = ValidationFactory.create(user=normal_user)
@@ -395,25 +350,99 @@ class TestFileValidationAPI:
         res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
         assert res.status_code == 404
 
+    def test_all_validations_endpoint_access(self, client_and_status_code_admin_only):
+        client, status_code = client_and_status_code_admin_only
+        res = client.get(reverse("validation-list-all"))
+        assert res.status_code == status_code
+
+    def test_all_validations_endpoint_content(
+        self, validator_admin_user, normal_user, client_validator_admin_user
+    ):
+        ValidationFactory.create_batch(3, user=validator_admin_user)
+        ValidationFactory.create_batch(2, user=normal_user)
+        res = client_validator_admin_user.get(reverse("validation-list-all"))
+        assert res.status_code == 200
+        assert res.json()["count"] == 5
+        first = res.json()["results"][0]
+        assert "id" in first
+        assert "filename" in first
+        assert "file_url" in first
+        assert "status" in first
+        assert "user_note" in first
+        assert "validation_result" in first
+        assert "created" in first
+        assert "result_data" not in first
+        assert "error_message" in first
+        assert "file_size" in first
+        assert "cop_version" in first
+        assert "report_code" in first
+        assert "api_key_prefix" in first
+        assert "data_source" in first
+        assert "expiration_date" in first
+        assert "public_id" in first
+        assert "user" in first, "`user` extra field should be present"
+        user = first["user"]
+        assert "id" in user
+        assert "email" in user
+        assert "first_name" in user
+        assert "last_name" in user
+
 
 @pytest.mark.django_db
-class TestValidationAPIThrottling:
-    def test_list_get_with_api_key(self, client_with_api_key, normal_user, settings):
-        """
-        Test that GET requests are not throttled.
-        """
-        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
-        ValidationFactory.create_batch(10, user=normal_user)
-        res = client_with_api_key.get(reverse("validation-list"))
-        assert res.status_code == 200
-        assert res.json()["count"] == 10
-        # second request should be throttled
-        res = client_with_api_key.get(reverse("validation-list"))
-        assert res.status_code == 200, "GET requests should not be throttled"
+class TestFileValidationAPI:
+    """
+    This part is just for the file part of the validation API, so it only
+    deals with the `create` part. The rest is common and is in `TestValidationAPI`.
+    """
 
-    def test_list_post_with_api_key(self, client_with_api_key, normal_user, settings):
-        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+    def test_create(self, client_authenticated_user, settings):
+        settings.VALIDATION_LIFETIME = 1
+        filename = "tr.json"
+        file = SimpleUploadedFile(filename, content=b"xxx")
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file"),
+                data={"file": file, "user_note": "test"},
+                format="multipart",
+            )
+            p.assert_called_once_with(UUID(res.json()["id"]))
+        assert res.status_code == 201
+        assert res.json()["filename"] == filename
+        val = Validation.objects.select_related("core").get()
+        assert val.filename == filename
+        assert val.user_note == "test"
+        assert str(val.pk) == res.json()["id"]
+        assert (
+            res.json()["expiration_date"][:16]
+            == (val.core.created + timedelta(days=1)).isoformat()[:16]
+        ), "We only compare the first 16 characters"
 
+    def test_create_with_empty_file(self, client_authenticated_user):
+        file = SimpleUploadedFile("tr.json", content=b"")
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file"),
+                data={"file": file},
+                format="multipart",
+            )
+            p.assert_not_called()
+        assert res.status_code == 400
+        assert "empty" in res.json()["file"][0]
+
+    def test_create_with_too_large_a_file(self, settings, client_authenticated_user):
+        settings.MAX_FILE_SIZE = 1023
+        file = SimpleUploadedFile("tr.json", content=b"X" * (settings.MAX_FILE_SIZE + 1))
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file"),
+                data={"file": file},
+                format="multipart",
+            )
+            p.assert_not_called()
+        assert res.status_code == 400
+        assert "Max file size exceeded" in res.json()["file"][0]
+
+    def test_create_with_api_key(self, client_with_api_key, normal_user):
         filename = "tr.json"
         file = SimpleUploadedFile(filename, content=b"xxx")
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
@@ -423,32 +452,15 @@ class TestValidationAPIThrottling:
                 format="multipart",
             )
             p.assert_called_once_with(UUID(res.json()["id"]))
-            assert res.status_code == 201
-
-        # second request should be throttled
-        with patch("validations.tasks.validate_file.delay_on_commit") as p:
-            res = client_with_api_key.post(
-                reverse("validation-file"),
-                data={"file": file, "user_note": "test"},
-                format="multipart",
-            )
-            p.assert_not_called()
-            assert res.status_code == 429
-            assert "Request was throttled" in res.json()["detail"]
-
-    def test_list_as_normal_user(self, client_authenticated_user, normal_user, settings):
-        """
-        Normal access (with cookie based authentication) should not be throttled.
-        """
-        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
-        ValidationFactory.create_batch(10, user=normal_user)
-        res = client_authenticated_user.get(reverse("validation-list"))
-        assert res.status_code == 200
-        assert res.json()["count"] == 10
-        # second request should not be throttled
-        res = client_authenticated_user.get(reverse("validation-list"))
-        assert res.status_code == 200
-        assert res.json()["count"] == 10
+        assert res.status_code == 201
+        assert res.json()["filename"] == filename
+        val = Validation.objects.select_related("core").get()
+        assert val.filename == filename
+        assert val.user_note == "test"
+        assert str(val.pk) == res.json()["id"]
+        assert val.user == normal_user
+        assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
+        assert val.core.api_key_prefix == res.json()["api_key_prefix"]
 
 
 @pytest.mark.django_db
@@ -757,3 +769,58 @@ class TestPublicValidationAPI:
         assert "requested_begin_date" in out
         assert "requested_end_date" in out
         assert out["credentials"] is None, "credentials should not be exposed"
+
+
+@pytest.mark.django_db
+class TestValidationAPIThrottling:
+    def test_list_get_with_api_key(self, client_with_api_key, normal_user, settings):
+        """
+        Test that GET requests are not throttled.
+        """
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+        ValidationFactory.create_batch(10, user=normal_user)
+        res = client_with_api_key.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert res.json()["count"] == 10
+        # second request should be throttled
+        res = client_with_api_key.get(reverse("validation-list"))
+        assert res.status_code == 200, "GET requests should not be throttled"
+
+    def test_list_post_with_api_key(self, client_with_api_key, normal_user, settings):
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+
+        filename = "tr.json"
+        file = SimpleUploadedFile(filename, content=b"xxx")
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_with_api_key.post(
+                reverse("validation-file"),
+                data={"file": file, "user_note": "test"},
+                format="multipart",
+            )
+            p.assert_called_once_with(UUID(res.json()["id"]))
+            assert res.status_code == 201
+
+        # second request should be throttled
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_with_api_key.post(
+                reverse("validation-file"),
+                data={"file": file, "user_note": "test"},
+                format="multipart",
+            )
+            p.assert_not_called()
+            assert res.status_code == 429
+            assert "Request was throttled" in res.json()["detail"]
+
+    def test_list_as_normal_user(self, client_authenticated_user, normal_user, settings):
+        """
+        Normal access (with cookie based authentication) should not be throttled.
+        """
+        settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
+        ValidationFactory.create_batch(10, user=normal_user)
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert res.json()["count"] == 10
+        # second request should not be throttled
+        res = client_authenticated_user.get(reverse("validation-list"))
+        assert res.status_code == 200
+        assert res.json()["count"] == 10
