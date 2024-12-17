@@ -2,27 +2,18 @@
   <v-row>
     <v-col
       v-if="showPublishedFilter"
-      cols="12"
-      sm="4"
-      md="3"
-      lg="2"
-      xl="1"
+      cols="auto"
     >
       <v-select
         v-model="publishedFilter"
         :items="booleanOptions"
         label="Shared"
         hide-details
+        min-width="6rem"
       />
     </v-col>
 
-    <v-col
-      cols="12"
-      sm="8"
-      md="4"
-      lg="3"
-      xl="2"
-    >
+    <v-col cols="auto">
       <v-select
         v-model="sourceFilter"
         :items="dataSources"
@@ -30,17 +21,11 @@
         multiple
         clearable
         hide-details
+        min-width="12rem"
       />
     </v-col>
 
-    <v-col
-      cols="12"
-      sm="8"
-      md="5"
-      lg="4"
-      xl="3"
-      xxl="2"
-    >
+    <v-col>
       <v-select
         v-model="validationResultFilter"
         :items="severityLevels"
@@ -48,6 +33,7 @@
         multiple
         clearable
         hide-details
+        min-width="16rem"
       >
         <template #selection="{ item }">
           <v-icon
@@ -62,14 +48,7 @@
       </v-select>
     </v-col>
 
-    <v-col
-      cols="12"
-      sm="4"
-      md="3"
-      lg="2"
-      xl="2"
-      xxl="1"
-    >
+    <v-col cols="auto">
       <v-select
         v-model="copVersionFilter"
         :items="copVersions"
@@ -77,16 +56,11 @@
         multiple
         clearable
         hide-details
+        min-width="10rem"
       />
     </v-col>
 
-    <v-col
-      cols="12"
-      sm="6"
-      md="4"
-      lg="3"
-      xl="2"
-    >
+    <v-col cols="auto">
       <v-select
         v-model="endpointFilter"
         :items="counterAPIEndpoints"
@@ -94,17 +68,11 @@
         multiple
         clearable
         hide-details
+        min-width="12rem"
       />
     </v-col>
 
-    <v-col
-      cols="12"
-      sm="6"
-      md="3"
-      lg="3"
-      xl="2"
-      xxl="1"
-    >
+    <v-col cols="auto">
       <v-select
         v-model="reportCodeFilter"
         :items="reportCodes"
@@ -112,23 +80,18 @@
         multiple
         clearable
         hide-details
+        min-width="10rem"
       />
     </v-col>
 
-    <v-col
-      v-if="showTextFilter"
-      cols="12"
-      sm="6"
-      md="4"
-      lg="3"
-      xl="2"
-    >
+    <v-col v-if="showTextFilter">
       <v-text-field
         v-model="textFilter"
         label="User note"
         hide-details
         clearable
         append-inner-icon="mdi-magnify"
+        min-width="12rem"
       />
     </v-col>
   </v-row>
