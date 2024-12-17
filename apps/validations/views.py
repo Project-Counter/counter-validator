@@ -3,6 +3,7 @@ from django.db.transaction import atomic
 from django.http import HttpResponseForbidden
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.pagination import PageNumberPagination
@@ -11,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from validations.filters import (
-    MessagesSearchFilter,
     OrderByFilter,
     SeverityFilter,
     ValidationAPIEndpointFilter,
@@ -58,7 +58,9 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         ValidationAPIEndpointFilter,
         ValidationSourceFilter,
         ValidationPublishedFilter,
+        SearchFilter,
     ]
+    search_fields = ["user_note"]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -181,7 +183,7 @@ class ValidationMessageViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ValidationMessageSerializer
     pagination_class = StandardPagination
-    filter_backends = [OrderByFilter, SeverityFilter, MessagesSearchFilter]
+    filter_backends = [OrderByFilter, SeverityFilter, SearchFilter]
     search_fields = ["message", "hint", "summary", "data"]
 
     def get_queryset(self):

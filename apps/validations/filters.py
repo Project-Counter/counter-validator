@@ -65,20 +65,12 @@ class SeverityFilter(filters.BaseFilterBackend):
             for severity in severities:
                 if severity.isdigit():
                     severity = int(severity)
-                if severity := SeverityLevel.by_any_value(severity):
+                if (severity := SeverityLevel.by_any_value(severity)) is not None:
                     values.append(severity)
             if values:
                 logger.info(values)
                 return queryset.filter(**{f"{self.attr_name}__in": values})
         return queryset
-
-
-class MessagesSearchFilter(filters.SearchFilter):
-    """
-    A filter backend that allows filtering by text.
-    """
-
-    search_param = "search"
 
 
 class ValidationCoPVersionFilter(BaseMultiValueFilter):

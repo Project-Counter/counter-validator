@@ -119,7 +119,9 @@
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
         v-model:published-filter="publishedFilter"
+        v-model:text-filter="textFilter"
         show-published-filter
+        show-text-filter
         class="pb-8"
       />
     </template>
@@ -133,6 +135,7 @@ import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 import { useValidationFilters } from "@/composables/validationFiltering"
+import debounce from "lodash/debounce"
 
 const props = withDefaults(
   defineProps<{
@@ -175,6 +178,7 @@ const {
   endpointFilter,
   sourceFilter,
   publishedFilter,
+  textFilter,
 } = useValidationFilters()
 
 watchEffect(() => {
@@ -187,6 +191,14 @@ watchEffect(() => {
   else delete filters.published
   loadValidations()
 })
+
+watch(
+  textFilter,
+  debounce(() => {
+    filters.search = textFilter.value || ""
+    loadValidations()
+  }, 300),
+)
 
 async function loadValidations() {
   loading.value = true

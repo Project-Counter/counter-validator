@@ -236,29 +236,33 @@ class TestFileValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
-    def test_list_filters_validation_result(self, client_authenticated_user, normal_user):
-        vs_notice = ValidationFactory.create_batch(3, user=normal_user)
-        for v in vs_notice:
-            # validation result is set in `save()` method, so we need to set it after creation
-            v.core.validation_result = SeverityLevel.NOTICE
-            v.core.save()
-        vs_error = ValidationFactory.create_batch(5, user=normal_user)
-        for v in vs_error:
-            v.core.validation_result = SeverityLevel.ERROR
-            v.core.save()
+    @pytest.mark.parametrize(
+        ["results", "expected_count"],
+        [
+            ([SeverityLevel.UNKNOWN], 1),
+            ([SeverityLevel.PASSED], 2),
+            ([SeverityLevel.NOTICE], 3),
+            ([SeverityLevel.WARNING], 4),
+            ([SeverityLevel.ERROR], 5),
+            ([SeverityLevel.CRITICAL_ERROR], 6),
+            ([SeverityLevel.FATAL_ERROR], 7),
+            ([SeverityLevel.UNKNOWN, SeverityLevel.WARNING], 5),
+            ([SeverityLevel.NOTICE, SeverityLevel.ERROR], 8),
+            ([], 28),
+        ],
+    )
+    def test_list_filters_validation_result(
+        self, client_authenticated_user, normal_user, results, expected_count
+    ):
+        for i, result in enumerate(SeverityLevel):
+            for v in ValidationFactory.create_batch(i + 1, user=normal_user):
+                v.core.validation_result = result
+                v.core.save()
 
-        res = client_authenticated_user.get(
-            reverse("validation-list"), {"validation_result": SeverityLevel.NOTICE.label}
-        )
+        query = {"validation_result": ",".join(str(r.label) for r in results)} if results else {}
+        res = client_authenticated_user.get(reverse("validation-list"), query)
         assert res.status_code == 200
-        assert res.json()["count"] == 3
-        # test with multiple values
-        res = client_authenticated_user.get(
-            reverse("validation-list"),
-            {"validation_result": f"{SeverityLevel.ERROR.label},{SeverityLevel.NOTICE.label}"},
-        )
-        assert res.status_code == 200
-        assert res.json()["count"] == 8
+        assert res.json()["count"] == expected_count
 
     @pytest.mark.parametrize(
         ["query", "expected_count"], [["TR", 1], ["TR,DR", 3], ["", 3], ["DR", 2]]
@@ -347,6 +351,21 @@ class TestFileValidationAPI:
             assert res.json()["results"][0][attr] >= res.json()["results"][-1][attr]
         else:
             assert res.json()["results"][0][attr] <= res.json()["results"][-1][attr]
+
+    @pytest.mark.parametrize(
+        ["query", "expected_count"], [["foo", 1], ["bar", 3], ["baz", 0], ["", 5], [None, 5]]
+    )
+    def test_list_filters_by_user_note(
+        self, client_authenticated_user, normal_user, query, expected_count
+    ):
+        ValidationFactory.create_batch(3, user=normal_user, user_note="barakuda")
+        ValidationFactory.create(user=normal_user, user_note="fooo")
+        ValidationFactory.create(user=normal_user, user_note="whatever")
+        res = client_authenticated_user.get(
+            reverse("validation-list"), {"search": query} if query is not None else {}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
 
     def test_validation_publish(self, client_authenticated_user, normal_user):
         v = ValidationFactory.create(user=normal_user)

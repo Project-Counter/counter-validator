@@ -114,6 +114,23 @@
         hide-details
       />
     </v-col>
+
+    <v-col
+      v-if="showTextFilter"
+      cols="12"
+      sm="6"
+      md="4"
+      lg="3"
+      xl="2"
+      xxl="1"
+    >
+      <v-text-field
+        v-model="textFilter"
+        label="User note"
+        hide-details
+        clearable
+      />
+    </v-col>
   </v-row>
 </template>
 
@@ -136,6 +153,8 @@ const endpointFilter = defineModel<CounterAPIEndpoint[]>("endpointFilter")
 const sourceFilter = defineModel<DataSource[]>("sourceFilter")
 const publishedFilter = defineModel<boolean | null | undefined>("publishedFilter")
 const showPublishedFilter = defineModel<boolean>("showPublishedFilter")
+const textFilter = defineModel<string>("textFilter")
+const showTextFilter = defineModel<boolean>("showTextFilter")
 
 const { severityLevels, dataSources, reportCodes } = useValidationFilters()
 </script>
