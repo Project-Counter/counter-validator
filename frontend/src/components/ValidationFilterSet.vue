@@ -122,13 +122,13 @@
       md="4"
       lg="3"
       xl="2"
-      xxl="1"
     >
       <v-text-field
         v-model="textFilter"
         label="User note"
         hide-details
         clearable
+        append-inner-icon="mdi-magnify"
       />
     </v-col>
   </v-row>
