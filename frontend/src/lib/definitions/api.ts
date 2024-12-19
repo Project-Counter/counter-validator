@@ -9,9 +9,13 @@ export type ApiKey = {
 }
 
 export type User = {
+  id?: number
   first_name: string
   last_name: string
   email: string
+  is_validator_admin?: boolean
+  is_superuser?: boolean
+  is_active?: boolean
 }
 
 export type Report = {

@@ -5034,6 +5034,7 @@ __metadata:
     vue-router: "npm:^4.4.3"
     vue-tsc: "npm:^2.1.10"
     vuetify: "npm:^3.7.3"
+    vuetify3-dialog: "npm:^1.5.4"
   languageName: unknown
   linkType: soft
 
@@ -6280,6 +6281,16 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/4bbb5caf3f04fed933b01c100804f3693ff902984a3152ea1359a972264fa3240f6551d32f0163a79c64df3715b4d6691818c9f652cdd41b2473c69e2b0a373d
+  languageName: node
+  linkType: hard
+
+"vuetify3-dialog@npm:^1.5.4":
+  version: 1.5.4
+  resolution: "vuetify3-dialog@npm:1.5.4"
+  peerDependencies:
+    vue: ^3.2.0
+    vuetify: ^3.4.0
+  checksum: 10c0/856347b0566777066f2c2de40592c7520111b0a2556acd474ccdd795d07018c14098cc9bb76d94e0fd9219925c5992a1f381c5371f242e82639ec3f0676a2de8
   languageName: node
   linkType: hard
 

@@ -40,7 +40,14 @@
           title="Stats"
           to="/stats"
         />
+        <v-list-item
+          prepend-icon="mdi-account-multiple"
+          title="Users"
+          subtitle="User management"
+          to="/admin/users"
+        />
       </v-list>
+
       <template #append>
         <v-divider />
         <v-list>

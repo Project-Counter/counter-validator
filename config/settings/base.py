@@ -97,6 +97,7 @@ CELERY_TASK_ROUTES = {
 # dj-rest-auth settings
 REST_AUTH = {
     "TOKEN_MODEL": None,
+    "REGISTER_SERIALIZER": "core.serializers.ValidatorRegisterSerializer",
 }
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None

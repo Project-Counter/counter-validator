@@ -5,7 +5,8 @@
     "preview": "vite preview",
     "lint": "eslint --fix .",
     "lint-fix": "eslint --fix --max-warnings 10 .",
-    "prettier": "prettier"
+    "prettier": "prettier",
+    "check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -20,7 +21,8 @@
     "roboto-fontface": "^0.10.0",
     "vue": "^3.4.38",
     "vue-chartjs": "^5.3.2",
-    "vuetify": "^3.7.3"
+    "vuetify": "^3.7.3",
+    "vuetify3-dialog": "^1.5.4"
   },
   "devDependencies": {
     "@babel/types": "^7.25.4",

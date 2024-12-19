@@ -5,7 +5,8 @@ from . import views
 
 router = SimpleRouter()
 router.register(r"api-key", views.UserApiKeyViewSet, basename="api-key")
+router.register(r"user", views.UserManagementViewSet, basename="user")
 
 urlpatterns = router.urls + [
-    path("user", views.UserDetailView.as_view(), name="user-detail"),
+    path("me", views.UserDetailView.as_view(), name="current-user"),
 ]

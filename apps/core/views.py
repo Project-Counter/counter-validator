@@ -8,7 +8,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from . import serializers
-from .models import UserApiKey
+from .models import User, UserApiKey
+from .permissions import IsValidatorAdminUser
 from .serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
@@ -42,3 +43,17 @@ class UserDetailView(APIView):
 
     def get(self, request, **kwargs):
         return Response(UserSerializer(request.user).data)
+
+
+class UserManagementViewSet(ModelViewSet):
+    serializer_class = serializers.UserSerializer
+    permission_classes = (IsValidatorAdminUser,)
+
+    def get_queryset(self):
+        """
+        Only superusers can see other superusers.
+        """
+        qs = User.objects.all()
+        if not self.request.user.is_superuser:
+            qs = qs.exclude(is_superuser=True)
+        return qs

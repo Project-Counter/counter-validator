@@ -1,6 +1,8 @@
+from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
 
 from . import models
+from .models import User
 
 
 class UserApiKeySerializer(serializers.ModelSerializer):
@@ -30,4 +32,15 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "is_validator_admin",
             "is_superuser",
+            "is_active",
         )
+
+
+class ValidatorRegisterSerializer(RegisterSerializer):
+    def validate_email(self, email):
+        email = super().validate_email(email)
+        if email and User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                "A user is already registered with this e-mail address."
+            )
+        return email

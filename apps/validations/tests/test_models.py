@@ -70,6 +70,7 @@ class TestCounterAPIValidation:
             credentials__api_key=params["api_key"],
             url=params["url"],
             requested_cop_version=params["cop_version"],
+            core__api_endpoint="/reports/[id]",
             requested_report_code=params["report_code"],
             requested_begin_date=params["begin_date"],
             requested_end_date=params["end_date"],
