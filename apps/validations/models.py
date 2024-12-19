@@ -60,7 +60,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         blank=True,
         help_text="COUNTER CoP version as reported by the validation module",
     )
-    api_endpoint = models.CharField(default="/reports/[id]", max_length=64)
+    api_endpoint = models.CharField(max_length=64, blank=True)
     report_code = models.CharField(
         max_length=16,
         blank=True,

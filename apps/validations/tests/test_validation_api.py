@@ -416,6 +416,7 @@ class TestFileValidationAPI:
             res.json()["expiration_date"][:16]
             == (val.core.created + timedelta(days=1)).isoformat()[:16]
         ), "We only compare the first 16 characters"
+        assert res.json()["api_endpoint"] == "", "api_endpoint should be empty for file validations"
 
     def test_create_with_empty_file(self, client_authenticated_user):
         file = SimpleUploadedFile("tr.json", content=b"")
