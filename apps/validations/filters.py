@@ -188,3 +188,21 @@ class ValidationPublishedFilter(filters.BaseFilterBackend):
         elif published is False:
             return queryset.filter(public_id__isnull=True)
         return queryset
+
+
+class ValidationSearchFilter(filters.SearchFilter):
+    """
+    Special search filter for Validations which takes into account if the user is an admin
+    and allows searching by user fields if so.
+    """
+
+    def get_search_fields(self, view, request):
+        if request.user.has_admin_role:
+            return [
+                "user_note",
+                "filename",
+                "core__user__first_name",
+                "core__user__last_name",
+                "core__user__email",
+            ]
+        return ["user_note", "filename"]

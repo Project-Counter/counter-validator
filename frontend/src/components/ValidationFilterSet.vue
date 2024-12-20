@@ -88,7 +88,7 @@
     <v-col v-if="showTextFilter">
       <v-text-field
         v-model="textFilter"
-        label="Note"
+        :label="textFilterLabel"
         hide-details
         clearable
         append-inner-icon="mdi-magnify"
@@ -110,6 +110,7 @@ import {
 } from "@/lib/definitions/api"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import { booleanOptions } from "@/lib/options"
+import { useAppStore } from "@/stores/app"
 
 const validationResultFilter = defineModel<SeverityLevel[]>("validationResultFilter")
 const copVersionFilter = defineModel<CoP[]>("copVersionFilter")
@@ -122,6 +123,12 @@ const textFilter = defineModel<string>("textFilter")
 const showTextFilter = defineModel<boolean>("showTextFilter")
 
 const { severityLevels, dataSources, reportCodes } = useValidationFilters()
+
+const { user } = useAppStore()
+
+const textFilterLabel = computed(() => {
+  return user.has_admin_role ? "Text (note, filename, user)" : "Text (note, filename)"
+})
 </script>
 
 <style scoped></style>

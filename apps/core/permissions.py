@@ -27,6 +27,4 @@ class HasUserAPIKey(BaseHasAPIKey):
 
 class IsValidatorAdminUser(BasePermission):
     def has_permission(self, request: HttpRequest, view: typing.Any) -> bool:
-        return request.user.is_authenticated and (
-            request.user.is_superuser or request.user.is_validator_admin
-        )
+        return request.user.is_authenticated and request.user.has_admin_role

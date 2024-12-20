@@ -43,10 +43,20 @@ def client_with_api_key(normal_user):
 
 
 @pytest.fixture
+def client_with_api_key_admin(validator_admin_user):
+    api_key, key = UserApiKey.objects.create_key(name="foo", user=validator_admin_user)
+    client = APIClient(headers={"Authorization": f"Api-Key {key}"})
+    client.user_ = validator_admin_user
+    client.api_key_prefix_ = api_key.prefix
+    return client
+
+
+@pytest.fixture
 def users_and_clients(
     normal_user,
     client_unauthenticated,
     client_with_api_key,
+    client_with_api_key_admin,
     client_validator_admin_user,
     client_authenticated_user,
     validator_admin_user,
@@ -59,6 +69,7 @@ def users_and_clients(
         "su": (admin_user, admin_client),
         "admin": (validator_admin_user, client_validator_admin_user),
         "api_key_normal": (normal_user, client_with_api_key),
+        "api_key_admin": (validator_admin_user, client_with_api_key_admin),
     }
 
 

@@ -114,7 +114,9 @@ class TestFileValidationTask:
 @pytest.mark.django_db
 class TestCounterAPIValidationTask:
     def test_task_simple(self, requests_mock):
-        obj = CounterAPIValidationFactory(user=UserFactory(), core__status=ValidationStatus.WAITING)
+        obj = CounterAPIValidationFactory(
+            core__user=UserFactory(), core__status=ValidationStatus.WAITING
+        )
         json = ResponseMockCounterAPI.json()
         mock = requests_mock.post(re.compile(".*"), json=json, status_code=200)
         validate_counter_api(obj.pk)

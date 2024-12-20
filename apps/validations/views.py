@@ -24,6 +24,7 @@ from validations.filters import (
     ValidationOrderByFilter,
     ValidationPublishedFilter,
     ValidationReportCodeFilter,
+    ValidationSearchFilter,
     ValidationSourceFilter,
     ValidationValidationResultFilter,
 )
@@ -59,9 +60,8 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         ValidationAPIEndpointFilter,
         ValidationSourceFilter,
         ValidationPublishedFilter,
-        SearchFilter,
+        ValidationSearchFilter,
     ]
-    search_fields = ["user_note", "user__first_name", "user__last_name", "user__email"]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -69,10 +69,8 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         return ValidationDetailSerializer
 
     def get_queryset(self, list_all=False):
-        base = self.request.user.validation_set
-        if (self.detail or list_all) and (
-            self.request.user.is_superuser or self.request.user.is_validator_admin
-        ):
+        base = Validation.objects.filter(core__user=self.request.user)
+        if (self.detail or list_all) and self.request.user.has_admin_role:
             # admins can see details of all validations, and can also list them all
             # via a dedicated endpoint (which uses the `list_all` attr)
             #
@@ -101,7 +99,9 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         This is an almost one-to-one copy of the list method from `ListModelMixin`, but it passes
         the `list_all` attribute to `get_queryset`.
         """
-        queryset = self.filter_queryset(self.get_queryset(list_all=True).select_related("user"))
+        queryset = self.filter_queryset(
+            self.get_queryset(list_all=True).select_related("core__user")
+        )
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -219,6 +219,6 @@ class ValidationMessageViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         validation = get_object_or_404(
-            Validation.objects.filter(user=self.request.user), pk=self.kwargs["validation_pk"]
+            Validation.objects.filter(core__user=self.request.user), pk=self.kwargs["validation_pk"]
         )
         return ValidationMessage.objects.filter(validation=validation)

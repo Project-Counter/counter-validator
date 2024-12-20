@@ -100,6 +100,7 @@
       </v-dialog>
 
       <v-btn
+        v-if="item.id !== currentUser.id"
         color="error"
         prepend-icon="mdi-delete"
         variant="tonal"
@@ -145,7 +146,8 @@ onMounted(loadUsers)
 const search = ref("")
 
 // user editing and creation
-const { displayNotification } = useAppStore()
+const { displayNotification, user: currentUser } = useAppStore()
+console.log(currentUser)
 
 function userCreated(isActive: Ref<boolean>) {
   isActive.value = false

@@ -5,6 +5,7 @@ from counter.fake_data import COP_VERSIONS, REPORT_TYPE_CODES
 from counter.logic.dates import month_end
 
 from validations.enums import SeverityLevel
+from validations.hashing import checksum_string
 from validations.models import CounterAPIValidation, Validation, ValidationCore, ValidationMessage
 
 fake = faker.Faker(locale="en_US")
@@ -14,6 +15,8 @@ class ValidationCoreFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ValidationCore
 
+    user = factory.SubFactory(UserFactory)
+    user_email_checksum = factory.LazyAttribute(lambda o: checksum_string(o.user.email))
     validation_result = SeverityLevel.NOTICE
 
 
@@ -22,7 +25,6 @@ class ValidationFactory(factory.django.DjangoModelFactory):
         model = Validation
 
     core = factory.SubFactory(ValidationCoreFactory)
-    user = factory.SubFactory(UserFactory)
     filename = factory.Faker("file_name")
     file = factory.django.FileField(filename="test.txt")
     user_note = factory.Faker("text")

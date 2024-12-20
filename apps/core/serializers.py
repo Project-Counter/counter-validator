@@ -33,6 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_validator_admin",
             "is_superuser",
             "is_active",
+            "has_admin_role",
         )
 
 

@@ -1,7 +1,7 @@
 import logging
 
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -57,3 +57,8 @@ class UserManagementViewSet(ModelViewSet):
         if not self.request.user.is_superuser:
             qs = qs.exclude(is_superuser=True)
         return qs
+
+    def perform_destroy(self, instance):
+        if instance.pk == self.request.user.pk:
+            raise PermissionDenied("You cannot delete your own account")
+        super().perform_destroy(instance)

@@ -3,7 +3,7 @@ import { HttpStatusError, jsonFetch, wrapFetch } from "./util"
 import { ApiKey, User } from "../definitions/api"
 
 export const urls = {
-  user: "auth/user/",
+  user: "core/me",
   login: "auth/login/",
   logout: "auth/logout/",
   signup: "auth/registration/",

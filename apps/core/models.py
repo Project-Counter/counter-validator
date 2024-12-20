@@ -53,6 +53,10 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ()
 
+    @property
+    def has_admin_role(self):
+        return self.is_superuser or self.is_validator_admin
+
 
 class UserApiKeyManager(BaseAPIKeyManager):
     key_generator = KeyGenerator(prefix_length=8, secret_key_length=48)

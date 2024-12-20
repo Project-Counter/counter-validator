@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 
+from ..fake_data import UserFactory
 from ..models import User, UserApiKey
 
 
@@ -20,6 +21,7 @@ class TestUserDetailAPI:
         assert res.json()["last_name"] == normal_user.last_name
         assert res.json()["is_validator_admin"] == normal_user.is_validator_admin
         assert res.json()["is_superuser"] == normal_user.is_superuser
+        assert res.json()["has_admin_role"] == normal_user.has_admin_role
 
 
 @pytest.mark.django_db
@@ -135,7 +137,7 @@ class TestUserManagementAPI:
     )
     def test_only_superuser_can_delete_superuser(self, users_and_clients, user_type, can_delete):
         user, client = users_and_clients[user_type]
-        su_user = users_and_clients["su"][0]
+        su_user = UserFactory(is_superuser=True)
         res = client.delete(reverse("user-detail", kwargs={"pk": su_user.pk}))
         if can_delete is None:
             assert res.status_code == 403
@@ -145,6 +147,15 @@ class TestUserManagementAPI:
         else:
             assert res.status_code == 404
             assert User.objects.filter(pk=su_user.pk).exists()
+
+    @pytest.mark.parametrize(
+        ["user_type"], [["normal"], ["su"], ["admin"], ["api_key_normal"], ["api_key_admin"]]
+    )
+    def test_user_cannot_delete_self(self, users_and_clients, user_type):
+        user, client = users_and_clients[user_type]
+        res = client.delete(reverse("user-detail", kwargs={"pk": user.pk}))
+        assert res.status_code == 403
+        assert User.objects.filter(pk=user.pk).exists()
 
 
 @pytest.mark.django_db

@@ -98,7 +98,7 @@ class ValidationDetailSerializer(ValidationSerializer):
 
 
 class ValidationWithUserSerializer(ValidationSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True, source="core.user")
 
     class Meta(ValidationSerializer.Meta):
         fields = ValidationSerializer.Meta.fields + ["user"]
@@ -166,6 +166,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
         api_key = getattr(self.context["request"], "api_key", None)
         core = ValidationCore.objects.create(
             status=ValidationStatus.WAITING,
+            user=user,
             user_email_checksum=checksum_string(user.email),
             api_key_prefix=api_key.prefix if api_key else "",
             api_endpoint=validated_data["api_endpoint"],
@@ -177,7 +178,6 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
 
         return CounterAPIValidation.objects.create(
             core=core,
-            user=user,
             url=validated_data["url"],
             requested_cop_version=validated_data["cop_version"],
             requested_report_code=validated_data.get("report_code", ""),

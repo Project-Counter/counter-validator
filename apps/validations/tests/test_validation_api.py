@@ -31,7 +31,7 @@ class TestValidationAPI:
     def test_validation_list(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
     ):
-        ValidationFactory.create_batch(10, user=normal_user)
+        ValidationFactory.create_batch(10, core__user=normal_user)
         with django_assert_max_num_queries(9):
             res = client_authenticated_user.get(reverse("validation-list"), {"page_size": 8})
             assert res.status_code == 200
@@ -61,7 +61,7 @@ class TestValidationAPI:
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
     ):
-        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create_batch(3, core__user=normal_user)
         ValidationFactory.create_batch(5)  # new users will be created for those
         with django_assert_max_num_queries(9):
             res = client_authenticated_user.get(reverse("validation-list"))
@@ -71,7 +71,7 @@ class TestValidationAPI:
     def test_validation_detail(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
     ):
-        v = ValidationFactory(user=normal_user)
+        v = ValidationFactory(core__user=normal_user)
         with django_assert_max_num_queries(9):
             res = client_authenticated_user.get(reverse("validation-detail", args=[v.pk]))
             assert res.status_code == 200
@@ -99,12 +99,12 @@ class TestValidationAPI:
         assert res.status_code == 404, "user who is not an owner should not have access"
 
     def test_validation_detail_admin(self, client_validator_admin_user, normal_user):
-        v = ValidationFactory(user=normal_user)
+        v = ValidationFactory(core__user=normal_user)
         res = client_validator_admin_user.get(reverse("validation-detail", args=[v.pk]))
         assert res.status_code == 200, "admin can see validation details"
 
     def test_validation_detail_superuser(self, admin_client, normal_user):
-        v = ValidationFactory(user=normal_user)
+        v = ValidationFactory(core__user=normal_user)
         res = admin_client.get(reverse("validation-detail", args=[v.pk]))
         assert res.status_code == 200, "superuser can see validation details"
 
@@ -112,7 +112,7 @@ class TestValidationAPI:
         """
         Test that when deleting a validation through the API, the core is preserved.
         """
-        v = ValidationFactory(user=normal_user)
+        v = ValidationFactory(core__user=normal_user)
         core_id = v.core_id
         assert core_id is not None
         assert Validation.objects.filter(pk=v.pk).exists()
@@ -125,20 +125,20 @@ class TestValidationAPI:
 
     @pytest.mark.parametrize("method", ["put", "patch"])
     def test_validation_update_not_allowed(self, client_authenticated_user, normal_user, method):
-        v = ValidationFactory(user=normal_user)
+        v = ValidationFactory(core__user=normal_user)
         res = getattr(client_authenticated_user, method)(
             reverse("validation-detail", args=[v.pk]), data={}, format="json"
         )
         assert res.status_code == 405
 
     def test_validation_list_with_api_key(self, client_with_api_key, normal_user):
-        ValidationFactory.create_batch(10, user=normal_user)
+        ValidationFactory.create_batch(10, core__user=normal_user)
         res = client_with_api_key.get(reverse("validation-list"))
         assert res.status_code == 200
         assert res.json()["count"] == 10
 
     def test_validation_stats(self, client_authenticated_user, normal_user):
-        v = ValidationFactory.create(user=normal_user)
+        v = ValidationFactory.create(core__user=normal_user)
         ValidationMessageFactory.create(validation=v, severity=SeverityLevel.ERROR, summary="Aaa")
         ValidationMessageFactory.create_batch(
             2, validation=v, severity=SeverityLevel.NOTICE, summary="Bbb"
@@ -162,9 +162,9 @@ class TestValidationAPI:
         ]
 
     def test_list_with_expired_validations(self, client_authenticated_user, normal_user):
-        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create_batch(3, core__user=normal_user)
         ValidationFactory.create_batch(
-            5, user=normal_user, core__expiration_date=now() - timedelta(hours=1)
+            5, core__user=normal_user, core__expiration_date=now() - timedelta(hours=1)
         )
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
@@ -174,7 +174,7 @@ class TestValidationAPI:
         self, client_authenticated_user, normal_user, settings
     ):
         settings.VALIDATION_LIFETIME = 0
-        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create_batch(3, core__user=normal_user)
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
         assert res.json()["count"] == 3
@@ -185,8 +185,8 @@ class TestValidationAPI:
     def test_list_filters_cop_version(
         self, client_authenticated_user, normal_user, query, expected_count
     ):
-        ValidationFactory.create_batch(1, user=normal_user, core__cop_version="5")
-        ValidationFactory.create_batch(2, user=normal_user, core__cop_version="5.1")
+        ValidationFactory.create_batch(1, core__user=normal_user, core__cop_version="5")
+        ValidationFactory.create_batch(2, core__user=normal_user, core__cop_version="5.1")
         res = client_authenticated_user.get(reverse("validation-list"), {"cop_version": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
@@ -210,7 +210,7 @@ class TestValidationAPI:
         self, client_authenticated_user, normal_user, results, expected_count
     ):
         for i, result in enumerate(SeverityLevel):
-            for v in ValidationFactory.create_batch(i + 1, user=normal_user):
+            for v in ValidationFactory.create_batch(i + 1, core__user=normal_user):
                 v.core.validation_result = result
                 v.core.save()
 
@@ -225,8 +225,8 @@ class TestValidationAPI:
     def test_list_filters_by_report_code(
         self, client_authenticated_user, normal_user, query, expected_count
     ):
-        ValidationFactory.create_batch(1, user=normal_user, core__report_code="TR")
-        ValidationFactory.create_batch(2, user=normal_user, core__report_code="DR")
+        ValidationFactory.create_batch(1, core__user=normal_user, core__report_code="TR")
+        ValidationFactory.create_batch(2, core__user=normal_user, core__report_code="DR")
         res = client_authenticated_user.get(reverse("validation-list"), {"report_code": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
@@ -244,10 +244,14 @@ class TestValidationAPI:
     def test_list_filters_by_api_endpoint(
         self, client_authenticated_user, normal_user, query, expected_count
     ):
-        CounterAPIValidationFactory.create_batch(1, user=normal_user, core__api_endpoint="/members")
-        CounterAPIValidationFactory.create_batch(2, user=normal_user, core__api_endpoint="/status")
         CounterAPIValidationFactory.create_batch(
-            3, user=normal_user, core__api_endpoint="/reports/[id]"
+            1, core__user=normal_user, core__api_endpoint="/members"
+        )
+        CounterAPIValidationFactory.create_batch(
+            2, core__user=normal_user, core__api_endpoint="/status"
+        )
+        CounterAPIValidationFactory.create_batch(
+            3, core__user=normal_user, core__api_endpoint="/reports/[id]"
         )
         res = client_authenticated_user.get(reverse("validation-list"), {"api_endpoint": query})
         assert res.status_code == 200
@@ -260,8 +264,8 @@ class TestValidationAPI:
     def test_list_filters_by_data_source(
         self, client_authenticated_user, normal_user, query, expected_count
     ):
-        v = ValidationFactory.create_batch(1, user=normal_user)
-        cvs = CounterAPIValidationFactory.create_batch(2, user=normal_user)
+        v = ValidationFactory.create_batch(1, core__user=normal_user)
+        cvs = CounterAPIValidationFactory.create_batch(2, core__user=normal_user)
         assert v[0].core.sushi_credentials_checksum == ""
         assert all(c.core.sushi_credentials_checksum != "" for c in cvs)
         res = client_authenticated_user.get(reverse("validation-list"), {"data_source": query})
@@ -272,8 +276,8 @@ class TestValidationAPI:
     def test_list_filters_by_published(
         self, client_authenticated_user, normal_user, published, expected_count
     ):
-        ValidationFactory.create_batch(3, user=normal_user)
-        ValidationFactory.create(user=normal_user, public_id=uuid4())
+        ValidationFactory.create_batch(3, core__user=normal_user)
+        ValidationFactory.create(core__user=normal_user, public_id=uuid4())
         res = client_authenticated_user.get(
             reverse("validation-list"), {"published": published} if published is not None else {}
         )
@@ -296,7 +300,7 @@ class TestValidationAPI:
         ],
     )
     def test_list_filters_order_by(self, client_authenticated_user, normal_user, desc, attr):
-        ValidationFactory.create_batch(3, user=normal_user)
+        ValidationFactory.create_batch(3, core__user=normal_user)
         res = client_authenticated_user.get(
             reverse("validation-list"), {"order_by": attr, "order_desc": desc}
         )
@@ -313,9 +317,9 @@ class TestValidationAPI:
     def test_list_filters_by_user_note(
         self, client_authenticated_user, normal_user, query, expected_count
     ):
-        ValidationFactory.create_batch(3, user=normal_user, user_note="barakuda")
-        ValidationFactory.create(user=normal_user, user_note="fooo")
-        ValidationFactory.create(user=normal_user, user_note="whatever")
+        ValidationFactory.create_batch(3, core__user=normal_user, user_note="barakuda")
+        ValidationFactory.create(core__user=normal_user, user_note="fooo")
+        ValidationFactory.create(core__user=normal_user, user_note="whatever")
         res = client_authenticated_user.get(
             reverse("validation-list"), {"search": query} if query is not None else {}
         )
@@ -323,7 +327,7 @@ class TestValidationAPI:
         assert res.json()["count"] == expected_count
 
     def test_validation_publish(self, client_authenticated_user, normal_user):
-        v = ValidationFactory.create(user=normal_user)
+        v = ValidationFactory.create(core__user=normal_user)
         assert v.public_id is None
         res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
         assert res.status_code == 200
@@ -332,7 +336,7 @@ class TestValidationAPI:
         assert str(v.public_id) == res.json()["public_id"]
 
     def test_validation_unpublish(self, client_authenticated_user, normal_user):
-        v = ValidationFactory.create(user=normal_user)
+        v = ValidationFactory.create(core__user=normal_user)
         v.publish()
         assert v.public_id is not None
         res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
@@ -344,7 +348,7 @@ class TestValidationAPI:
     def test_validation_publish_unpublish_not_allowed_for_other_users(
         self, client_authenticated_user, normal_user
     ):
-        v = ValidationFactory.create(user=UserFactory())  # noqa: F821
+        v = ValidationFactory.create(core__user=UserFactory())  # noqa: F821
         res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
         assert res.status_code == 404
         res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
@@ -358,8 +362,8 @@ class TestValidationAPI:
     def test_all_validations_endpoint_content(
         self, validator_admin_user, normal_user, client_validator_admin_user
     ):
-        ValidationFactory.create_batch(3, user=validator_admin_user)
-        ValidationFactory.create_batch(2, user=normal_user)
+        ValidationFactory.create_batch(3, core__user=validator_admin_user)
+        ValidationFactory.create_batch(2, core__user=normal_user)
         res = client_validator_admin_user.get(reverse("validation-list-all"))
         assert res.status_code == 200
         assert res.json()["count"] == 5
@@ -459,7 +463,7 @@ class TestFileValidationAPI:
         assert val.filename == filename
         assert val.user_note == "test"
         assert str(val.pk) == res.json()["id"]
-        assert val.user == normal_user
+        assert val.core.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
 
@@ -586,7 +590,7 @@ class TestCounterAPIValidationAPI:
         assert val.requested_end_date is None
 
     def test_detail_for_generic_validation_api(self, client_authenticated_user, normal_user):
-        val = CounterAPIValidationFactory(user=normal_user)
+        val = CounterAPIValidationFactory(core__user=normal_user)
         res = client_authenticated_user.get(reverse("validation-detail", args=[val.pk]))
         assert res.status_code == 200
         data = res.json()
@@ -615,14 +619,14 @@ class TestCounterAPIValidationAPI:
             p.assert_called_once_with(UUID(res.json()["id"]))
         val = Validation.objects.select_related("core").get()
         assert str(val.pk) == res.json()["id"]
-        assert val.user == normal_user
+        assert val.core.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
 
     def test_list_with_expired_validations(self, client_authenticated_user, normal_user):
-        CounterAPIValidationFactory.create_batch(3, user=normal_user)
+        CounterAPIValidationFactory.create_batch(3, core__user=normal_user)
         CounterAPIValidationFactory.create_batch(
-            5, user=normal_user, core__expiration_date=now() - timedelta(hours=1)
+            5, core__user=normal_user, core__expiration_date=now() - timedelta(hours=1)
         )
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
@@ -632,8 +636,10 @@ class TestCounterAPIValidationAPI:
 @pytest.mark.django_db
 class TestValidationMessagesAPI:
     def test_list(self, client_authenticated_user, normal_user):
-        val = ValidationFactory(user=normal_user, messages__count=3)
-        ValidationFactory(user=normal_user, messages__count=5)  # other validation, not in output
+        val = ValidationFactory(core__user=normal_user, messages__count=3)
+        ValidationFactory(
+            core__user=normal_user, messages__count=5
+        )  # other validation, not in output
         res = client_authenticated_user.get(reverse("validation-message-list", args=[val.pk]))
         assert res.status_code == 200
         out = res.json()
@@ -651,8 +657,8 @@ class TestValidationMessagesAPI:
         assert "data" in first
 
     def test_detail(self, client_authenticated_user, normal_user):
-        val = ValidationFactory(user=normal_user, messages__count=3)
-        ValidationFactory(user=normal_user, messages__count=5)
+        val = ValidationFactory(core__user=normal_user, messages__count=3)
+        ValidationFactory(core__user=normal_user, messages__count=5)
         m = val.messages.first()
         res = client_authenticated_user.get(
             reverse("validation-message-detail", args=[val.pk, m.pk])
@@ -668,7 +674,7 @@ class TestValidationMessagesAPI:
 
     @pytest.mark.parametrize("page_size", [5, 8, 10, 15])
     def test_list_pagination(self, client_authenticated_user, normal_user, page_size):
-        val = ValidationFactory(user=normal_user, messages__count=10)
+        val = ValidationFactory(core__user=normal_user, messages__count=10)
         res = client_authenticated_user.get(
             reverse("validation-message-list", args=[val.pk]), {"page_size": page_size}
         )
@@ -683,7 +689,7 @@ class TestValidationMessagesAPI:
     @pytest.mark.parametrize("order_desc", [True, False])
     @pytest.mark.parametrize("order_by", ["summary", "hint", "location"])
     def test_list_ordering(self, client_authenticated_user, normal_user, order_by, order_desc):
-        val = ValidationFactory(user=normal_user, messages__count=10)
+        val = ValidationFactory(core__user=normal_user, messages__count=10)
         res = client_authenticated_user.get(
             reverse("validation-message-list", args=[val.pk]),
             {"order_by": order_by, "order_desc": order_desc},
@@ -702,7 +708,7 @@ class TestValidationMessagesAPI:
         Severity needs to be decoded back to the enum value to be able to compare it,
         so it has a separate test
         """
-        val = ValidationFactory(user=normal_user, messages__count=10)
+        val = ValidationFactory(core__user=normal_user, messages__count=10)
         res = client_authenticated_user.get(
             reverse("validation-message-list", args=[val.pk]),
             {"order_by": "severity", "order_desc": order_desc},
@@ -722,7 +728,7 @@ class TestValidationMessagesAPI:
     def test_list_filtering_by_severity(
         self, client_authenticated_user, normal_user, severity, encoding
     ):
-        val = ValidationFactory(user=normal_user)
+        val = ValidationFactory(core__user=normal_user)
         ValidationMessageFactory.create_batch(3, validation=val, severity=severity)
         ValidationMessageFactory.create_batch(1, validation=val, severity=SeverityLevel.NOTICE)
         ValidationMessageFactory.create_batch(
@@ -779,7 +785,7 @@ class TestValidationAPIThrottling:
         Test that GET requests are not throttled.
         """
         settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
-        ValidationFactory.create_batch(10, user=normal_user)
+        ValidationFactory.create_batch(10, core__user=normal_user)
         res = client_with_api_key.get(reverse("validation-list"))
         assert res.status_code == 200
         assert res.json()["count"] == 10
@@ -817,7 +823,7 @@ class TestValidationAPIThrottling:
         Normal access (with cookie based authentication) should not be throttled.
         """
         settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["api_keys"] = "1/minute"
-        ValidationFactory.create_batch(10, user=normal_user)
+        ValidationFactory.create_batch(10, core__user=normal_user)
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
         assert res.json()["count"] == 10

@@ -67,6 +67,9 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         help_text="Code of the report as reported by the validation module",
     )
     status = models.SmallIntegerField(choices=ValidationStatus, default=ValidationStatus.WAITING)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     user_email_checksum = models.CharField(max_length=2 * settings.HASHING_DIGEST_SIZE)
     api_key_prefix = models.CharField(max_length=8, blank=True)
     expiration_date = models.DateTimeField(null=True, blank=True)
@@ -215,7 +218,6 @@ class ValidationQuerySet(models.QuerySet):
 
 class Validation(UUIDPkMixin, models.Model):
     core = models.OneToOneField(ValidationCore, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     task_id = models.CharField(
         max_length=getattr(settings, "DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH", 255),
@@ -263,12 +265,12 @@ class Validation(UUIDPkMixin, models.Model):
             status=ValidationStatus.WAITING,
             file_size=file_size,
             file_checksum=file_checksum,
+            user=user,
             user_email_checksum=checksum_string(user.email),
             api_key_prefix=api_key_prefix,
         )
         validation = cls.objects.create(
             core=core,
-            user=user,
             filename=file.name,
             file=file,
             user_note=user_note,

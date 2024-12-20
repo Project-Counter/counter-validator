@@ -16,6 +16,7 @@ export type User = {
   is_validator_admin?: boolean
   is_superuser?: boolean
   is_active?: boolean
+  has_admin_role?: boolean
 }
 
 export type Report = {
@@ -108,6 +109,7 @@ export type ValidationBase = {
   expiration_date: string
   error_message: string
   stats: Record<SeverityLevel, number>
+  user?: User
 }
 
 export type ValidationCore = {
@@ -137,7 +139,6 @@ export type Validation = {
   requested_end_date: string | null
   public_id: string | null
   user_note: string | null
-  user?: User
 } & ValidationBase
 
 export type ValidationDetail = Validation & {
