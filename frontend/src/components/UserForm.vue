@@ -14,7 +14,6 @@
           counter
           label="First name"
           :maxlength="150"
-          :rules="[rules.required]"
         />
       </v-col>
       <v-col
@@ -26,7 +25,6 @@
           counter
           label="Last name"
           :maxlength="150"
-          :rules="[rules.required]"
         />
       </v-col>
     </v-row>

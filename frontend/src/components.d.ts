@@ -35,6 +35,7 @@ declare module 'vue' {
     TextTooltip: typeof import('./components/TextTooltip.vue')['default']
     UserEditWidget: typeof import('./components/UserEditWidget.vue')['default']
     UserForm: typeof import('./components/UserForm.vue')['default']
+    UserName: typeof import('./components/UserName.vue')['default']
     UserTable: typeof import('./components/UserTable.vue')['default']
     ValidationBasicInfo: typeof import('./components/ValidationBasicInfo.vue')['default']
     ValidationCoreTable: typeof import('./components/ValidationCoreTable.vue')['default']

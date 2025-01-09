@@ -4,9 +4,10 @@ import { ApiKey, User } from "../definitions/api"
 
 export const urls = {
   user: "core/me",
+  userPatch: "auth/user/",
   login: "auth/login/",
   logout: "auth/logout/",
-  signup: "auth/registration/",
+  signup: "registration/",
   apiKey: "core/api-key/",
 }
 
@@ -32,7 +33,7 @@ export async function checkUser(reset = false) {
 
 export async function updateUser(obj: User) {
   try {
-    await wrapFetch(urls.user, {
+    await wrapFetch(urls.userPatch, {
       method: "PATCH",
       json: obj,
     })

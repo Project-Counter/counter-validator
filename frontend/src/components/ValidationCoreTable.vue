@@ -40,6 +40,13 @@
 
     <template #item.duration="{ item }"> {{ Math.round(1000 * item.duration) }} ms </template>
 
+    <template #item.user="{ item }">
+      <UserName
+        class="text-caption"
+        :user="item.user"
+      />
+    </template>
+
     <template #top>
       <ValidationFilterSet
         v-model:validation-result-filter="validationResultFilter"
@@ -47,6 +54,8 @@
         v-model:report-code-filter="reportCodeFilter"
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
+        text-filter-label="User"
+        show-text-filter
         class="pb-8"
       />
     </template>
@@ -67,6 +76,7 @@ type ReadonlyHeaders = VDataTable["$props"]["headers"]
 
 const headers: ReadonlyHeaders = [
   { key: "created", title: "Time" },
+  { key: "user", title: "User" },
   { key: "status", title: "Status", width: 1 },
   { key: "cop_version", title: "COP version" },
   { key: "report_code", title: "Report id" },

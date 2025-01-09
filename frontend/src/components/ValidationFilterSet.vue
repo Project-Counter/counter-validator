@@ -110,25 +110,31 @@ import {
 } from "@/lib/definitions/api"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import { booleanOptions } from "@/lib/options"
-import { useAppStore } from "@/stores/app"
 
+// models
 const validationResultFilter = defineModel<SeverityLevel[]>("validationResultFilter")
 const copVersionFilter = defineModel<CoP[]>("copVersionFilter")
 const reportCodeFilter = defineModel<ReportCode[]>("reportCodeFilter")
 const endpointFilter = defineModel<CounterAPIEndpoint[]>("endpointFilter")
 const sourceFilter = defineModel<DataSource[]>("sourceFilter")
 const publishedFilter = defineModel<boolean | null | undefined>("publishedFilter")
-const showPublishedFilter = defineModel<boolean>("showPublishedFilter")
 const textFilter = defineModel<string>("textFilter")
-const showTextFilter = defineModel<boolean>("showTextFilter")
+
+// props
+withDefaults(
+  defineProps<{
+    showPublishedFilter?: boolean
+    showTextFilter?: boolean
+    textFilterLabel?: string
+  }>(),
+  {
+    showPublishedFilter: false,
+    showTextFilter: false,
+    textFilterLabel: "Text",
+  },
+)
 
 const { severityLevels, dataSources, reportCodes } = useValidationFilters()
-
-const { user } = useAppStore()
-
-const textFilterLabel = computed(() => {
-  return user.has_admin_role ? "Text (note, filename, user)" : "Text (note, filename)"
-})
 </script>
 
 <style scoped></style>

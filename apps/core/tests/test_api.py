@@ -229,3 +229,19 @@ class TestRegistrationAPI:
         )
         assert res.status_code == 400
         assert res.json() == {"email": ["A user is already registered with this e-mail address."]}
+
+    def test_names_are_stored(self, client_unauthenticated):
+        res = client_unauthenticated.post(
+            reverse("rest_register"),
+            data={
+                "email": "foo@bar.baz",
+                "first_name": "Foo",
+                "last_name": "Bar",
+                "password1": "fksld39082dwfjl",
+                "password2": "fksld39082dwfjl",
+            },
+        )
+        assert res.status_code == 204
+        user = User.objects.get(email="foo@bar.baz")
+        assert user.first_name == "Foo"
+        assert user.last_name == "Bar"

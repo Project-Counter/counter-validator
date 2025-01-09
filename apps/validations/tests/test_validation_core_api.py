@@ -1,4 +1,5 @@
 import pytest
+from core.fake_data import UserFactory
 from django.urls import reverse
 
 from validations.enums import SeverityLevel
@@ -24,21 +25,23 @@ class TestValidationCoreAPI:
             assert len(data) == min(page_size, 10)
             first = data[0]
             # check fields that should be there
-            assert "id" in first
-            assert "status" in first
-            assert "validation_result" in first
-            assert "created" in first
-            assert "cop_version" in first
-            assert "report_code" in first
-            assert "file_size" in first
-            assert "used_memory" in first
-            assert "duration" in first
-            assert "stats" in first
-            assert "error_message" in first
-            assert "source" in first and first["source"] == "file"
-            # stuff that should not be there - it is in Validation only
-            assert "filename" not in first
-            assert "result_data" not in first
+            assert set(first.keys()) == {
+                "cop_version",
+                "created",
+                "duration",
+                "error_message",
+                "file_size",
+                "id",
+                "report_code",
+                "source",
+                "stats",
+                "status",
+                "used_memory",
+                "user",
+                "validation_result",
+            }
+            # check content values
+            assert first["source"] == "file"
 
     @pytest.mark.parametrize(
         ["query", "expected_count"], [["5", 1], ["5,5.1", 3], ["5.1", 2], ["", 3]]
@@ -106,6 +109,15 @@ class TestValidationCoreAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
+    def test_list_filter_by_text(self, admin_client):
+        u1 = UserFactory(email="foo@bar.baz")
+        u2 = UserFactory(email="bar@baz.com")
+        ValidationCoreFactory.create_batch(2, user=u1)
+        ValidationCoreFactory.create_batch(3, user=u2)
+        res = admin_client.get(reverse("validation-core-list"), {"search": "foo"})
+        assert res.status_code == 200
+        assert res.json()["count"] == 2
+
     @pytest.mark.parametrize("desc", [True, False])
     @pytest.mark.parametrize(
         "attr",
@@ -170,9 +182,11 @@ class TestValidationCoreAPI:
             assert res.status_code == 200
             data = res.json()
             first = data[0]
-            assert "result" in first
-            assert "source" in first
-            assert "method" in first
-            assert "cop_version" in first
-            assert "report_code" in first
-            assert "count" in first
+            assert set(first.keys()) == {
+                "result",
+                "source",
+                "method",
+                "cop_version",
+                "report_code",
+                "count",
+            }

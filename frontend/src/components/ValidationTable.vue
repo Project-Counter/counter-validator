@@ -111,15 +111,10 @@
     </template>
 
     <template #item.user="{ item }">
-      <span
-        v-if="item.user"
+      <UserName
+        :user="item.user"
         class="text-caption"
-        >{{
-          item.user.first_name || item.user.last_name
-            ? `${item.user.first_name} ${item.user.last_name}`
-            : item.user.email
-        }}
-      </span>
+      />
     </template>
 
     <template #top>
@@ -133,6 +128,7 @@
         v-model:text-filter="textFilter"
         show-published-filter
         show-text-filter
+        :text-filter-label="admin ? 'Note, filename, user' : 'Note, filename'"
         class="pb-8"
       />
     </template>
@@ -147,6 +143,7 @@ import { filesize } from "filesize"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import debounce from "lodash/debounce"
 import { DataTableHeader } from "@/lib/vuetifyTypes"
+import UserName from "@/components/UserName.vue"
 
 const props = withDefaults(
   defineProps<{

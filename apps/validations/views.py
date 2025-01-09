@@ -189,10 +189,17 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
         ValidationCoreValidationResultFilter,
         ValidationCoreReportCodeFilter,
         ValidationCoreAPIEndpointFilter,
+        SearchFilter,
+    ]
+    # which fields to search using the SearchFilter
+    search_fields = [
+        "user__first_name",
+        "user__last_name",
+        "user__email",
     ]
 
     def get_queryset(self):
-        return ValidationCore.objects.order_by("-created")
+        return ValidationCore.objects.select_related("user").order_by("-created")
 
     @action(detail=False, methods=("GET",))
     def stats(self, request):

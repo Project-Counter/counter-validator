@@ -38,6 +38,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ValidatorRegisterSerializer(RegisterSerializer):
+    first_name = serializers.CharField(required=False, write_only=True)
+    last_name = serializers.CharField(required=False, write_only=True)
+
     def validate_email(self, email):
         email = super().validate_email(email)
         if email and User.objects.filter(email=email).exists():
@@ -45,3 +48,10 @@ class ValidatorRegisterSerializer(RegisterSerializer):
                 "A user is already registered with this e-mail address."
             )
         return email
+
+    def save(self, request):
+        user = super().save(request)
+        user.first_name = self.validated_data.get("first_name", "")
+        user.last_name = self.validated_data.get("last_name", "")
+        user.save()
+        return user

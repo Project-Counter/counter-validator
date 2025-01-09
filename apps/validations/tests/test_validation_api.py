@@ -40,23 +40,32 @@ class TestValidationAPI:
             assert "results" in res.json()
             assert len(res.json()["results"]) == 8
             first = res.json()["results"][0]
-            assert "id" in first
-            assert "filename" in first
-            assert "file_url" in first
-            assert "status" in first
-            assert "user_note" in first
-            assert "validation_result" in first
-            assert "created" in first
-            assert "result_data" not in first
-            assert "error_message" in first
-            assert "file_size" in first
-            assert "cop_version" in first
-            assert "report_code" in first
-            assert "api_key_prefix" in first
-            assert "data_source" in first
-            assert "expiration_date" in first
-            assert "public_id" in first
-            assert "user" not in first, "user should only be present when listing all for admin"
+            assert set(first.keys()) == {
+                "api_endpoint",
+                "api_key_prefix",
+                "cop_version",
+                "created",
+                "credentials",
+                "data_source",
+                "error_message",
+                "expiration_date",
+                "file_size",
+                "file_url",
+                "filename",
+                "id",
+                "public_id",
+                "report_code",
+                "requested_begin_date",
+                "requested_cop_version",
+                "requested_end_date",
+                "requested_extra_attributes",
+                "requested_report_code",
+                "stats",
+                "status",
+                "url",
+                "user_note",
+                "validation_result",
+            }
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -76,22 +85,33 @@ class TestValidationAPI:
             res = client_authenticated_user.get(reverse("validation-detail", args=[v.pk]))
             assert res.status_code == 200
             data = res.json()
-            assert "id" in data
-            assert "filename" in data
-            assert "file_url" in data
-            assert "status" in data
-            assert "user_note" in data
-            assert "validation_result" in data
-            assert "created" in data
-            assert "result_data" in data
-            assert "error_message" in data
-            assert "file_size" in data
-            assert "cop_version" in data
-            assert "report_code" in data
-            assert "api_key_prefix" in data
-            assert "data_source" in data
-            assert "expiration_date" in data
-            assert "public_id" in data
+            assert set(data.keys()) == {
+                "api_endpoint",
+                "api_key_prefix",
+                "cop_version",
+                "created",
+                "credentials",
+                "data_source",
+                "error_message",
+                "expiration_date",
+                "file_size",
+                "file_url",
+                "filename",
+                "id",
+                "public_id",
+                "report_code",
+                "requested_begin_date",
+                "requested_cop_version",
+                "requested_end_date",
+                "requested_extra_attributes",
+                "requested_report_code",
+                "result_data",
+                "stats",
+                "status",
+                "url",
+                "user_note",
+                "validation_result",
+            }
 
     def test_validation_detail_other_users(self, client_authenticated_user):
         v = ValidationFactory()  # this belongs to some randomly created user
@@ -368,23 +388,33 @@ class TestValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == 5
         first = res.json()["results"][0]
-        assert "id" in first
-        assert "filename" in first
-        assert "file_url" in first
-        assert "status" in first
-        assert "user_note" in first
-        assert "validation_result" in first
-        assert "created" in first
-        assert "result_data" not in first
-        assert "error_message" in first
-        assert "file_size" in first
-        assert "cop_version" in first
-        assert "report_code" in first
-        assert "api_key_prefix" in first
-        assert "data_source" in first
-        assert "expiration_date" in first
-        assert "public_id" in first
-        assert "user" in first, "`user` extra field should be present"
+        assert set(first.keys()) == {
+            "api_endpoint",
+            "api_key_prefix",
+            "cop_version",
+            "created",
+            "credentials",
+            "data_source",
+            "error_message",
+            "expiration_date",
+            "file_size",
+            "file_url",
+            "filename",
+            "id",
+            "public_id",
+            "report_code",
+            "requested_begin_date",
+            "requested_cop_version",
+            "requested_end_date",
+            "requested_extra_attributes",
+            "requested_report_code",
+            "stats",
+            "status",
+            "url",
+            "user",
+            "user_note",
+            "validation_result",
+        }
         user = first["user"]
         assert "id" in user
         assert "email" in user

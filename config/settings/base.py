@@ -203,7 +203,6 @@ LOGGING = {
 # our own settings
 CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8180/")
 REGISTRY_URL = config("REGISTRY_URL", default="https://registry.countermetrics.org")
-RANDOM_FILENAME_LENGTH = config("RANDOM_FILENAME_LENGTH", cast=int, default=60)
 MAX_FILE_SIZE = config("MAX_FILE_SIZE", cast=int, default=20 * (1024**2))
 # size of the hash in bytes. Blake 2b is used as the hashing algorithm
 HASHING_DIGEST_SIZE = config("FILE_HASHING_DIGEST_SIZE", cast=int, default=32)

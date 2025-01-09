@@ -193,6 +193,7 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
         read_only=True, source="get_validation_result_display"
     )
     source = serializers.SerializerMethodField()
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = ValidationCore
@@ -209,6 +210,7 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
             "stats",
             "error_message",
             "source",
+            "user",
         )
         read_only_fields = fields
 
