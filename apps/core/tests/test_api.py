@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from django.urls import reverse
 
@@ -245,3 +247,41 @@ class TestRegistrationAPI:
         user = User.objects.get(email="foo@bar.baz")
         assert user.first_name == "Foo"
         assert user.last_name == "Bar"
+
+
+@pytest.mark.django_db
+class TestPasswordReset:
+    def test_password_reset_email_sending(self, client_unauthenticated, normal_user, mailoutbox):
+        assert len(mailoutbox) == 0
+        res = client_unauthenticated.post(
+            reverse("rest_password_reset"),
+            data={"email": normal_user.email},
+        )
+        assert res.status_code == 200
+        assert len(mailoutbox) == 1
+
+    def test_password_reset_from_email_link(self, client_unauthenticated, normal_user, mailoutbox):
+        """
+        Test that the password reset link works.
+        """
+        assert len(mailoutbox) == 0
+        res = client_unauthenticated.post(
+            reverse("rest_password_reset"),
+            data={"email": normal_user.email},
+        )
+        assert res.status_code == 200
+        assert len(mailoutbox) == 1
+        mail = mailoutbox[0]
+        m = re.search(r"\?uid=(\S+)&token=(\S+)", mail.body)
+        assert m
+        uid, token = m.groups()
+        res = client_unauthenticated.post(
+            reverse("rest_password_reset_confirm"),
+            data={
+                "uid": uid,
+                "token": token,
+                "new_password1": "new_password1",
+                "new_password2": "new_password1",
+            },
+        )
+        assert res.status_code == 200

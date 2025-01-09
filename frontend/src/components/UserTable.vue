@@ -100,7 +100,7 @@
       </v-dialog>
 
       <v-btn
-        v-if="item.id !== currentUser.id"
+        v-if="item.id !== store.user?.id"
         color="error"
         prepend-icon="mdi-delete"
         variant="tonal"
@@ -146,18 +146,17 @@ onMounted(loadUsers)
 const search = ref("")
 
 // user editing and creation
-const { displayNotification, user: currentUser } = useAppStore()
-console.log(currentUser)
+const store = useAppStore()
 
 function userCreated(isActive: Ref<boolean>) {
   isActive.value = false
-  displayNotification({ message: "User successfully created", type: "success" })
+  store.displayNotification({ message: "User successfully created", type: "success" })
   loadUsers()
 }
 
 function userUpdated(isActive: Ref<boolean>) {
   isActive.value = false
-  displayNotification({ message: "User successfully updated", type: "success" })
+  store.displayNotification({ message: "User successfully updated", type: "success" })
   loadUsers()
 }
 
@@ -176,7 +175,7 @@ async function deleteUser(user: User) {
   }).then(async (answer) => {
     if (!answer) return
     await callDeleteUser(user)
-    displayNotification({ message: "User successfully deleted", type: "success" })
+    store.displayNotification({ message: "User successfully deleted", type: "success" })
     await loadUsers()
   })
 }

@@ -526,7 +526,7 @@ async function create() {
     creatingValidation.value = false
   }
   store.displayNotification({ message: "Validation was successfully started", type: "success" })
-  await router.push({ name: "/" })
+  await router.push("/validation/")
 }
 
 onMounted(loadPlatformData)

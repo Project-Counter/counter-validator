@@ -14,10 +14,10 @@ class TestValidationCoreAPI:
         assert res.status_code == status_code
 
     @pytest.mark.parametrize("page_size", [5, 10, 20])
-    def test_list(self, admin_client, django_assert_max_num_queries, page_size):
+    def test_list(self, client_su_user, django_assert_max_num_queries, page_size):
         ValidationCoreFactory.create_batch(10)
         with django_assert_max_num_queries(9):
-            res = admin_client.get(reverse("validation-core-list"), {"page_size": page_size})
+            res = client_su_user.get(reverse("validation-core-list"), {"page_size": page_size})
             assert res.status_code == 200
             assert res.json()["count"] == 10
             assert "next" in res.json()
@@ -46,24 +46,24 @@ class TestValidationCoreAPI:
     @pytest.mark.parametrize(
         ["query", "expected_count"], [["5", 1], ["5,5.1", 3], ["5.1", 2], ["", 3]]
     )
-    def test_list_filters_cop_version(self, admin_client, query, expected_count):
+    def test_list_filters_cop_version(self, client_su_user, query, expected_count):
         ValidationCoreFactory.create_batch(1, cop_version="5")
         ValidationCoreFactory.create_batch(2, cop_version="5.1")
-        res = admin_client.get(reverse("validation-core-list"), {"cop_version": query})
+        res = client_su_user.get(reverse("validation-core-list"), {"cop_version": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
-    def test_list_filters_validation_result(self, admin_client):
+    def test_list_filters_validation_result(self, client_su_user):
         ValidationCoreFactory.create_batch(3, validation_result=SeverityLevel.NOTICE)
         ValidationCoreFactory.create_batch(5, validation_result=SeverityLevel.ERROR)
 
-        res = admin_client.get(
+        res = client_su_user.get(
             reverse("validation-core-list"), {"validation_result": SeverityLevel.NOTICE.label}
         )
         assert res.status_code == 200
         assert res.json()["count"] == 3
         # test with multiple values
-        res = admin_client.get(
+        res = client_su_user.get(
             reverse("validation-core-list"),
             {"validation_result": f"{SeverityLevel.ERROR.label},{SeverityLevel.NOTICE.label}"},
         )
@@ -73,10 +73,10 @@ class TestValidationCoreAPI:
     @pytest.mark.parametrize(
         ["query", "expected_count"], [["TR", 1], ["TR,DR", 3], ["", 3], ["DR", 2]]
     )
-    def test_list_filters_by_report_code(self, admin_client, query, expected_count):
+    def test_list_filters_by_report_code(self, client_su_user, query, expected_count):
         ValidationCoreFactory.create_batch(1, report_code="TR")
         ValidationCoreFactory.create_batch(2, report_code="DR")
-        res = admin_client.get(reverse("validation-core-list"), {"report_code": query})
+        res = client_su_user.get(reverse("validation-core-list"), {"report_code": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
@@ -90,11 +90,11 @@ class TestValidationCoreAPI:
             ["/status,/reports/[id]", 5],
         ],
     )
-    def test_list_filters_by_api_endpoint(self, admin_client, query, expected_count):
+    def test_list_filters_by_api_endpoint(self, client_su_user, query, expected_count):
         ValidationCoreFactory.create_batch(1, api_endpoint="/members")
         ValidationCoreFactory.create_batch(2, api_endpoint="/status")
         ValidationCoreFactory.create_batch(3, api_endpoint="/reports/[id]")
-        res = admin_client.get(reverse("validation-core-list"), {"api_endpoint": query})
+        res = client_su_user.get(reverse("validation-core-list"), {"api_endpoint": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
@@ -102,19 +102,19 @@ class TestValidationCoreAPI:
         ["query", "expected_count"],
         [["file", 1], ["counter_api", 2], ["", 3], ["file,counter_api", 3]],
     )
-    def test_list_filters_by_data_source(self, admin_client, query, expected_count):
+    def test_list_filters_by_data_source(self, client_su_user, query, expected_count):
         ValidationCoreFactory.create_batch(1)
         ValidationCoreFactory.create_batch(2, sushi_credentials_checksum="123")
-        res = admin_client.get(reverse("validation-core-list"), {"data_source": query})
+        res = client_su_user.get(reverse("validation-core-list"), {"data_source": query})
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
-    def test_list_filter_by_text(self, admin_client):
+    def test_list_filter_by_text(self, client_su_user):
         u1 = UserFactory(email="foo@bar.baz")
         u2 = UserFactory(email="bar@baz.com")
         ValidationCoreFactory.create_batch(2, user=u1)
         ValidationCoreFactory.create_batch(3, user=u2)
-        res = admin_client.get(reverse("validation-core-list"), {"search": "foo"})
+        res = client_su_user.get(reverse("validation-core-list"), {"search": "foo"})
         assert res.status_code == 200
         assert res.json()["count"] == 2
 
@@ -130,9 +130,9 @@ class TestValidationCoreAPI:
             "validation_result",
         ],
     )
-    def test_list_filters_order_by_filesize(self, admin_client, desc, attr):
+    def test_list_filters_order_by_filesize(self, client_su_user, desc, attr):
         ValidationCoreFactory.create_batch(3)
-        res = admin_client.get(
+        res = client_su_user.get(
             reverse("validation-core-list"), {"order_by": attr, "order_desc": desc}
         )
         assert res.status_code == 200
@@ -142,15 +142,15 @@ class TestValidationCoreAPI:
         else:
             assert res.json()["results"][0][attr] <= res.json()["results"][-1][attr]
 
-    def test_delete_not_allowed(self, admin_client):
+    def test_delete_not_allowed(self, client_su_user):
         v = ValidationCoreFactory()
-        res = admin_client.delete(reverse("validation-core-detail", args=[v.pk]))
+        res = client_su_user.delete(reverse("validation-core-detail", args=[v.pk]))
         assert res.status_code == 405
 
-    def test_stats(self, admin_client, django_assert_max_num_queries):
+    def test_stats(self, client_su_user, django_assert_max_num_queries):
         ValidationCoreFactory.create_batch(10)
         with django_assert_max_num_queries(9):
-            res = admin_client.get(reverse("validation-core-stats"))
+            res = client_su_user.get(reverse("validation-core-stats"))
             assert res.status_code == 200
             data = res.json()
             assert "total" in data
@@ -161,10 +161,10 @@ class TestValidationCoreAPI:
                 assert "avg" in data[key]
                 assert "median" in data[key]
 
-    def test_time_stats(self, admin_client, django_assert_max_num_queries):
+    def test_time_stats(self, client_su_user, django_assert_max_num_queries):
         ValidationCoreFactory.create_batch(10)
         with django_assert_max_num_queries(9):
-            res = admin_client.get(reverse("validation-core-time-stats"))
+            res = client_su_user.get(reverse("validation-core-time-stats"))
             assert res.status_code == 200
             data = res.json()
             assert len(data) == 1, "just today"
@@ -175,10 +175,10 @@ class TestValidationCoreAPI:
                 if severity.label:
                     assert severity.label in data[0]
 
-    def test_split_stats(self, admin_client, django_assert_max_num_queries):
+    def test_split_stats(self, client_su_user, django_assert_max_num_queries):
         ValidationCoreFactory.create_batch(10)
         with django_assert_max_num_queries(9):
-            res = admin_client.get(reverse("validation-core-split-stats"))
+            res = client_su_user.get(reverse("validation-core-split-stats"))
             assert res.status_code == 200
             data = res.json()
             first = data[0]

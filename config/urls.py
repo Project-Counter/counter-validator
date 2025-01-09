@@ -28,6 +28,9 @@ urlpatterns = [
     path(f"{API_PREFIX}/validations/", include("validations.urls")),
     path(f"{API_PREFIX}/auth/", include("dj_rest_auth.urls")),
     path(f"{API_PREFIX}/registration/", include("dj_rest_auth.registration.urls")),
+    path(
+        f"{API_PREFIX}/account/", include("django.contrib.auth.urls")
+    ),  # contains link to reset password
     path("admin/", admin.site.urls),
 ]
 

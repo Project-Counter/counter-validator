@@ -123,9 +123,9 @@ class TestValidationAPI:
         res = client_validator_admin_user.get(reverse("validation-detail", args=[v.pk]))
         assert res.status_code == 200, "admin can see validation details"
 
-    def test_validation_detail_superuser(self, admin_client, normal_user):
+    def test_validation_detail_superuser(self, client_su_user, normal_user):
         v = ValidationFactory(core__user=normal_user)
-        res = admin_client.get(reverse("validation-detail", args=[v.pk]))
+        res = client_su_user.get(reverse("validation-detail", args=[v.pk]))
         assert res.status_code == 200, "superuser can see validation details"
 
     def test_validation_delete_preserves_core(self, client_authenticated_user, normal_user):

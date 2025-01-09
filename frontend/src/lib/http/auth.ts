@@ -9,26 +9,23 @@ export const urls = {
   logout: "auth/logout/",
   signup: "registration/",
   apiKey: "core/api-key/",
+  requestReset: "auth/password/reset/",
+  doReset: "auth/password/reset/confirm/",
 }
 
-export async function checkUser(reset = false) {
+export async function checkUser() {
   const store = useAppStore()
-  if (reset) {
-    store.loggedIn = null
-  }
 
   try {
     store.user = await jsonFetch<User>(urls.user)
   } catch (err: unknown) {
-    store.loggedIn = false
     if (err instanceof HttpStatusError) {
-      if (![401, 403].includes(err?.res?.status)) {
-        // TODO: 500 -> show error instead of login  // eslint-disable-line
+      if ([401, 403].includes(err?.res?.status)) {
+        store.user = null
       }
     }
     return
   }
-  store.loggedIn = true
 }
 
 export async function updateUser(obj: User) {
@@ -59,19 +56,43 @@ export async function logout() {
       method: "POST",
     })
   } finally {
-    await checkUser(true)
+    await checkUser()
   }
 }
 
-export async function signup(email: string, password1: string, password2: string) {
+export async function signup(
+  email: string,
+  password1: string,
+  password2: string,
+  extra: Record<string, string> = {},
+) {
   try {
     await wrapFetch(urls.signup, {
       method: "POST",
-      json: { email, password1, password2 },
+      json: { email, password1, password2, ...extra },
     })
   } finally {
     await checkUser()
   }
+}
+
+export async function requestPasswordReset(email: string) {
+  return jsonFetch(urls.requestReset, {
+    method: "POST",
+    json: { email },
+  })
+}
+
+export async function doPasswordReset(
+  uid: string,
+  token: string,
+  new_password1: string,
+  new_password2: string,
+) {
+  return jsonFetch<{ detail: string }>(urls.doReset, {
+    method: "POST",
+    json: { uid, token, new_password1, new_password2 },
+  })
 }
 
 export async function loadApiKeys() {

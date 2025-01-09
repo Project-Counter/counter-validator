@@ -1,20 +1,6 @@
 <template>
-  <router-view v-if="store.loggedIn" />
-  <v-app v-else>
-    <div
-      class="d-flex align-center justify-center"
-      style="height: 100vh"
-    >
-      <login-page v-if="store.loggedIn === false" />
-      <v-sheet
-        v-else
-        class="mx-auto pa-4"
-        rounded
-      >
-        <v-progress-circular indeterminate />
-      </v-sheet>
-    </div>
-  </v-app>
+  <router-view />
+
   <v-snackbar
     v-model="errorShow"
     color="error"

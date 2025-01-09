@@ -25,25 +25,14 @@ const light: ThemeDefinition = {
     subdued: "#707070",
   },
 }
-const dark: ThemeDefinition = {
-  dark: true,
-  colors: {
-    background: "#333333",
-  },
-}
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   theme: {
+    defaultTheme: "light",
     themes: {
       light,
-      dark,
     },
-    // variations: {
-    //   colors: ['error', 'info'],
-    //   lighten: 5,
-    //   darken: 0,
-    // },
   },
   defaults: {
     VSheet: { color: "background" },

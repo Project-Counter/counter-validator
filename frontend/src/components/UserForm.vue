@@ -54,8 +54,11 @@ const store = useAppStore()
 
 const form = ref(false)
 const loading = ref(false)
-const user: Ref<User> = ref({ ...store.user })
+const user = ref<User>(
+  store.user ? { ...store.user } : { first_name: "", last_name: "", email: "" },
+)
 const saved = computed(() => {
+  if (!store.user) return false
   for (const key of Object.keys(user.value) as Array<keyof User>) {
     if (user.value[key] !== store.user[key]) return false
   }
@@ -66,7 +69,7 @@ async function save() {
   user.value.first_name = user.value.first_name.replace(/\s+/g, " ")
   user.value.last_name = user.value.last_name.replace(/\s+/g, " ")
   await updateUser(user.value)
-  user.value = { ...store.user }
+  if (store.user) user.value = { ...store.user }
   loading.value = false
 }
 </script>

@@ -13,15 +13,34 @@
       >
         <v-list-item
           prepend-icon="mdi-home"
-          title="My validations"
+          title="Home"
           to="/"
         />
-        <v-list-item
-          prepend-icon="mdi-cog"
-          title="Settings"
-          to="/settings/"
-        />
-        <section v-if="user.has_admin_role">
+        <section v-if="store.user?.id">
+          <v-list-item
+            prepend-icon="mdi-file-multiple"
+            title="My validations"
+            to="/validation/"
+          />
+          <v-list-item
+            prepend-icon="mdi-cog"
+            title="Settings"
+            to="/settings/"
+          />
+        </section>
+        <section v-else>
+          <v-list-item
+            title="Log in"
+            to="/login"
+            prepend-icon="mdi-login"
+          />
+          <v-list-item
+            title="Register"
+            to="/register"
+            prepend-icon="mdi-account-plus"
+          />
+        </section>
+        <section v-if="store.user?.has_admin_role">
           <v-list-subheader>Admin</v-list-subheader>
           <v-list-item
             prepend-icon="mdi-file-multiple"
@@ -50,12 +69,15 @@
         </section>
       </v-list>
 
-      <template #append>
+      <template
+        v-if="store.user?.id"
+        #append
+      >
         <v-divider />
         <v-list>
           <v-list-item
-            :subtitle="user?.email"
-            :title="[user?.first_name, user?.last_name].join(' ')"
+            :subtitle="store.user?.email"
+            :title="[store.user?.first_name, store.user?.last_name].join(' ')"
           />
         </v-list>
         <v-btn
@@ -65,7 +87,7 @@
           text="Log out"
           tile
           variant="tonal"
-          @click="logout"
+          @click="doLogout"
         />
       </template>
     </v-navigation-drawer>
@@ -80,7 +102,14 @@
 <script setup lang="ts">
 import { logout } from "@/lib/http/auth"
 import { useAppStore } from "@/stores/app"
-const { user } = useAppStore()
+const store = useAppStore()
 
 const drawer: Ref<boolean | null | undefined> = ref(null)
+
+const router = useRouter()
+
+async function doLogout() {
+  await logout()
+  if (!store.user?.id) await router.push("/login")
+}
 </script>

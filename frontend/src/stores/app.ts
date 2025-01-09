@@ -6,12 +6,7 @@ import { ValidatedFile } from "@/lib/definitions/upload"
 import { Notification } from "@/lib/definitions/notifications"
 
 export const useAppStore = defineStore("app", () => {
-  const user: Ref<User> = ref({
-    first_name: "",
-    last_name: "",
-    email: "",
-  })
-  const loggedIn: Ref<boolean | null> = ref(null)
+  const user = ref<User | null>(null)
 
   const errors: Ref<VueError[]> = ref([])
 
@@ -32,7 +27,6 @@ export const useAppStore = defineStore("app", () => {
 
   return {
     user,
-    loggedIn,
     errors,
     darkTheme,
     fileHistory,
