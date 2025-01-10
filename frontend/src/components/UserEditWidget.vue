@@ -63,6 +63,7 @@
                     label="Is admin"
                     hide-details
                     density="compact"
+                    :disabled="user.id === store.user?.id"
                   />
                 </template>
                 Validator admins can manage other users and have access to all validations.
@@ -84,6 +85,7 @@
                     label="Is active"
                     hide-details
                     density="compact"
+                    :disabled="user?.id === store.user?.id"
                   />
                 </template>
                 Inactive users cannot log in - use for temporary account suspension.
@@ -117,6 +119,7 @@
 import { createUser, updateUser } from "@/lib/http/users"
 import { User } from "@/lib/definitions/api"
 import { HttpStatusError } from "@/lib/http/util"
+import { useAppStore } from "@/stores/app"
 
 const props = defineProps<{
   user?: User
@@ -128,6 +131,8 @@ const email = ref(props.user?.email || "")
 const isValidatorAdmin = ref(props.user?.is_validator_admin || false)
 const isActive = ref(props.user?.is_active || true)
 const valid = ref(false)
+
+const store = useAppStore()
 
 // hints
 const emailErrorMessages = ref<string[]>([])

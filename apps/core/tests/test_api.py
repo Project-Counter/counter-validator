@@ -159,6 +159,49 @@ class TestUserManagementAPI:
         assert res.status_code == 403
         assert User.objects.filter(pk=user.pk).exists()
 
+    @pytest.mark.parametrize(
+        ["user_type", "status_code"],
+        [
+            ["normal", 403],
+            ["su", 200],  # can edit self, but change of validation admin is not made
+            ["admin", 200],  # can edit self, but change of validation admin is not made
+            ["api_key_normal", 403],
+            ["api_key_admin", 403],
+        ],
+    )
+    def test_user_cannot_change_is_validator_admin_on_self(
+        self, users_and_clients, user_type, status_code
+    ):
+        user, client = users_and_clients[user_type]
+        old_value = user.is_validator_admin
+        res = client.patch(
+            reverse("user-detail", kwargs={"pk": user.pk}),
+            data={"is_validator_admin": not user.is_validator_admin},
+        )
+        assert res.status_code == status_code
+        user.refresh_from_db()
+        assert user.is_validator_admin == old_value
+
+    @pytest.mark.parametrize(
+        ["user_type", "status_code"],
+        [
+            ["normal", 403],
+            ["su", 200],  # can edit self, but change of is_active is not made
+            ["admin", 200],  # can edit self, but change of is_active admin is not made
+            ["api_key_normal", 403],
+            ["api_key_admin", 403],
+        ],
+    )
+    def test_user_cannot_deactivate_self(self, users_and_clients, user_type, status_code):
+        user, client = users_and_clients[user_type]
+        res = client.patch(
+            reverse("user-detail", kwargs={"pk": user.pk}),
+            data={"is_active": False},
+        )
+        assert res.status_code == status_code
+        user.refresh_from_db()
+        assert user.is_active
+
 
 @pytest.mark.django_db
 class TestApiKeyAPI:
@@ -168,7 +211,6 @@ class TestApiKeyAPI:
         for i in range(10):
             UserApiKey.objects.create_key(name=f"key-{i}", user=normal_user)
         with django_assert_max_num_queries(9):
-            print(reverse("api-key-list"))
             res = client_authenticated_user.get(reverse("api-key-list"))
             assert res.status_code == 200
             assert len(res.json()) == 10

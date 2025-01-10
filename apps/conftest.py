@@ -5,6 +5,11 @@ from rest_framework.test import APIClient
 
 
 @pytest.fixture
+def su_user():
+    return UserFactory(is_superuser=True)
+
+
+@pytest.fixture
 def normal_user():
     return UserFactory()
 
@@ -30,6 +35,13 @@ def client_authenticated_user(normal_user):
 def client_validator_admin_user(validator_admin_user):
     client = APIClient()
     client.force_login(validator_admin_user)
+    return client
+
+
+@pytest.fixture
+def client_su_user(su_user):
+    client = APIClient()
+    client.force_login(su_user)
     return client
 
 
@@ -60,13 +72,13 @@ def users_and_clients(
     client_validator_admin_user,
     client_authenticated_user,
     validator_admin_user,
-    admin_client,
-    admin_user,
+    su_user,
+    client_su_user,
 ):
     return {
         "unauthenticated": (None, client_unauthenticated),
         "normal": (normal_user, client_authenticated_user),
-        "su": (admin_user, admin_client),
+        "su": (su_user, client_su_user),
         "admin": (validator_admin_user, client_validator_admin_user),
         "api_key_normal": (normal_user, client_with_api_key),
         "api_key_admin": (validator_admin_user, client_with_api_key_admin),
