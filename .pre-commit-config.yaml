@@ -52,3 +52,11 @@ repos:
         types_or: [javascript, ts, vue]
         files: frontend/.*
         pass_filenames: false
+
+      - id: ts check
+        name: Check TypeScript
+        entry: bash -c 'cd frontend && yarn check'
+        language: system
+        types: [javascript, ts, vue]
+        files: frontend/.*
+        pass_filenames: false
