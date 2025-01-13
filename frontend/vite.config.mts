@@ -17,6 +17,8 @@ export default defineConfig({
   plugins: [
     VueRouter({
       dts: "src/typed-router.d.ts",
+      // default language for <route> custom blocks
+      routeBlockLang: "yaml",
     }),
     vueDevTools(),
     Layouts(),

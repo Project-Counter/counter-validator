@@ -24,3 +24,8 @@ onMounted(load)
 </script>
 
 <style scoped lang="scss"></style>
+
+<route>
+meta:
+  requiresAuth: false
+</route>

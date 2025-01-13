@@ -93,7 +93,20 @@
     </v-navigation-drawer>
     <v-main>
       <v-container fluid>
-        <router-view />
+        <router-view v-if="store.user || route.meta.requiresAuth === false" />
+        <v-alert
+          v-else
+          type="warning"
+          variant="tonal"
+        >
+          <template #title>Log in required</template>
+          <template #text>
+            <p>You need to log in to access this page.</p>
+            <p>
+              <router-link to="/login">Log in</router-link>
+            </p>
+          </template>
+        </v-alert>
       </v-container>
     </v-main>
   </v-app>
@@ -107,6 +120,7 @@ const store = useAppStore()
 const drawer: Ref<boolean | null | undefined> = ref(null)
 
 const router = useRouter()
+const route = useRoute()
 
 async function doLogout() {
   await logout()
