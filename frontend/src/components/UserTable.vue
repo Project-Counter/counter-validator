@@ -76,6 +76,10 @@
       </v-tooltip>
     </template>
 
+    <template #item.last_login="{ item }">
+      <DateTooltip :date="item.last_login" />
+    </template>
+
     <template #item.actions="{ item }">
       <v-dialog max-width="720px">
         <template #activator="{ props }">
@@ -127,6 +131,7 @@ const headers: DataTableHeader[] = [
   { title: "Email", key: "email" },
   { title: "Active", key: "is_active" },
   { title: "Is admin", key: "is_validator_admin" },
+  { title: "Last login", key: "last_login" },
   { title: "Actions", key: "actions", sortable: false },
 ]
 

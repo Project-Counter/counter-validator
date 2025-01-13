@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { doPasswordReset, login, checkUser } from "@/lib/http/auth"
+import { doPasswordReset } from "@/lib/http/auth"
 import { useAppStore } from "@/stores/app"
 import { HttpStatusError } from "@/lib/http/util"
 
@@ -69,8 +69,12 @@ const store = useAppStore()
 const route = useRoute()
 const router = useRouter()
 
-const uid = ref<string>(route.query.uid || "")
-const token = ref<string>(route.query.token || "")
+const uid = ref<string>(
+  (Array.isArray(route.query.uid) ? route.query.uid[0] : route.query.uid) || "",
+)
+const token = ref<string>(
+  (Array.isArray(route.query.token) ? route.query.token[0] : route.query.token) || "",
+)
 const hasParams = computed(() => uid.value && token.value)
 
 const password = ref<string>("")

@@ -34,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_superuser",
             "is_active",
             "has_admin_role",
+            "last_login",
         )
 
     def update(self, instance, validated_data):

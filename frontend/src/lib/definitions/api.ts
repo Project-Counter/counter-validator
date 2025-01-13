@@ -17,6 +17,7 @@ export type User = {
   is_superuser?: boolean
   is_active?: boolean
   has_admin_role?: boolean
+  last_login?: string
 }
 
 export type Report = {

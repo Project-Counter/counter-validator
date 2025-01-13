@@ -60,13 +60,17 @@ class TestUserManagementAPI:
         assert res.status_code == 200
         assert len(res.json()) == 3
         first = res.json()[0]
-        assert "id" in first
-        assert "email" in first
-        assert "first_name" in first
-        assert "last_name" in first
-        assert "is_validator_admin" in first
-        assert "is_superuser" in first
-        assert "is_active" in first
+        assert set(first.keys()) == {
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "has_admin_role",
+            "is_validator_admin",
+            "is_superuser",
+            "is_active",
+            "last_login",
+        }
 
     def test_user_detail(self, client_validator_admin_user, normal_user):
         res = client_validator_admin_user.get(reverse("user-detail", kwargs={"pk": normal_user.pk}))
