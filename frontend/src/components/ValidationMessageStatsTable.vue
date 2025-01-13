@@ -56,9 +56,15 @@ import { getValidationMessageStats } from "@/lib/http/message"
 import { SeverityLevel, severityLevelColorMap, Validation } from "@/lib/definitions/api"
 import { formatInteger, formatPercent } from "../lib/formatting"
 
-const props = defineProps<{
-  validation: Validation
-}>()
+const props = withDefaults(
+  defineProps<{
+    validation: Validation
+    publicView?: boolean
+  }>(),
+  {
+    publicView: false,
+  },
+)
 
 const emit = defineEmits(["select-message"])
 
@@ -66,7 +72,8 @@ const emit = defineEmits(["select-message"])
 const stats = ref<{ summary: string; severity: SeverityLevel; count: number }[]>([])
 const total = ref(0)
 async function getMessagesStats() {
-  stats.value = (await getValidationMessageStats(props.validation.id)).summary_severity
+  const usedId = props.publicView ? props.validation.public_id || "" : props.validation.id
+  stats.value = (await getValidationMessageStats(usedId)).summary_severity
   total.value = stats.value.reduce((acc, curr) => acc + curr.count, 0)
 }
 

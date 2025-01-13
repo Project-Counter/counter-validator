@@ -19,6 +19,35 @@ from validations.fake_data import (
 )
 from validations.models import CounterAPIValidation, Validation, ValidationCore
 
+expected_validation_keys = {
+    "api_endpoint",
+    "api_key_prefix",
+    "cop_version",
+    "created",
+    "credentials",
+    "data_source",
+    "error_message",
+    "expiration_date",
+    "file_size",
+    "file_url",
+    "filename",
+    "id",
+    "public_id",
+    "report_code",
+    "requested_begin_date",
+    "requested_cop_version",
+    "requested_end_date",
+    "requested_extra_attributes",
+    "requested_report_code",
+    "stats",
+    "status",
+    "url",
+    "user_note",
+    "validation_result",
+}
+
+expected_validation_keys_detail = expected_validation_keys | {"result_data"}
+
 
 @pytest.mark.django_db
 class TestValidationAPI:
@@ -40,32 +69,7 @@ class TestValidationAPI:
             assert "results" in res.json()
             assert len(res.json()["results"]) == 8
             first = res.json()["results"][0]
-            assert set(first.keys()) == {
-                "api_endpoint",
-                "api_key_prefix",
-                "cop_version",
-                "created",
-                "credentials",
-                "data_source",
-                "error_message",
-                "expiration_date",
-                "file_size",
-                "file_url",
-                "filename",
-                "id",
-                "public_id",
-                "report_code",
-                "requested_begin_date",
-                "requested_cop_version",
-                "requested_end_date",
-                "requested_extra_attributes",
-                "requested_report_code",
-                "stats",
-                "status",
-                "url",
-                "user_note",
-                "validation_result",
-            }
+            assert set(first.keys()) == expected_validation_keys
 
     def test_validation_list_other_users(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
@@ -85,33 +89,7 @@ class TestValidationAPI:
             res = client_authenticated_user.get(reverse("validation-detail", args=[v.pk]))
             assert res.status_code == 200
             data = res.json()
-            assert set(data.keys()) == {
-                "api_endpoint",
-                "api_key_prefix",
-                "cop_version",
-                "created",
-                "credentials",
-                "data_source",
-                "error_message",
-                "expiration_date",
-                "file_size",
-                "file_url",
-                "filename",
-                "id",
-                "public_id",
-                "report_code",
-                "requested_begin_date",
-                "requested_cop_version",
-                "requested_end_date",
-                "requested_extra_attributes",
-                "requested_report_code",
-                "result_data",
-                "stats",
-                "status",
-                "url",
-                "user_note",
-                "validation_result",
-            }
+            assert set(data.keys()) == expected_validation_keys_detail
 
     def test_validation_detail_other_users(self, client_authenticated_user):
         v = ValidationFactory()  # this belongs to some randomly created user
@@ -142,6 +120,25 @@ class TestValidationAPI:
 
         assert not Validation.objects.filter(pk=v.pk).exists()
         assert ValidationCore.objects.filter(pk=core_id).exists()
+
+    @pytest.mark.parametrize(
+        ["user_type", "status_code"],
+        [
+            ("unauthenticated", 403),
+            ("normal", 404),
+            ("su", 204),
+            ("admin", 204),
+            ("api_key_normal", 404),
+            ("api_key_admin", 204),
+        ],
+    )
+    def test_validation_delete_not_allowed_for_other_users(
+        self, users_and_clients, user_type, status_code
+    ):
+        user, client = users_and_clients[user_type]
+        v = ValidationFactory()  # this belongs to some randomly created user
+        res = client.delete(reverse("validation-detail", args=[v.pk]))
+        assert res.status_code == status_code
 
     @pytest.mark.parametrize("method", ["put", "patch"])
     def test_validation_update_not_allowed(self, client_authenticated_user, normal_user, method):
@@ -388,38 +385,19 @@ class TestValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == 5
         first = res.json()["results"][0]
-        assert set(first.keys()) == {
-            "api_endpoint",
-            "api_key_prefix",
-            "cop_version",
-            "created",
-            "credentials",
-            "data_source",
-            "error_message",
-            "expiration_date",
-            "file_size",
-            "file_url",
-            "filename",
-            "id",
-            "public_id",
-            "report_code",
-            "requested_begin_date",
-            "requested_cop_version",
-            "requested_end_date",
-            "requested_extra_attributes",
-            "requested_report_code",
-            "stats",
-            "status",
-            "url",
-            "user",
-            "user_note",
-            "validation_result",
-        }
+        assert set(first.keys()) == expected_validation_keys | {"user"}
         user = first["user"]
-        assert "id" in user
-        assert "email" in user
-        assert "first_name" in user
-        assert "last_name" in user
+        assert set(user.keys()) == {
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "is_active",
+            "is_superuser",
+            "has_admin_role",
+            "is_validator_admin",
+            "last_login",
+        }
 
 
 @pytest.mark.django_db
@@ -679,12 +657,15 @@ class TestValidationMessagesAPI:
         assert "results" in out, "results should be in the response - it should be paginated"
         assert len(out["results"]) == 3
         first = out["results"][0]
-        assert "message" in first
-        assert "severity" in first
-        assert "summary" in first
-        assert "hint" in first
-        assert "location" in first
-        assert "data" in first
+        assert set(first.keys()) == {
+            "code",
+            "data",
+            "hint",
+            "location",
+            "message",
+            "severity",
+            "summary",
+        }
 
     def test_detail(self, client_authenticated_user, normal_user):
         val = ValidationFactory(core__user=normal_user, messages__count=3)
@@ -784,28 +765,78 @@ class TestValidationMessagesAPI:
 
 @pytest.mark.django_db
 class TestPublicValidationAPI:
-    def test_list_is_forbidden(self, client):
-        res = client.get(reverse("public-validation-list"))
+    def test_list_is_forbidden(self, all_clients):
+        res = all_clients.get(reverse("public-validation-list"))
         assert res.status_code == 403
 
-    def test_detail(self, client):
+    def test_detail(self, all_clients):
+        """
+        Detail of public validation should be accessible to any user - regardless of authentication.
+        (provided he uses the correct public_id)
+        """
         val = CounterAPIValidationFactory(public_id=uuid4())
         assert val.credentials is not None
-        res = client.get(reverse("public-validation-detail", args=[val.public_id]))
+        res = all_clients.get(reverse("public-validation-detail", args=[val.public_id]))
         assert res.status_code == 200
         out = res.json()
-        assert "id" in out
-        assert "url" in out
-        assert "credentials" in out
-        assert "requested_cop_version" in out
-        assert "cop_version" in out
-        assert "requested_report_code" in out
-        assert "report_code" in out
-        assert "api_endpoint" in out
-        assert "requested_extra_attributes" in out
-        assert "requested_begin_date" in out
-        assert "requested_end_date" in out
+        assert set(out.keys()) == expected_validation_keys_detail
         assert out["credentials"] is None, "credentials should not be exposed"
+
+    def test_detail_stats(self, all_clients):
+        """
+        Test that stats of a public validation are exposed even without authentication.
+
+        The test was adapted from a similar test in `TestValidationAPI.test_validation_stats`.
+        """
+        val = CounterAPIValidationFactory(public_id=uuid4())
+        ValidationMessageFactory.create(validation=val, severity=SeverityLevel.ERROR, summary="Aaa")
+        ValidationMessageFactory.create_batch(
+            2, validation=val, severity=SeverityLevel.NOTICE, summary="Bbb"
+        )
+        ValidationMessageFactory.create_batch(
+            3, validation=val, severity=SeverityLevel.NOTICE, summary="Ccc"
+        )
+
+        res = all_clients.get(reverse("validation-stats", args=[val.public_id]))
+        assert res.status_code == 200
+        assert "summary" in res.json()
+        assert res.json()["summary"] == {
+            "Aaa": 1,
+            "Bbb": 2,
+            "Ccc": 3,
+        }
+        assert "summary_severity" in res.json()
+        assert res.json()["summary_severity"] == [
+            {"summary": "Aaa", "severity": "Error", "count": 1},
+            {"summary": "Ccc", "severity": "Notice", "count": 3},
+            {"summary": "Bbb", "severity": "Notice", "count": 2},
+        ]
+
+    def test_detail_stats_not_publicly_available_using_pk(self, client_unauthenticated):
+        val = CounterAPIValidationFactory(public_id=uuid4())
+        res = client_unauthenticated.get(reverse("validation-stats", args=[val.pk]))
+        assert res.status_code == 404
+
+    def test_detail_messages(self, all_clients):
+        """
+        Test that messages of a public validation are exposed even without authentication.
+        """
+        val = CounterAPIValidationFactory(public_id=uuid4())
+        ValidationMessageFactory.create_batch(3, validation=val, severity=SeverityLevel.ERROR)
+        ValidationMessageFactory.create_batch(5, validation=val, severity=SeverityLevel.NOTICE)
+        ValidationMessageFactory.create_batch(
+            2, validation=val, severity=SeverityLevel.CRITICAL_ERROR
+        )
+        res = all_clients.get(reverse("validation-message-list", args=[val.public_id]))
+        assert res.status_code == 200
+        out = res.json()
+        assert "results" in out
+        assert len(out["results"]) == 10
+
+    def test_detail_messages_not_publicly_available_using_pk(self, client_unauthenticated):
+        val = CounterAPIValidationFactory(public_id=uuid4())
+        res = client_unauthenticated.get(reverse("validation-message-list", args=[val.pk]))
+        assert res.status_code == 404
 
 
 @pytest.mark.django_db

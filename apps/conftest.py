@@ -87,8 +87,8 @@ def users_and_clients(
 
 def _client_and_status_code(request, users_and_clients) -> tuple[APIClient, int]:
     """
-    Returns a tuple of client and status code for views which should only allow admins and no
-    API key access
+    Helper function which generates combinations of client and expected status code
+    based on the passed params.
     """
     user_type, status_code = request.param
     return users_and_clients[user_type][1], status_code
@@ -120,3 +120,10 @@ status_code_by_user_any_authenticated = [
 client_and_status_code_any_authenticated = pytest.fixture(
     _client_and_status_code, params=status_code_by_user_any_authenticated
 )
+
+
+@pytest.fixture(
+    params=["unauthenticated", "normal", "su", "admin", "api_key_normal", "api_key_admin"]
+)
+def all_clients(request, users_and_clients):
+    return users_and_clients[request.param][1]

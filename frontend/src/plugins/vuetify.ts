@@ -36,5 +36,6 @@ export default createVuetify({
   },
   defaults: {
     VSheet: { color: "background" },
+    VAlert: { variant: "tonal" },
   },
 })

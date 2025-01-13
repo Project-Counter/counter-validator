@@ -82,9 +82,15 @@ import { urls } from "@/lib/http/validation"
 import { HttpStatusError } from "@/lib/http/util"
 import debounce from "lodash/debounce"
 
-const props = defineProps<{
-  validation: Validation
-}>()
+const props = withDefaults(
+  defineProps<{
+    validation: Validation
+    publicView?: boolean
+  }>(),
+  {
+    publicView: false,
+  },
+)
 
 const messages = ref<Message[]>([])
 
@@ -119,7 +125,8 @@ const severityMap = computed(() => {
 })
 
 // messages
-const { url, params, filters } = usePaginatedAPI(`${urls.list}${props.validation.id}/messages/`)
+const usedId = props.publicView ? props.validation.public_id : props.validation.id
+const { url, params, filters } = usePaginatedAPI(`${urls.list}${usedId}/messages/`)
 const totalCount = ref(0)
 
 async function getMessages() {

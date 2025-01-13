@@ -197,7 +197,7 @@ class ValidationSearchFilter(filters.SearchFilter):
     """
 
     def get_search_fields(self, view, request):
-        if request.user.has_admin_role:
+        if request.user.is_authenticated and request.user.has_admin_role:
             return [
                 "user_note",
                 "filename",

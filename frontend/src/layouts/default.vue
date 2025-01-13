@@ -97,7 +97,6 @@
         <v-alert
           v-else
           type="warning"
-          variant="tonal"
         >
           <template #title>Log in required</template>
           <template #text>

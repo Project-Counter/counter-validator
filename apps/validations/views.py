@@ -1,6 +1,7 @@
 from core.permissions import HasUserAPIKey, IsValidatorAdminUser
+from django.db.models import Q
 from django.db.transaction import atomic
-from django.http import HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -29,6 +30,10 @@ from validations.filters import (
     ValidationValidationResultFilter,
 )
 from validations.models import Validation, ValidationCore, ValidationMessage
+from validations.permissions import (
+    IsAuthenticatedForListOrCreateAnyForDetail,
+    IsValidationOwnerOrIsPublic,
+)
 from validations.serializers import (
     CounterAPIValidationCreateSerializer,
     FileValidationCreateSerializer,
@@ -49,7 +54,10 @@ class StandardPagination(PageNumberPagination):
 
 
 class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated | HasUserAPIKey]
+    permission_classes = [
+        IsAuthenticatedForListOrCreateAnyForDetail | HasUserAPIKey,
+        IsValidationOwnerOrIsPublic | IsValidatorAdminUser,  # this is per-object permission
+    ]
     serializer_class = ValidationSerializer
     pagination_class = StandardPagination
     filter_backends = [
@@ -64,18 +72,38 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
     ]
 
     def get_serializer_class(self):
-        if self.action == "list":
-            return ValidationSerializer
-        return ValidationDetailSerializer
+        if self.detail:
+            return ValidationDetailSerializer
+        return ValidationSerializer
 
     def get_queryset(self, list_all=False):
-        base = Validation.objects.filter(core__user=self.request.user)
-        if (self.detail or list_all) and self.request.user.has_admin_role:
+        # Here are the conditions for visibility of validations:
+        # - public validations are visible to everyone with the public_id, but only when self.detail
+        # - logged-in users can see their own validations - both list and detail
+        # - admins can see all validations - both list and detail
+
+        # permissions should ensure list is not possible for unauthenticated users
+        if (
+            (self.detail or list_all)
+            and self.request.user.is_authenticated
+            and self.request.user.has_admin_role
+        ):
             # admins can see details of all validations, and can also list them all
             # via a dedicated endpoint (which uses the `list_all` attr)
             #
             # but using the normal api, they get list of their own like everybody else
             base = Validation.objects.all()
+        elif not self.detail:
+            # list only possible for authenticated users - users can see their own validations
+            base = Validation.objects.filter(core__user=self.request.user)
+        elif self.request.user.is_authenticated:
+            base = Validation.objects.filter(
+                Q(core__user=self.request.user) | Q(public_id=self.kwargs["pk"])
+            )
+        else:
+            # only public validations are visible to unauthenticated users in detail
+            base = Validation.objects.public().filter(public_id=self.kwargs["pk"])
+
         qs = (
             base.current()
             .select_related("core")
@@ -87,6 +115,15 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         if self.detail:
             qs = qs.defer(None)
         return qs
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        try:
+            obj = get_object_or_404(queryset, pk=self.kwargs["pk"])
+        except Http404:
+            obj = get_object_or_404(Validation, public_id=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     @action(
         detail=False,
@@ -218,14 +255,23 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
 
 
 class ValidationMessageViewSet(ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    # default permission is IsAdminUser, so [] is needed to open it up
+    # this is because validations may be public and for those we do not require authentication
+    permission_classes = []
     serializer_class = ValidationMessageSerializer
     pagination_class = StandardPagination
     filter_backends = [OrderByFilter, SeverityFilter, SearchFilter]
     search_fields = ["message", "hint", "summary", "data"]
 
     def get_queryset(self):
-        validation = get_object_or_404(
-            Validation.objects.filter(core__user=self.request.user), pk=self.kwargs["validation_pk"]
-        )
+        validation = None
+        if self.request.user.is_authenticated:
+            # for logged-in users, consider the validation id could be their own validation
+            validation = Validation.objects.filter(
+                core__user=self.request.user, pk=self.kwargs["validation_pk"]
+            ).first()
+        if not validation:
+            # if the validation is not found, or the user is not authenticated,
+            # either this is a public validation, or it does not exist for the user
+            validation = get_object_or_404(Validation, public_id=self.kwargs["validation_pk"])
         return ValidationMessage.objects.filter(validation=validation)

@@ -118,6 +118,7 @@
                 <ValidationMessageStatsTable
                   v-if="validation"
                   :validation="validation"
+                  :public-view="publicView"
                   @select-message="selectMessage"
                 />
               </v-card-text>
@@ -138,6 +139,7 @@
               v-if="validation"
               ref="messagesComponent"
               :validation="validation"
+              :public-view="publicView"
             />
           </v-card-text>
         </v-card>
