@@ -416,7 +416,7 @@ const beginDate = ref(startOfMonth(lastMonth))
 const endDate = ref(endOfMonth(lastMonth))
 
 const credentials = reactive<Credentials>({
-  customer_id: "aaa",
+  customer_id: "",
   requestor_id: "",
   api_key: "",
 })

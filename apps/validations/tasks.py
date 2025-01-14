@@ -71,6 +71,7 @@ def validate_counter_api(pk):
 
     req_url = obj.get_url()
     logger.debug("Requesting URL: %s", req_url)
+    resp = None
     try:
         resp = requests.post(
             settings.CTOOLS_URL + "sushi.php",
@@ -81,7 +82,8 @@ def validate_counter_api(pk):
         obj.core.status = ValidationStatus.FAILURE
         obj.core.error_message = str(e)
         logger.warning("Error while requesting URL: %s", e)
-        logger.warning("Response text: %s", resp.text)
+        if resp:
+            logger.warning("Response text: %s", resp.text)
     else:
         json = resp.json()
         obj.core.stats = obj.add_result(json.get("result", {}))

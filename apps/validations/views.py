@@ -6,11 +6,11 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import DestroyModelMixin
+from rest_framework.mixins import CreateModelMixin, DestroyModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
 from validations.filters import (
     OrderByFilter,
@@ -200,7 +200,12 @@ class PublicValidationViewSet(ReadOnlyModelViewSet):
         return HttpResponseForbidden({"detail": "Listing public validations is not allowed."})
 
 
-class CounterAPIValidationViewSet(ModelViewSet):
+class CounterAPIValidationViewSet(CreateModelMixin, GenericViewSet):
+    """
+    This viewset is used to create a new validation from a COUNTER API request.
+    It is create-only - reading should be done using the ValidationViewSet.
+    """
+
     permission_classes = [IsAuthenticated | HasUserAPIKey]
     serializer_class = ValidationSerializer
 
