@@ -481,7 +481,9 @@ class TestCounterAPIValidationAPI:
     @pytest.mark.parametrize("expiration_days", [1, 3, 7])
     def test_create(self, client_authenticated_user, expiration_days, settings):
         settings.VALIDATION_LIFETIME = expiration_days
-        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        data = factory.build(
+            dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory, cop_version="5.1"
+        )
         with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("counter-api-validation-list"),
@@ -508,6 +510,8 @@ class TestCounterAPIValidationAPI:
             out["expiration_date"][:16]
             == (val.core.created + timedelta(days=expiration_days)).isoformat()[:16]
         ), "We only compare the first 16 characters"
+        assert out["requested_cop_version"] == "5.1"
+        assert out["cop_version"] == "5.1", "cop_version should be taken from the request"
 
     @pytest.mark.parametrize(
         ["empty_credential_fields", "status_code"],
@@ -522,7 +526,7 @@ class TestCounterAPIValidationAPI:
             [["requestor_id", "customer_id", "api_key"], 400],
         ],
     )
-    def test_create_with_empty_credential_fields(
+    def test_create_with_empty_credentials_fields(
         self, client_authenticated_user, empty_credential_fields, status_code
     ):
         data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
@@ -596,6 +600,10 @@ class TestCounterAPIValidationAPI:
         assert val.requested_report_code == ""
         assert val.requested_begin_date is None
         assert val.requested_end_date is None
+        # make sure that the cop_version is taken from the request because it is not part
+        # of the sushi response, so cannot be extracted from there
+        assert val.requested_cop_version == "5"
+        assert val.core.cop_version == "5"
 
     def test_detail_for_generic_validation_api(self, client_authenticated_user, normal_user):
         val = CounterAPIValidationFactory(core__user=normal_user)

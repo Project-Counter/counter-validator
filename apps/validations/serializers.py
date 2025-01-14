@@ -170,6 +170,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             user_email_checksum=checksum_string(user.email),
             api_key_prefix=api_key.prefix if api_key else "",
             api_endpoint=validated_data["api_endpoint"],
+            cop_version=validated_data["cop_version"],
         )
         credentials = validated_data["credentials"]
         if "platform" in credentials and not credentials["platform"]:
