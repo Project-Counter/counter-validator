@@ -8,6 +8,7 @@ build:vue:
     - export "GIT_VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}"
     - export "GIT_COMMITHASH=${CI_COMMIT_SHA}"
     - export "GIT_BRANCH=${CI_COMMIT_REF_NAME:-$CI_COMMIT_SHA}"
+    - export "NODE_ENV=development"
   script:
     - cd frontend
     - yarn install
