@@ -90,6 +90,7 @@ class TestValidationAPI:
             assert res.status_code == 200
             data = res.json()
             assert set(data.keys()) == expected_validation_keys_detail
+            assert data["data_source"] == "file"
 
     def test_validation_detail_other_users(self, client_authenticated_user):
         v = ValidationFactory()  # this belongs to some randomly created user

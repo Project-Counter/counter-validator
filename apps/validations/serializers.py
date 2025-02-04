@@ -85,7 +85,7 @@ class ValidationSerializer(serializers.ModelSerializer):
 
     def get_data_source(self, obj):
         try:
-            return obj.core.sushi_credentials_checksum and "counter_api"
+            return obj.core.sushi_credentials_checksum and "counter_api" or "file"
         except CounterAPIValidation.DoesNotExist:
             return "file"
 
