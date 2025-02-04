@@ -61,8 +61,5 @@ export async function jsonFetch<T>(
   options: RequestOptions = undefined,
 ): Promise<T> {
   const res = await wrapFetch(resource, options)
-  if (Number(res.headers.get("Content-Length")) == 0) {
-    return undefined as T
-  }
   return res.json() as Promise<T>
 }

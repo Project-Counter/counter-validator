@@ -181,6 +181,7 @@ if (props.admin) {
 
 // validations list
 const { url, params, filters } = usePaginatedAPI(props.admin ? urls.adminList : urls.list)
+console.debug("url", url)
 const totalCount = ref(0)
 
 const {
