@@ -182,6 +182,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 STATIC_URL = "static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = config("MEDIA_ROOT", default=str(BASE_DIR / "media/"))
+STATIC_ROOT = config("STATIC_ROOT", default=str(BASE_DIR / "static/"))
 
 
 LOGGING = {
