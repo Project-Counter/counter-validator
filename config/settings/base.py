@@ -202,6 +202,7 @@ LOGGING = {
 }
 
 # other django stuff
+DJANGO_ADMIN_PATH = config("DJANGO_ADMIN_PATH", default="admin/")
 # Email
 ADMINS = config("ADMINS", cast=Csv(cast=Csv(post_process=tuple), delimiter=";"), default="")
 EMAIL_SUBJECT_PREFIX = config("EMAIL_SUBJECT_PREFIX", default="[COUNTER Validator] ")

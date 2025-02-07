@@ -31,7 +31,7 @@ urlpatterns = [
     path(
         f"{API_PREFIX}/account/", include("django.contrib.auth.urls")
     ),  # contains link to reset password
-    path("admin/", admin.site.urls),
+    path(settings.DJANGO_ADMIN_PATH, admin.site.urls),
 ]
 
 if settings.DEBUG:
