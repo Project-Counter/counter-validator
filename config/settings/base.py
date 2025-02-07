@@ -201,6 +201,24 @@ LOGGING = {
     "root": {"level": "DEBUG", "handlers": ["console"]},
 }
 
+# other django stuff
+# Email
+ADMINS = config("ADMINS", cast=Csv(cast=Csv(post_process=tuple), delimiter=";"), default="")
+EMAIL_SUBJECT_PREFIX = config("EMAIL_SUBJECT_PREFIX", default="[COUNTER Validator] ")
+SERVER_EMAIL = config("SERVER_EMAIL", default="root@localhost")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="root@localhost")
+EMAIL_HOST = config("EMAIL_HOST", default="localhost")
+
+if MAILGUN_API_KEY := config("MAILGUN_API_KEY", default=""):
+    # if we have the mailgun api key, we activate mailgun
+    INSTALLED_APPS += ("anymail",)
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+    ANYMAIL = {
+        "MAILGUN_API_KEY": MAILGUN_API_KEY,
+        "MAILGUN_SENDER_DOMAIN": config("MAILGUN_SENDER_DOMAIN"),
+        "MAILGUN_API_URL": config("MAILGUN_API_URL", default="https://api.eu.mailgun.net/v3"),
+    }
+
 # our own settings
 CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8180/")
 REGISTRY_URL = config("REGISTRY_URL", default="https://registry.countermetrics.org")
