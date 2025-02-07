@@ -8,7 +8,7 @@
     <template #top>
       <v-row>
         <v-col>
-          <v-dialog max-width="720px">
+          <v-dialog max-width="860px">
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -121,7 +121,6 @@
 import { User } from "@/lib/definitions/api"
 import { fetchUsers, deleteUser as callDeleteUser } from "@/lib/http/users"
 import { DataTableHeader } from "@/lib/vuetifyTypes"
-import UserEditWidget from "@/components/UserEditWidget.vue"
 import { useAppStore } from "@/stores/app"
 import { confirmDialog } from "vuetify3-dialog"
 

@@ -10,7 +10,7 @@
           <v-row>
             <v-col
               cols="12"
-              md="4"
+              md="3"
               class="pb-0"
             >
               <v-text-field
@@ -22,7 +22,7 @@
             </v-col>
             <v-col
               cols="12"
-              md="4"
+              md="3"
               class="pb-0"
             >
               <v-text-field
@@ -34,7 +34,7 @@
             </v-col>
             <v-col
               cols="12"
-              md="4"
+              md="6"
               class="pb-0"
             >
               <v-text-field
