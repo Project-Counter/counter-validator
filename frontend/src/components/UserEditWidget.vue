@@ -63,7 +63,7 @@
                     label="Is admin"
                     hide-details
                     density="compact"
-                    :disabled="user.id === store.user?.id"
+                    :disabled="user?.id === store.user?.id"
                   />
                 </template>
                 Validator admins can manage other users and have access to all validations.
