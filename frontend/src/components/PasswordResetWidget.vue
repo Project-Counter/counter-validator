@@ -16,6 +16,7 @@
       </p>
       <v-form
         v-if="hasParams"
+        v-model="valid"
         @submit.prevent="submit"
       >
         <v-text-field
@@ -23,10 +24,14 @@
           label="Password"
           type="password"
           required
+          :rules="[rules.required, rules.password]"
+          :error-messages="passwordMessage"
+          class="mb-4"
         />
         <v-btn
           color="primary"
           type="submit"
+          :disabled="!valid"
           >{{ invitation ? "Create account" : "Reset password" }}</v-btn
         >
       </v-form>
@@ -55,6 +60,7 @@
 import { doPasswordReset } from "@/lib/http/auth"
 import { useAppStore } from "@/stores/app"
 import { HttpStatusError } from "@/lib/http/util"
+import * as rules from "@/lib/formRules"
 
 const props = withDefaults(
   defineProps<{
@@ -78,6 +84,12 @@ const token = ref<string>(
 const hasParams = computed(() => uid.value && token.value)
 
 const password = ref<string>("")
+const passwordMessage = ref<string | null>(null)
+const valid = ref(false)
+
+watch(password, () => {
+  passwordMessage.value = null
+})
 
 const resetInvalidText =
   "The reset token is no longer valid. It may have expired or has already been used. " +
@@ -100,8 +112,15 @@ async function submit() {
         })
       } else if (data?.uid) {
         store.displayNotification({ type: "error", message: data.uid })
-      } else {
+      } else if (data?.detail) {
         store.displayNotification({ type: "error", message: data.detail })
+      } else if (data?.new_password1 || data?.new_password2) {
+        passwordMessage.value = data.new_password1 || data.new_password2
+      } else {
+        store.displayNotification({
+          type: "error",
+          message: "An error occurred. Please try again.",
+        })
       }
     } else {
       store.displayNotification({ type: "error", message: "An error occurred. Please try again." })

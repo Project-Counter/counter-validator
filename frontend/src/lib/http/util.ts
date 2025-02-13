@@ -49,8 +49,7 @@ export async function wrapFetch(
   const res = await fetch("/api/v1/" + resource, options)
 
   if (!res.ok) {
-    const err = new HttpStatusError(res)
-    throw err
+    throw new HttpStatusError(res)
   }
 
   return res

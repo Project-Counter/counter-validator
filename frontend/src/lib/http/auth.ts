@@ -40,14 +40,11 @@ export async function updateUser(obj: User) {
 }
 
 export async function login(email: string, password: string) {
-  try {
-    await wrapFetch(urls.login, {
-      method: "POST",
-      json: { email, password },
-    })
-  } finally {
-    await checkUser()
-  }
+  await wrapFetch(urls.login, {
+    method: "POST",
+    json: { email, password },
+  })
+  await checkUser()
 }
 
 export async function logout() {
@@ -66,14 +63,11 @@ export async function signup(
   password2: string,
   extra: Record<string, string> = {},
 ) {
-  try {
-    await wrapFetch(urls.signup, {
-      method: "POST",
-      json: { email, password1, password2, ...extra },
-    })
-  } finally {
-    await checkUser()
-  }
+  await wrapFetch(urls.signup, {
+    method: "POST",
+    json: { email, password1, password2, ...extra },
+  })
+  await checkUser()
 }
 
 export async function requestPasswordReset(email: string) {
