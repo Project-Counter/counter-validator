@@ -33,5 +33,6 @@ declare module 'vue-router/auto-routes' {
     '/validation/admin': RouteRecordInfo<'/validation/admin', '/validation/admin', Record<never, never>, Record<never, never>>,
     '/validation/api': RouteRecordInfo<'/validation/api', '/validation/api', Record<never, never>, Record<never, never>>,
     '/validation/file': RouteRecordInfo<'/validation/file', '/validation/file', Record<never, never>, Record<never, never>>,
+    '/verify-email': RouteRecordInfo<'/verify-email', '/verify-email', Record<never, never>, Record<never, never>>,
   }
 }

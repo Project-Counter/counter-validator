@@ -1,5 +1,7 @@
 import logging
 
+from allauth.account.models import EmailAddress
+from django.db.models import Exists, OuterRef
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -56,6 +58,13 @@ class UserManagementViewSet(ModelViewSet):
         qs = User.objects.all()
         if not self.request.user.is_superuser:
             qs = qs.exclude(is_superuser=True)
+        qs = qs.annotate(
+            _verified_email=Exists(
+                EmailAddress.objects.filter(
+                    user_id=OuterRef("id"), email=OuterRef("email"), verified=True
+                )
+            )
+        )
         return qs
 
     def perform_destroy(self, instance):

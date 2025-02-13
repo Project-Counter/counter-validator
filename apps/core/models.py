@@ -57,6 +57,13 @@ class User(AbstractUser):
     def has_admin_role(self):
         return self.is_superuser or self.is_validator_admin
 
+    @property
+    def verified_email(self):
+        if hasattr(self, "_verified_email"):
+            # the value was provided in the queryset as an annotation
+            return self._verified_email
+        return self.emailaddress_set.filter(verified=True).exists()
+
 
 class UserApiKeyManager(BaseAPIKeyManager):
     key_generator = KeyGenerator(prefix_length=8, secret_key_length=48)

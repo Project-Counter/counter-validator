@@ -22,6 +22,8 @@ class UserApiKeySerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    verified_email = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = models.User
 
@@ -35,6 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "has_admin_role",
             "last_login",
+            "verified_email",
         )
 
     def update(self, instance, validated_data):

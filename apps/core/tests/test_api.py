@@ -1,6 +1,7 @@
 import re
 
 import pytest
+from allauth.account.models import EmailAddress
 from django.urls import reverse
 
 from ..fake_data import UserFactory
@@ -24,6 +25,7 @@ class TestUserDetailAPI:
         assert res.json()["is_validator_admin"] == normal_user.is_validator_admin
         assert res.json()["is_superuser"] == normal_user.is_superuser
         assert res.json()["has_admin_role"] == normal_user.has_admin_role
+        assert res.json()["verified_email"] == normal_user.verified_email
 
 
 @pytest.mark.django_db
@@ -70,7 +72,18 @@ class TestUserManagementAPI:
             "is_superuser",
             "is_active",
             "last_login",
+            "verified_email",
         }
+
+    def test_user_list_efficiency(self, client_validator_admin_user, django_assert_max_num_queries):
+        """
+        Test that there are no n+1 queries.
+        """
+        UserFactory.create_batch(50)
+        with django_assert_max_num_queries(9):
+            res = client_validator_admin_user.get(reverse("user-list"))
+            assert res.status_code == 200
+            assert len(res.json()) == 51, "50 users + current user"
 
     def test_user_detail(self, client_validator_admin_user, normal_user):
         res = client_validator_admin_user.get(reverse("user-detail", kwargs={"pk": normal_user.pk}))
@@ -81,6 +94,15 @@ class TestUserManagementAPI:
         assert res.json()["last_name"] == normal_user.last_name
         assert res.json()["is_validator_admin"] == normal_user.is_validator_admin
         assert res.json()["is_superuser"] == normal_user.is_superuser
+
+    @pytest.mark.parametrize("verified", [True, False, None])
+    def test_user_verified_email(self, client_validator_admin_user, verified):
+        user = UserFactory()
+        if verified is not None:
+            EmailAddress.objects.create(user=user, email=user.email, verified=verified)
+        res = client_validator_admin_user.get(reverse("user-detail", kwargs={"pk": user.pk}))
+        assert res.status_code == 200
+        assert res.json()["verified_email"] == bool(verified)
 
     @pytest.mark.parametrize(
         ["email", "status_code"],

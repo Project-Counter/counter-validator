@@ -11,6 +11,7 @@ export const urls = {
   apiKey: "core/api-key/",
   requestReset: "auth/password/reset/",
   doReset: "auth/password/reset/confirm/",
+  verifyEmail: "registration/verify-email/",
 }
 
 export async function checkUser() {
@@ -105,5 +106,12 @@ export async function createApiKey(name: string, expiryDate: Date | null) {
 export async function revokeApiKey(prefix: string) {
   return jsonFetch(urls.apiKey + prefix + "/", {
     method: "DELETE",
+  })
+}
+
+export async function verifyEmail(key: string) {
+  await wrapFetch(urls.verifyEmail, {
+    method: "POST",
+    json: { key },
   })
 }
