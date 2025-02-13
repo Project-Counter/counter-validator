@@ -8,6 +8,10 @@ import { Notification } from "@/lib/definitions/notifications"
 export const useAppStore = defineStore("app", () => {
   const user = ref<User | null>(null)
 
+  const userVerified = computed<boolean>(() => {
+    return user.value?.verified_email || false
+  })
+
   const errors: Ref<VueError[]> = ref([])
 
   const notification = ref<Notification | null>(null)
@@ -27,6 +31,7 @@ export const useAppStore = defineStore("app", () => {
 
   return {
     user,
+    userVerified,
     errors,
     darkTheme,
     fileHistory,

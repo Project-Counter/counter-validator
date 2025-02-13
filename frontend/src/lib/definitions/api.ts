@@ -18,6 +18,7 @@ export type User = {
   is_active?: boolean
   has_admin_role?: boolean
   last_login?: string
+  verified_email?: boolean
 }
 
 export type Report = {

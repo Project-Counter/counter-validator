@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row>
+    <v-row v-if="store.userVerified">
       <v-col cols="auto">
         <v-btn
           color="primary"
@@ -42,6 +42,16 @@
             class="ml-2"
           ></v-progress-circular>
         </v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- unverified user -->
+    <v-row v-else>
+      <v-col>
+        <v-alert type="warning">
+          You need to verify your email address before you can validate files or APIs. Please check
+          your inbox for the verification email.
+        </v-alert>
       </v-col>
     </v-row>
 

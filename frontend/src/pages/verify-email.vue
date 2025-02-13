@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router"
-import { verifyEmail } from "@/lib/http/auth"
+import { checkUser, verifyEmail } from "@/lib/http/auth"
 import { useAppStore } from "@/stores/app"
 
 const router = useRouter()
@@ -25,11 +25,14 @@ onMounted(async () => {
   if (key.value) {
     try {
       await verifyEmail(key.value)
-      store.displayNotification({
-        message: "Email was successfully verified",
-        type: "success",
-      })
-      await router.push("/validation/")
+      await checkUser()
+      if (store.userVerified) {
+        store.displayNotification({
+          message: "Email was successfully verified",
+          type: "success",
+        })
+        await router.push("/validation/")
+      }
     } catch (e) {
       store.displayNotification({
         message: "Failed to verify email. Check the verification link.",

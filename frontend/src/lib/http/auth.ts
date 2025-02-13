@@ -12,6 +12,7 @@ export const urls = {
   requestReset: "auth/password/reset/",
   doReset: "auth/password/reset/confirm/",
   verifyEmail: "registration/verify-email/",
+  resendVerificationEmail: "registration/resend-email/",
 }
 
 export async function checkUser() {
@@ -113,5 +114,12 @@ export async function verifyEmail(key: string) {
   await wrapFetch(urls.verifyEmail, {
     method: "POST",
     json: { key },
+  })
+}
+
+export async function resendVerificationEmail(email: string) {
+  await wrapFetch(urls.resendVerificationEmail, {
+    method: "POST",
+    json: { email },
   })
 }

@@ -51,7 +51,13 @@
     v-model="store.showNotification"
     :color="store.notification.type"
   >
-    <p>{{ store.notification.message }}</p>
+    <p>
+      <v-icon v-if="store.notification.type === 'error'">mdi-alert-circle-outline</v-icon>
+      <v-icon v-else-if="store.notification.type === 'success'">mdi-check</v-icon>
+      <v-icon v-else-if="store.notification.type === 'warning'">mdi-alert</v-icon>
+      <v-icon v-else>mdi-information</v-icon>
+      {{ store.notification.message }}
+    </p>
   </v-snackbar>
 </template>
 
