@@ -32,7 +32,7 @@ export async function checkUser() {
 
 export async function updateUser(obj: User) {
   try {
-    await wrapFetch(urls.userPatch, {
+    await wrapFetch(urls.user, {
       method: "PATCH",
       json: obj,
     })

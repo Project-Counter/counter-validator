@@ -62,7 +62,7 @@ class User(AbstractUser):
         if hasattr(self, "_verified_email"):
             # the value was provided in the queryset as an annotation
             return self._verified_email
-        return self.emailaddress_set.filter(verified=True).exists()
+        return self.emailaddress_set.filter(verified=True, email=self.email).exists()
 
 
 class UserApiKeyManager(BaseAPIKeyManager):

@@ -42,9 +42,31 @@ class UserApiKeyViewSet(ModelViewSet):
 
 class UserDetailView(APIView):
     permission_classes = (IsAuthenticated,)
+    allowed_methods = ("GET", "PUT", "PATCH")
+
+    def get_queryset(self):
+        return User.objects.filter(pk=self.request.user.pk)
 
     def get(self, request, **kwargs):
         return Response(UserSerializer(request.user).data)
+
+    def put(self, request, **kwargs):
+        email_verified_before = request.user.verified_email
+        serializer = UserSerializer(
+            request.user, data=request.data, partial=True, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        # if the email was changed, we need to re-verify it
+        if email_verified_before and not request.user.verified_email:
+            email, _created = EmailAddress.objects.get_or_create(
+                user=request.user, email=request.user.email
+            )
+            email.send_confirmation(request)
+        return Response(serializer.data)
+
+    def patch(self, request, **kwargs):
+        return self.put(request, **kwargs)
 
 
 class UserManagementViewSet(ModelViewSet):

@@ -27,6 +27,18 @@ class TestUserDetailAPI:
         assert res.json()["has_admin_role"] == normal_user.has_admin_role
         assert res.json()["verified_email"] == normal_user.verified_email
 
+    def test_user_verified_email_other_email(self, client):
+        """
+        Test that if the user has a secondary email which is verified, but the primary email is not,
+        the user is considered not to have a verified email.
+        """
+        user = UserFactory(email="foo@bar.baz")
+        EmailAddress.objects.create(user=user, email="bar@baz.foo", verified=True)
+        client.force_login(user=user)
+        res = client.get(reverse("current-user"))
+        assert res.status_code == 200
+        assert res.json()["verified_email"] is False
+
 
 @pytest.mark.django_db
 class TestUserManagementAPI:
@@ -103,6 +115,17 @@ class TestUserManagementAPI:
         res = client_validator_admin_user.get(reverse("user-detail", kwargs={"pk": user.pk}))
         assert res.status_code == 200
         assert res.json()["verified_email"] == bool(verified)
+
+    def test_user_verified_email_other_email(self, client_validator_admin_user):
+        """
+        Test that if the user has a secondary email which is verified, but the primary email is not,
+        the user is considered not to have a verified email.
+        """
+        user = UserFactory(email="foo@bar.baz")
+        EmailAddress.objects.create(user=user, email="bar@baz.foo", verified=True)
+        res = client_validator_admin_user.get(reverse("user-detail", kwargs={"pk": user.pk}))
+        assert res.status_code == 200
+        assert res.json()["verified_email"] is False
 
     @pytest.mark.parametrize(
         ["email", "status_code"],
@@ -353,3 +376,52 @@ class TestPasswordReset:
             },
         )
         assert res.status_code == 200
+
+
+@pytest.mark.django_db
+class TestUserAccountUpdate:
+    def test_update_names(self, client_authenticated_user, normal_user):
+        assert normal_user.first_name != "Foo"
+        assert normal_user.last_name != "Bar"
+
+        res = client_authenticated_user.patch(
+            reverse("current-user"),
+            data={"first_name": "Foo", "last_name": "Bar"},
+        )
+        assert res.status_code == 200
+        normal_user.refresh_from_db()
+        assert normal_user.first_name == "Foo"
+        assert normal_user.last_name == "Bar"
+
+    def test_update_email(self, client_authenticated_user, normal_user, mailoutbox):
+        """
+        Check that email is correctly updated, and also a verification email is sent.
+        """
+        assert normal_user.email != "foo@bar.baz"
+        assert normal_user.verified_email
+        assert len(mailoutbox) == 0
+
+        res = client_authenticated_user.patch(
+            reverse("current-user"),
+            data={"email": "foo@bar.baz"},
+        )
+        assert res.status_code == 200
+        normal_user.refresh_from_db()
+        assert normal_user.email == "foo@bar.baz"
+        assert normal_user.verified_email is False
+        assert len(mailoutbox) == 1
+        verification_mail = mailoutbox[0]
+        assert "verify-email" in verification_mail.body
+
+    def test_update_is_superuser(self, client_authenticated_user, normal_user):
+        """
+        Test that a normal user cannot change their own superuser status.
+        """
+        assert not normal_user.is_superuser
+        res = client_authenticated_user.patch(
+            reverse("current-user"),
+            data={"is_superuser": True},
+        )
+        assert res.status_code == 200
+        normal_user.refresh_from_db()
+        assert not normal_user.is_superuser
