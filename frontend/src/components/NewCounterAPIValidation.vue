@@ -132,11 +132,33 @@
               :items="reportCodes"
             ></v-select>
           </v-col>
-          <v-col cols="12">
+        </v-row>
+        <v-row v-if="reportEndpoint">
+          <v-col cols="9">
             <MonthRangePicker
               v-model:start="beginDate"
               v-model:end="endDate"
             />
+          </v-col>
+          <v-col cols="3">
+            <v-tooltip
+              location="bottom"
+              max-width="600px"
+            >
+              <template #activator="{ props }">
+                <v-checkbox
+                  v-model="shortDateFormat"
+                  v-bind="props"
+                  label="Short date format"
+                />
+              </template>
+              <div>
+                <div>Format dates sent to the server as YYYY-MM instead of YYYY-MM-DD.</div>
+                <div class="text-caption">
+                  Note: both versions should be supported by COUNTER API.
+                </div>
+              </div>
+            </v-tooltip>
           </v-col>
         </v-row>
         <v-row
@@ -303,7 +325,12 @@
                 </tr>
                 <tr v-if="reportEndpoint">
                   <th>Period</th>
-                  <td>{{ isoDate(beginDate) }} - {{ isoDate(endOfMonth(endDate)) }}</td>
+                  <td>
+                    {{ dateFormatter(beginDate) }} - {{ dateFormatter(endOfMonth(endDate)) }}
+                    <span class="text-caption"
+                      >({{ shortDateFormat ? "short" : "long" }} format)</span
+                    >
+                  </td>
                 </tr>
                 <tr v-if="reportEndpoint">
                   <th>Attributes to show</th>
@@ -389,7 +416,7 @@ import {
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
-import { isoDate } from "@/lib/formatting"
+import { isoDate, shortIsoDate } from "@/lib/formatting"
 
 // housekeeping
 const stepper = ref(1)
@@ -414,6 +441,8 @@ const reportCodes = Object.values(ReportCode)
 const lastMonth = addMonths(new Date(), -1)
 const beginDate = ref(startOfMonth(lastMonth))
 const endDate = ref(endOfMonth(lastMonth))
+const shortDateFormat = ref<boolean>(false)
+const dateFormatter = computed(() => (shortDateFormat.value ? shortIsoDate : isoDate))
 
 const credentials = reactive<Credentials>({
   customer_id: "",
@@ -518,6 +547,7 @@ async function create() {
       reportEndpoint.value ? beginDate.value : undefined,
       reportEndpoint.value ? endDate.value : undefined,
       extra,
+      shortDateFormat.value,
     )
   } catch (err) {
     console.error(err)

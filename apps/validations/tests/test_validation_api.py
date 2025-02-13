@@ -1,5 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 from uuid import UUID, uuid4
 
 import factory
@@ -9,6 +10,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils.timezone import now
 
+import validations.tasks
 from validations.enums import SeverityLevel
 from validations.fake_data import (
     CounterAPICredentialsFactory,
@@ -42,6 +44,7 @@ expected_validation_keys = {
     "stats",
     "status",
     "url",
+    "use_short_dates",
     "user_note",
     "validation_result",
 }
@@ -525,6 +528,7 @@ class TestCounterAPIValidationAPI:
         ), "We only compare the first 16 characters"
         assert out["requested_cop_version"] == "5.1"
         assert out["cop_version"] == "5.1", "cop_version should be taken from the request"
+        assert out["use_short_dates"] is False
 
     @pytest.mark.parametrize(
         ["empty_credential_fields", "status_code"],
@@ -673,6 +677,42 @@ class TestCounterAPIValidationAPI:
         res = client_authenticated_user.get(reverse("validation-list"))
         assert res.status_code == 200
         assert res.json()["count"] == 3
+
+    @pytest.mark.parametrize("use_short_dates", [True, False])
+    def test_create_with_short_dates(
+        self, client_authenticated_user, requests_mock, settings, use_short_dates
+    ):
+        """
+        Make sure that the `use_short_dates` parameter is reflected in the request to the API.
+        """
+        settings.CTOOLS_URL = "http://localhost:8180/"
+        data = factory.build(
+            dict,
+            FACTORY_CLASS=CounterAPIValidationRequestDataFactory,
+            begin_date="2021-01-01",
+            end_date="2021-01-31",
+            use_short_dates=use_short_dates,
+            url="https://foo.bar",
+        )
+        mock = requests_mock.post("http://localhost:8180/sushi.php", json={})
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            assert p.call_count == 1
+            validation_id = res.json()["id"]
+            # call the task manually to avoid the async part of the process
+            validations.tasks.validate_counter_api(validation_id)
+        # check params that were sent to the api through the mock
+        assert mock.call_count == 1
+        sent_url = mock.last_request.json()["url"]
+        _scheme, _netloc, _path, query, _frag = urlsplit(sent_url)
+        query_dict = parse_qs(query)
+        assert query_dict["begin_date"] == (["2021-01"] if use_short_dates else ["2021-01-01"])
+        assert query_dict["end_date"] == (["2021-01"] if use_short_dates else ["2021-01-31"])
 
 
 @pytest.mark.django_db

@@ -142,11 +142,19 @@
               :key="key"
             >
               <th class="font-weight-regular">{{ key }}</th>
-              <td>{{ stringify(value) }}</td>
+              <td>
+                {{ stringify(value) }}
+              </td>
             </tr>
           </table>
         </td>
-        <td v-else>{{ stringify(validation[attr.attr]) }}</td>
+        <td v-else>
+          {{
+            attr.formatter
+              ? attr.formatter(validation[attr.attr])
+              : stringify(validation[attr.attr])
+          }}
+        </td>
       </tr>
     </tbody>
   </table>
@@ -170,6 +178,15 @@ const p = withDefaults(
 
 const publicId = ref(p.validation.public_id)
 
+function formatDate(date: string | null | boolean) {
+  // typescript is stupid and cannot infer that date is a string in this situation, so the function
+  // has to accept a boolean and null as well, but we know we will only pass a string
+  if (typeof date === "string") {
+    return p.validation.use_short_dates ? date.substring(0, 7) : date
+  }
+  return stringify(date)
+}
+
 let sushiAttrs: {
   attr:
     | "url"
@@ -179,7 +196,9 @@ let sushiAttrs: {
     | "requested_begin_date"
     | "requested_end_date"
     | "requested_extra_attributes"
+    | "use_short_dates"
   name: string
+  formatter?: (x: string | boolean | null) => string
 }[] = [
   { attr: "url", name: "API URL" },
   { attr: "requested_cop_version", name: "CoP version" },
@@ -188,8 +207,17 @@ let sushiAttrs: {
 if (p.validation.api_endpoint === "/reports/[id]") {
   sushiAttrs = sushiAttrs.concat([
     { attr: "requested_report_code", name: "Report" },
-    { attr: "requested_begin_date", name: "Begin date" },
-    { attr: "requested_end_date", name: "End date" },
+    {
+      attr: "requested_begin_date",
+      name: "Begin date",
+      formatter: formatDate,
+    },
+    {
+      attr: "requested_end_date",
+      name: "End date",
+      formatter: formatDate,
+    },
+    { attr: "use_short_dates", name: "Use short dates" },
     { attr: "requested_extra_attributes", name: "Extra attributes" },
   ])
 }
@@ -210,9 +238,12 @@ const relExpirationDate = computed(() => {
 
 // stringifying
 
-function stringify(obj: string | object | null): string {
+function stringify(obj: string | object | boolean | null): string {
   if (typeof obj === "string") {
     return obj
+  }
+  if (typeof obj === "boolean") {
+    return obj ? "Yes" : "No"
   }
   if (Array.isArray(obj)) {
     return obj.map((o) => o.toString()).join("|")

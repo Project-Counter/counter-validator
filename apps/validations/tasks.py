@@ -87,9 +87,9 @@ def validate_counter_api(pk):
     else:
         json = resp.json()
         obj.core.stats = obj.add_result(json.get("result", {}))
-        obj.core.used_memory = json["memory"]
+        obj.core.used_memory = json.get("memory", 0)
         obj.core.status = ValidationStatus.SUCCESS
-        if header := json["result"].get("header"):
+        if header := json.get("result", {}).get("header"):
             obj.core.cop_version = header.get("cop_version", "")
             obj.core.report_code = header.get("report_id", "")
         if report := json.get("report"):

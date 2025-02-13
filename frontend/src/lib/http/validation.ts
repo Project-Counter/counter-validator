@@ -102,6 +102,7 @@ export async function validateCounterAPI(
   beginDate?: Date,
   endDate?: Date,
   extraAttributes?: { [key: string]: string },
+  useShortDates: boolean = false,
 ) {
   const data: {
     credentials: Credentials
@@ -111,6 +112,7 @@ export async function validateCounterAPI(
     report_code?: ReportCode
     begin_date?: string
     end_date?: string
+    use_short_dates: boolean
     extra_attributes: { [key: string]: string } | undefined
   } = {
     credentials,
@@ -118,6 +120,7 @@ export async function validateCounterAPI(
     cop_version: cop,
     api_endpoint: endpoint,
     extra_attributes: extraAttributes,
+    use_short_dates: useShortDates,
   }
   if (reportCode) {
     data["report_code"] = reportCode

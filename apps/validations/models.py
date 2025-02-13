@@ -369,18 +369,26 @@ class CounterAPIValidation(Validation):
     # dates are not required for all endpoints
     requested_begin_date = models.DateField(null=True, blank=True)
     requested_end_date = models.DateField(null=True, blank=True)
+    use_short_dates = models.BooleanField(
+        default=False, help_text="Use short dates (YYYY-MM instead of YYYY-MM-DD) for the request"
+    )
 
     def save(self, *args, **kwargs):
         self.core.sushi_credentials_checksum = checksum_dict(self.credentials)
         self.core.save()
         super().save(*args, **kwargs)
 
+    def _format_date(self, dt):
+        if isinstance(dt, str):
+            return dt[:7] if self.use_short_dates else dt
+        return dt.strftime("%Y-%m" if self.use_short_dates else "%Y-%m-%d")
+
     def get_url(self):
         clean_creds = {k: v for k, v in self.credentials.items() if v}
         if self.requested_begin_date:
-            clean_creds["begin_date"] = self.requested_begin_date
+            clean_creds["begin_date"] = self._format_date(self.requested_begin_date)
         if self.requested_end_date:
-            clean_creds["end_date"] = self.requested_end_date
+            clean_creds["end_date"] = self._format_date(self.requested_end_date)
         path = self.core.api_endpoint
         if path == "/reports/[id]":
             path = f"/reports/{self.requested_report_code.lower()}"

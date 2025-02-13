@@ -51,6 +51,9 @@ class ValidationSerializer(serializers.ModelSerializer):
     requested_end_date = serializers.CharField(
         source="counterapivalidation.requested_end_date", read_only=True
     )
+    use_short_dates = serializers.BooleanField(
+        read_only=True, source="counterapivalidation.use_short_dates"
+    )
 
     class Meta:
         model = Validation
@@ -81,6 +84,7 @@ class ValidationSerializer(serializers.ModelSerializer):
             "requested_extra_attributes",
             "requested_begin_date",
             "requested_end_date",
+            "use_short_dates",
         ]
 
     def get_data_source(self, obj):
@@ -151,6 +155,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
     report_code = serializers.CharField(allow_blank=True, required=False)
     begin_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
+    use_short_dates = serializers.BooleanField(default=False)
     extra_attributes = serializers.JSONField(default=dict)
 
     def validate(self, attrs):
@@ -184,6 +189,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             requested_report_code=validated_data.get("report_code", ""),
             requested_begin_date=validated_data.get("begin_date"),
             requested_end_date=validated_data.get("end_date"),
+            use_short_dates=validated_data.get("use_short_dates", False),
             requested_extra_attributes=validated_data["extra_attributes"],
             credentials=credentials,
         )
