@@ -417,8 +417,8 @@ class TestFileValidationAPI:
                 data={"file": file, "user_note": "test"},
                 format="multipart",
             )
+            assert res.status_code == 201
             p.assert_called_once_with(UUID(res.json()["id"]))
-        assert res.status_code == 201
         assert res.json()["filename"] == filename
         val = Validation.objects.select_related("core").get()
         assert val.filename == filename
@@ -464,8 +464,8 @@ class TestFileValidationAPI:
                 data={"file": file, "user_note": "test"},
                 format="multipart",
             )
+            assert res.status_code == 201
             p.assert_called_once_with(UUID(res.json()["id"]))
-        assert res.status_code == 201
         assert res.json()["filename"] == filename
         val = Validation.objects.select_related("core").get()
         assert val.filename == filename
@@ -474,6 +474,19 @@ class TestFileValidationAPI:
         assert val.core.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
+
+    def test_create_with_unverified_email(self, client):
+        user = UserFactory(verified_email=False)
+        client.force_login(user)
+        file = SimpleUploadedFile("tr.json", content=b"xxx")
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client.post(
+                reverse("validation-file"),
+                data={"file": file},
+                format="multipart",
+            )
+            p.assert_not_called()
+            assert res.status_code == 403
 
 
 @pytest.mark.django_db
@@ -638,6 +651,19 @@ class TestCounterAPIValidationAPI:
         assert val.core.user == normal_user
         assert val.core.api_key_prefix == client_with_api_key.api_key_prefix_
         assert val.core.api_key_prefix == res.json()["api_key_prefix"]
+
+    def test_create_with_unverified_email(self, client):
+        user = UserFactory(verified_email=False)
+        client.force_login(user)
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            p.assert_not_called()
+            assert res.status_code == 403
 
     def test_list_with_expired_validations(self, client_authenticated_user, normal_user):
         CounterAPIValidationFactory.create_batch(3, core__user=normal_user)

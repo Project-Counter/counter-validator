@@ -1,4 +1,4 @@
-from core.permissions import HasUserAPIKey, IsValidatorAdminUser
+from core.permissions import HasUserAPIKey, HasVerifiedEmail, IsValidatorAdminUser
 from django.db.models import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponseForbidden
@@ -148,7 +148,12 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=("POST",), url_path="file")
+    @action(
+        detail=False,
+        methods=("POST",),
+        url_path="file",
+        permission_classes=[IsAuthenticated | HasUserAPIKey, HasVerifiedEmail],
+    )
     @atomic
     def file(self, request):
         serializer = FileValidationCreateSerializer(data=request.data, context={"request": request})
@@ -206,7 +211,7 @@ class CounterAPIValidationViewSet(CreateModelMixin, GenericViewSet):
     It is create-only - reading should be done using the ValidationViewSet.
     """
 
-    permission_classes = [IsAuthenticated | HasUserAPIKey]
+    permission_classes = [IsAuthenticated | HasUserAPIKey, HasVerifiedEmail]
     serializer_class = ValidationSerializer
 
     def create(self, request, *args, **kwargs):

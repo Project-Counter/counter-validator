@@ -6,17 +6,17 @@ from rest_framework.test import APIClient
 
 @pytest.fixture
 def su_user():
-    return UserFactory(is_superuser=True)
+    return UserFactory(is_superuser=True, verified_email=True)
 
 
 @pytest.fixture
 def normal_user():
-    return UserFactory()
+    return UserFactory(verified_email=True)
 
 
 @pytest.fixture
 def validator_admin_user():
-    return UserFactory(is_validator_admin=True)
+    return UserFactory(is_validator_admin=True, verified_email=True)
 
 
 @pytest.fixture

@@ -28,3 +28,10 @@ class HasUserAPIKey(BaseHasAPIKey):
 class IsValidatorAdminUser(BasePermission):
     def has_permission(self, request: HttpRequest, view: typing.Any) -> bool:
         return request.user.is_authenticated and request.user.has_admin_role
+
+
+class HasVerifiedEmail(BasePermission):
+    message = "User email is not verified. This action is not allowed."
+
+    def has_permission(self, request: HttpRequest, view: typing.Any) -> bool:
+        return request.user.is_authenticated and request.user.verified_email
