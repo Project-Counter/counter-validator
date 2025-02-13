@@ -1,4 +1,4 @@
-from core.serializers import UserSerializer
+from core.serializers import UserSerializerSimple
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -98,7 +98,7 @@ class ValidationDetailSerializer(ValidationSerializer):
 
 
 class ValidationWithUserSerializer(ValidationSerializer):
-    user = UserSerializer(read_only=True, source="core.user")
+    user = UserSerializerSimple(read_only=True, source="core.user")
 
     class Meta(ValidationSerializer.Meta):
         fields = ValidationSerializer.Meta.fields + ["user"]
@@ -194,7 +194,7 @@ class ValidationCoreSerializer(serializers.ModelSerializer):
         read_only=True, source="get_validation_result_display"
     )
     source = serializers.SerializerMethodField()
-    user = UserSerializer(read_only=True)
+    user = UserSerializerSimple(read_only=True)
 
     class Meta:
         model = ValidationCore

@@ -397,7 +397,6 @@ class TestValidationAPI:
             "is_superuser",
             "has_admin_role",
             "is_validator_admin",
-            "last_login",
         }
 
 
