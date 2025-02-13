@@ -458,7 +458,7 @@ const filters = computed(() => {
 
 // when report code changes, reset attributes to show and filters
 watch(
-  reportCode,
+  [reportCode, cop],
   () => {
     // reset attributes to show to all attributes for the selected report
     attributesToShow.value = selectedReportInfo.value?.attributes || []
