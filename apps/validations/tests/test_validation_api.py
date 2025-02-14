@@ -49,7 +49,7 @@ expected_validation_keys = {
     "validation_result",
 }
 
-expected_validation_keys_detail = expected_validation_keys | {"result_data"}
+expected_validation_keys_detail = expected_validation_keys | {"result_data", "user"}
 
 
 @pytest.mark.django_db
@@ -853,7 +853,9 @@ class TestPublicValidationAPI:
         res = all_clients.get(reverse("public-validation-detail", args=[val.public_id]))
         assert res.status_code == 200
         out = res.json()
-        assert set(out.keys()) == expected_validation_keys_detail
+        assert set(out.keys()) == expected_validation_keys_detail - {
+            "user"
+        }, "user should not be there"
         assert out["credentials"] is None, "credentials should not be exposed"
 
     def test_detail_stats(self, all_clients):

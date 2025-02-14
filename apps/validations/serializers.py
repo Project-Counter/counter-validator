@@ -96,9 +96,10 @@ class ValidationSerializer(serializers.ModelSerializer):
 
 class ValidationDetailSerializer(ValidationSerializer):
     result_data = serializers.ReadOnlyField()
+    user = UserSerializerSimple(read_only=True, source="core.user")
 
     class Meta(ValidationSerializer.Meta):
-        fields = ValidationSerializer.Meta.fields + ["result_data"]
+        fields = ValidationSerializer.Meta.fields + ["result_data", "user"]
 
 
 class ValidationWithUserSerializer(ValidationSerializer):
@@ -108,8 +109,12 @@ class ValidationWithUserSerializer(ValidationSerializer):
         fields = ValidationSerializer.Meta.fields + ["user"]
 
 
-class PublicValidationDetailSerializer(ValidationDetailSerializer):
+class PublicValidationDetailSerializer(ValidationSerializer):
+    result_data = serializers.ReadOnlyField()
     credentials = serializers.SerializerMethodField()
+
+    class Meta(ValidationSerializer.Meta):
+        fields = ValidationSerializer.Meta.fields + ["result_data"]
 
     def get_credentials(self, obj):
         return None

@@ -25,12 +25,6 @@ export const urls = {
   adminList: "validations/validation/all/",
 }
 
-export async function getValidation(id: string) {
-  const url = `${urls.list}${id}/`
-
-  return jsonFetch<Validation>(url)
-}
-
 export async function getValidationDetail(id: string) {
   const url = `${urls.list}${id}/`
 

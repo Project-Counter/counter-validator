@@ -137,7 +137,7 @@
 
 <script setup lang="ts">
 import { Status, Validation } from "@/lib/definitions/api"
-import { getValidation, getValidationsFromUrl, urls } from "@/lib/http/validation"
+import { getValidationDetail, getValidationsFromUrl, urls } from "@/lib/http/validation"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { filesize } from "filesize"
 import { useValidationFilters } from "@/composables/validationFiltering"
@@ -181,7 +181,6 @@ if (props.admin) {
 
 // validations list
 const { url, params, filters } = usePaginatedAPI(props.admin ? urls.adminList : urls.list)
-console.debug("url", url)
 const totalCount = ref(0)
 
 const {
@@ -194,6 +193,7 @@ const {
   textFilter,
 } = useValidationFilters()
 
+// the following will also perform the initial load of validations
 watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
   filters.cop_version = copVersionFilter.value.join(",")
@@ -221,6 +221,7 @@ async function loadValidations() {
     totalCount.value = count
   } finally {
     loading.value = false
+    await checkUnfinished()
   }
 }
 
@@ -235,7 +236,7 @@ async function checkUnfinished() {
   let unfinished = items.value.filter(
     (v) => v.status === Status.RUNNING || v.status === Status.WAITING,
   )
-  let fetchers = unfinished.map((v) => getValidation(v.id))
+  let fetchers = unfinished.map((v) => getValidationDetail(v.id))
   for (let result of await Promise.all(fetchers)) {
     let index = items.value.findIndex((v) => v.id === result.id)
     items.value[index] = result
@@ -245,15 +246,4 @@ async function checkUnfinished() {
     setTimeout(checkUnfinished, 1000)
   }
 }
-
-// start
-
-async function start() {
-  // validations will be loaded by watchEffect above
-  await checkUnfinished()
-}
-
-onMounted(() => {
-  start()
-})
 </script>
