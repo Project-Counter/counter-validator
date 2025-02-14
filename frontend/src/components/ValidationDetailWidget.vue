@@ -116,11 +116,24 @@
             <v-card v-bind="cardAttrs">
               <v-card-text>
                 <ValidationMessageStatsTable
-                  v-if="validation"
+                  v-if="validation && !isEmpty(validation.stats)"
                   :validation="validation"
                   :public-view="publicView"
                   @select-message="selectMessage"
                 />
+                <div v-if="validation">
+                  Everything looks good! No validation messages to show.
+
+                  <div class="text-h2 text-center py-14">
+                    Good job
+                    <v-icon
+                      color="success"
+                      size="x-small"
+                      class="mb-4"
+                      >mdi-thumb-up-outline</v-icon
+                    >
+                  </div>
+                </div>
               </v-card-text>
             </v-card>
           </v-col>
@@ -151,6 +164,7 @@
 <script setup lang="ts">
 import { Message, ValidationDetail } from "@/lib/definitions/api"
 import ValidationMessagesTable from "@/components/ValidationMessagesTable.vue"
+import { isEmpty } from "lodash"
 
 const props = withDefaults(
   defineProps<{
