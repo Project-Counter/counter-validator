@@ -8,7 +8,6 @@
     density="compact"
     :items-length="totalCount"
     :loading="loading"
-    @update:options="load"
   >
     <template #item.created="{ item }">
       <IsoDateTime :date-string="item.created" />
@@ -63,8 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import { ValidationCore } from "@/lib/definitions/api"
-import { getValidationCoresFromUrl, urls } from "@/lib/http/validation"
+import { ValidationCore, Status } from "@/lib/definitions/api"
+import { getValidationCoresFromUrl, urls, getValidationCoreDetail } from "@/lib/http/validation"
 import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
@@ -93,6 +92,7 @@ const totalCount = ref(0)
 const { validationResultFilter, copVersionFilter, reportCodeFilter, endpointFilter, sourceFilter } =
   useValidationFilters()
 
+// the effect will also load data in the beginning
 watchEffect(() => {
   filters.validation_result = validationResultFilter.value.join(",")
   filters.cop_version = copVersionFilter.value.join(",")
@@ -111,10 +111,31 @@ async function load() {
     totalCount.value = count
   } finally {
     loading.value = false
+    await checkUnfinished()
   }
 }
 
-onMounted(() => {
-  load()
+// check for unfinished validations and periodically update the list
+let checkTimeout: number | null = null
+
+async function checkUnfinished() {
+  let unfinished = items.value.filter(
+    (v) => v.status === Status.RUNNING || v.status === Status.WAITING,
+  )
+  let fetchers = unfinished.map((v) => getValidationCoreDetail(v.id))
+  for (let result of await Promise.all(fetchers)) {
+    let index = items.value.findIndex((v) => v.id === result.id)
+    items.value[index] = result
+  }
+  unfinished = items.value.filter((v) => v.status === Status.RUNNING || v.status === Status.WAITING)
+  if (unfinished.length > 0) {
+    checkTimeout = setTimeout(checkUnfinished, 1000)
+  } else {
+    checkTimeout = null
+  }
+}
+
+onUnmounted(() => {
+  if (checkTimeout) clearTimeout(checkTimeout)
 })
 </script>

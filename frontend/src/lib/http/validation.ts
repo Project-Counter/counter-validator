@@ -75,6 +75,12 @@ export async function getValidationCoresFromUrl(url: string) {
   return jsonFetch<PaginatedValidationCores>(url)
 }
 
+export async function getValidationCoreDetail(id: string) {
+  const url = `${urls.coreList}${id}/`
+
+  return jsonFetch<ValidationCore>(url)
+}
+
 export async function validateFile(file: FUpload) {
   // we need to send the data in a multipart form
   const form = new FormData()

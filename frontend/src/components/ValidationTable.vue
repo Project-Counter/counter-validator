@@ -231,6 +231,7 @@ defineExpose({
 })
 
 // check for unfinished validations and periodically update the list
+let checkTimeout: number | null = null
 
 async function checkUnfinished() {
   let unfinished = items.value.filter(
@@ -243,7 +244,13 @@ async function checkUnfinished() {
   }
   unfinished = items.value.filter((v) => v.status === Status.RUNNING || v.status === Status.WAITING)
   if (unfinished.length > 0) {
-    setTimeout(checkUnfinished, 1000)
+    checkTimeout = setTimeout(checkUnfinished, 1000)
+  } else {
+    checkTimeout = null
   }
 }
+
+onUnmounted(() => {
+  if (checkTimeout) clearTimeout(checkTimeout)
+})
 </script>
