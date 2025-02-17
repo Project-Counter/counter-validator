@@ -43,7 +43,28 @@
         <v-row>
           <v-col v-bind="colAttrs">
             <v-card v-bind="cardAttrs">
-              <v-card-title>Basic information</v-card-title>
+              <v-card-title>
+                Basic information
+                <v-tooltip
+                  location="bottom"
+                  max-width="600px"
+                >
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-if="validation && validation.data_source === 'counter_api' && !publicView"
+                      class="float-end"
+                      color="secondary"
+                      variant="flat"
+                      v-bind="props"
+                      @click="repeatValidation"
+                    >
+                      <v-icon class="me-2">mdi-refresh</v-icon>
+                      Repeat validation
+                    </v-btn>
+                  </template>
+                  Open a new validation wizard with data pre-populated from this validation.
+                </v-tooltip>
+              </v-card-title>
               <v-card-text>
                 <!-- ts need the v-if bellow to narrow down the type -->
                 <ValidationBasicInfo
@@ -219,6 +240,15 @@ function selectMessage(message: Message) {
     messagesComponent.value.applyFilterByMessage(message)
     tab.value = "messages"
   }
+}
+
+// repeat validation
+const router = useRouter()
+function repeatValidation() {
+  router.push({
+    path: "/validation/api",
+    query: { base: props.validation.id },
+  })
 }
 </script>
 

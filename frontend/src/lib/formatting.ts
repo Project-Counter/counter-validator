@@ -16,3 +16,19 @@ export function formatPercent(value: number, digits: number = 2) {
 export function formatInteger(value: number) {
   return value.toLocaleString()
 }
+
+export function stringify(obj: string | object | boolean | null): string {
+  if (typeof obj === "string") {
+    return obj
+  }
+  if (typeof obj === "boolean") {
+    return obj ? "Yes" : "No"
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((o) => o.toString()).join("|")
+  }
+  if (obj !== null) {
+    return obj.toString()
+  }
+  return ""
+}

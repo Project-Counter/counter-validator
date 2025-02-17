@@ -1,4 +1,4 @@
-import { CoP } from "@/lib/definitions/counter"
+import { CoP, ReportCode } from "@/lib/definitions/counter"
 
 export type ApiKey = {
   prefix: string
@@ -105,7 +105,7 @@ export type Credentials = {
 
 export type ValidationBase = {
   id: string // uuid
-  cop_version: string
+  cop_version: CoP
   report_code: string
   validation_result: SeverityLevel
   status: Status
@@ -135,10 +135,10 @@ export type Validation = {
   data_source: "counter_api" | "file"
   credentials: Credentials | null
   url: string | null
-  requested_cop_version: string | null
-  requested_report_code: string | null
+  requested_cop_version: CoP | null
+  requested_report_code: ReportCode | null
   api_endpoint: string | null
-  requested_extra_attributes: string | null
+  requested_extra_attributes: { [key: string]: string } | null
   requested_begin_date: string | null
   requested_end_date: string | null
   use_short_dates: boolean

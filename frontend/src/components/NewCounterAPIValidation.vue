@@ -385,7 +385,7 @@
                         :key="k"
                       >
                         <th class="font-weight-regular">{{ k }}</th>
-                        <td>{{ v || "-" }}</td>
+                        <td>{{ stringify(v) || "-" }}</td>
                       </tr>
                     </table>
                   </td>
@@ -427,9 +427,9 @@ import {
   ReportCode,
 } from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
-import { validateCounterAPI } from "@/lib/http/validation"
+import { getValidationDetail, validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
-import { isoDate, shortIsoDate } from "@/lib/formatting"
+import { isoDate, shortIsoDate, stringify } from "@/lib/formatting"
 
 // housekeeping
 const stepper = ref(1)
@@ -499,19 +499,6 @@ const textFilters = ref<{ [key: string]: string }>({})
 const filters = computed(() => {
   return { ...multiValueFilters.value, ...textFilters.value }
 })
-
-// when report code changes, reset attributes to show and filters
-watch(
-  [reportCode, cop],
-  () => {
-    // reset attributes to show to all attributes for the selected report
-    attributesToShow.value = selectedReportInfo.value?.attributes || []
-    switches.value = []
-    multiValueFilters.value = {}
-    textFilters.value = {}
-  },
-  { immediate: true },
-)
 
 // methods for API communication
 async function selectPlatform() {
@@ -588,5 +575,78 @@ async function create() {
   await router.push("/validation/")
 }
 
+// base validation
+const route = useRoute()
+
+async function handleBaseValidation() {
+  /*
+  requested_extra_attributes: string | null
+  user_note: string | null
+   */
+  if (route.query.base) {
+    try {
+      const baseValidation = await getValidationDetail(route.query.base as string)
+      if (baseValidation.url) url.value = baseValidation.url
+      if (baseValidation.requested_cop_version) cop.value = baseValidation.requested_cop_version
+      if (baseValidation.credentials) {
+        credentials.customer_id = baseValidation.credentials.customer_id || ""
+        credentials.requestor_id = baseValidation.credentials.requestor_id || ""
+        credentials.api_key = baseValidation.credentials.api_key || ""
+      }
+      if (baseValidation.api_endpoint) {
+        endpoint.value =
+          apiEndpoints.find((e) => e.path === baseValidation.api_endpoint) || apiEndpoints[0]
+      }
+      if (baseValidation.requested_report_code)
+        reportCode.value = baseValidation.requested_report_code
+      if (baseValidation.requested_begin_date)
+        beginDate.value = new Date(baseValidation.requested_begin_date)
+      if (baseValidation.requested_end_date)
+        endDate.value = new Date(baseValidation.requested_end_date)
+      if (baseValidation.use_short_dates) shortDateFormat.value = baseValidation.use_short_dates
+      // if (baseValidation.user_note) userNote.value = baseValidation.user_note
+      if (baseValidation.requested_extra_attributes) {
+        // filters, switches and attributes to show are store in the extra attributes
+        const ea = baseValidation.requested_extra_attributes
+        if (ea.attributes_to_show) {
+          attributesToShow.value = ea.attributes_to_show.split("|")
+        }
+        Object.keys(ea).forEach((k) => {
+          if (k === "attributes_to_show") return
+          // we need to capitalize the first letter in very word to match the attribute names
+          let k2 = k.replace(/^[a-z]|_[a-z]/g, (m) => m.toUpperCase())
+          if (k2 === "Yop") k2 = "YOP" // special case
+          const reportInfo = getReportInfo(cop.value, reportCode.value)
+          if (ea[k]) {
+            if (k2 === "Metric_Type" || possibleAttributeValues(cop.value, k2)) {
+              multiValueFilters.value[k2] = ea[k].split("|")
+            } else if (reportInfo?.switches?.includes(k2)) {
+              switches.value.push(k2)
+            } else {
+              textFilters.value[k2] = ea[k]
+            }
+          }
+        })
+      }
+    } catch (err) {
+      console.error("Could not set-up from base validation:", err)
+    }
+  } else {
+    // we set the default values without the base validation
+    attributesToShow.value = selectedReportInfo.value?.attributes || []
+  }
+
+  // when report code changes, reset attributes to show and filters
+  // we add the watcher here, so that it is not triggered before the base validation is loaded
+  watch([reportCode, cop], () => {
+    // reset attributes to show to all attributes for the selected report
+    attributesToShow.value = selectedReportInfo.value?.attributes || []
+    switches.value = []
+    multiValueFilters.value = {}
+    textFilters.value = {}
+  })
+}
+
+onBeforeMount(handleBaseValidation)
 onMounted(loadPlatformData)
 </script>

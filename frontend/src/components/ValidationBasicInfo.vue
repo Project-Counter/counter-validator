@@ -165,6 +165,7 @@ import { statusMap, ValidationDetail } from "@/lib/definitions/api"
 import { intlFormatDistance } from "date-fns"
 import { filesize } from "filesize"
 import { publishValidation, unpublishValidation } from "@/lib/http/validation"
+import { stringify } from "@/lib/formatting"
 
 const p = withDefaults(
   defineProps<{
@@ -178,7 +179,7 @@ const p = withDefaults(
 
 const publicId = ref(p.validation.public_id)
 
-function formatDate(date: string | null | boolean) {
+function formatDate(date: string | null | boolean | object) {
   // typescript is stupid and cannot infer that date is a string in this situation, so the function
   // has to accept a boolean and null as well, but we know we will only pass a string
   if (typeof date === "string") {
@@ -198,7 +199,7 @@ let sushiAttrs: {
     | "requested_extra_attributes"
     | "use_short_dates"
   name: string
-  formatter?: (x: string | boolean | null) => string
+  formatter?: (x: string | boolean | null | object) => string
 }[] = [
   { attr: "url", name: "API URL" },
   { attr: "requested_cop_version", name: "CoP version" },
@@ -235,24 +236,6 @@ const relExpirationDate = computed(() => {
     return intlFormatDistance(p.validation.expiration_date, Date.now())
   return ""
 })
-
-// stringifying
-
-function stringify(obj: string | object | boolean | null): string {
-  if (typeof obj === "string") {
-    return obj
-  }
-  if (typeof obj === "boolean") {
-    return obj ? "Yes" : "No"
-  }
-  if (Array.isArray(obj)) {
-    return obj.map((o) => o.toString()).join("|")
-  }
-  if (obj !== null) {
-    return obj.toString()
-  }
-  return ""
-}
 
 // publishing/unpublishing
 
