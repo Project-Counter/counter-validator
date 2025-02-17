@@ -21,7 +21,7 @@ const light: ThemeDefinition = {
   },
   colors: {
     primary: counterBlue,
-    secondary: "#bfe4f1",
+    secondary: "#0085c1",
     subdued: "#707070",
   },
 }

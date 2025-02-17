@@ -1,4 +1,4 @@
-import { jsonFetch } from "./util"
+import { jsonFetch, wrapFetch } from "./util"
 import { User } from "../definitions/api"
 
 export const urls = {
@@ -26,7 +26,13 @@ export async function updateUser(user: User) {
 }
 
 export async function deleteUser(user: User) {
-  return await jsonFetch<User>(`${urls.list}${user.id}/`, {
+  return await wrapFetch(`${urls.list}${user.id}/`, {
     method: "DELETE",
+  })
+}
+
+export async function sendInvitationEmail(user: User) {
+  return await jsonFetch(`${urls.list}${user.id}/send-invitation/`, {
+    method: "POST",
   })
 }

@@ -104,6 +104,16 @@
       </v-dialog>
 
       <v-btn
+        color="secondary"
+        prepend-icon="mdi-email"
+        size="small"
+        class="mr-1"
+        variant="tonal"
+        @click="sendInvitation(item)"
+        >Send invitation</v-btn
+      >
+
+      <v-btn
         v-if="item.id !== store.user?.id"
         color="error"
         prepend-icon="mdi-delete"
@@ -119,7 +129,7 @@
 
 <script setup lang="ts">
 import { User } from "@/lib/definitions/api"
-import { fetchUsers, deleteUser as callDeleteUser } from "@/lib/http/users"
+import { fetchUsers, deleteUser as callDeleteUser, sendInvitationEmail } from "@/lib/http/users"
 import { DataTableHeader } from "@/lib/vuetifyTypes"
 import { useAppStore } from "@/stores/app"
 import { confirmDialog } from "vuetify3-dialog"
@@ -182,6 +192,10 @@ async function deleteUser(user: User) {
     store.displayNotification({ message: "User successfully deleted", type: "success" })
     await loadUsers()
   })
+}
+
+async function sendInvitation(user: User) {
+  await sendInvitationEmail(user)
 }
 </script>
 

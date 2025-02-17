@@ -1,4 +1,5 @@
 import re
+from unittest.mock import patch
 
 import pytest
 from allauth.account.models import EmailAddress
@@ -251,6 +252,16 @@ class TestUserManagementAPI:
         user.refresh_from_db()
         assert user.is_active
 
+    def test_send_invitation(self, client_validator_admin_user, mailoutbox, settings):
+        settings.ALLOWED_HOSTS = ["example.com", "testserver"]
+        user = UserFactory(email="foo@bar.baz")
+        res = client_validator_admin_user.post(reverse("user-send-invitation", args=[user.pk]))
+        assert res.status_code == 200
+        assert len(mailoutbox) == 1
+        assert mailoutbox[0].to == ["foo@bar.baz"]
+        assert "invitation" in mailoutbox[0].subject
+        assert "invit" in mailoutbox[0].body
+
 
 @pytest.mark.django_db
 class TestApiKeyAPI:
@@ -289,55 +300,65 @@ class TestApiKeyAPI:
 @pytest.mark.django_db
 class TestRegistrationAPI:
     def test_registration(self, client_unauthenticated):
-        res = client_unauthenticated.post(
-            reverse("rest_register"),
-            data={
-                "email": "foo@bar.baz",
-                "password1": "fksldj2938wflkjsw",
-                "password2": "fksldj2938wflkjsw",
-            },
-        )
-        assert res.status_code == 204
-        assert User.objects.filter(email="foo@bar.baz").exists()
+        with patch("core.signals.async_mail_admins") as email_task:
+            res = client_unauthenticated.post(
+                reverse("rest_register"),
+                data={
+                    "email": "foo@bar.baz",
+                    "password1": "fksldj2938wflkjsw",
+                    "password2": "fksldj2938wflkjsw",
+                },
+            )
+            assert res.status_code == 204
+            assert email_task.delay.called
+            assert User.objects.filter(email="foo@bar.baz").exists()
 
     def test_registration_invalid_email(self, client_unauthenticated):
-        res = client_unauthenticated.post(
-            reverse("rest_register"),
-            data={
-                "email": "foo@bar",
-                "password1": "fksldj2938wflkjsw",
-                "password2": "fksldj2938wflkjsw",
-            },
-        )
-        assert res.status_code == 400
+        with patch("core.signals.async_mail_admins") as email_task:
+            res = client_unauthenticated.post(
+                reverse("rest_register"),
+                data={
+                    "email": "foo@bar",
+                    "password1": "fksldj2938wflkjsw",
+                    "password2": "fksldj2938wflkjsw",
+                },
+            )
+            assert res.status_code == 400
+            assert not email_task.delay.called
 
     def test_registration_already_used_email(self, client_unauthenticated, normal_user):
-        res = client_unauthenticated.post(
-            reverse("rest_register"),
-            data={
-                "email": normal_user.email,
-                "password1": "fksldj2938wflkjsw",
-                "password2": "fksldj2938wflkjsw",
-            },
-        )
-        assert res.status_code == 400
-        assert res.json() == {"email": ["A user is already registered with this e-mail address."]}
+        with patch("core.signals.async_mail_admins") as email_task:
+            res = client_unauthenticated.post(
+                reverse("rest_register"),
+                data={
+                    "email": normal_user.email,
+                    "password1": "fksldj2938wflkjsw",
+                    "password2": "fksldj2938wflkjsw",
+                },
+            )
+            assert res.status_code == 400
+            assert res.json() == {
+                "email": ["A user is already registered with this e-mail address."]
+            }
+            assert not email_task.delay.called
 
     def test_names_are_stored(self, client_unauthenticated):
-        res = client_unauthenticated.post(
-            reverse("rest_register"),
-            data={
-                "email": "foo@bar.baz",
-                "first_name": "Foo",
-                "last_name": "Bar",
-                "password1": "fksld39082dwfjl",
-                "password2": "fksld39082dwfjl",
-            },
-        )
-        assert res.status_code == 204
-        user = User.objects.get(email="foo@bar.baz")
-        assert user.first_name == "Foo"
-        assert user.last_name == "Bar"
+        with patch("core.signals.async_mail_admins") as email_task:
+            res = client_unauthenticated.post(
+                reverse("rest_register"),
+                data={
+                    "email": "foo@bar.baz",
+                    "first_name": "Foo",
+                    "last_name": "Bar",
+                    "password1": "fksld39082dwfjl",
+                    "password2": "fksld39082dwfjl",
+                },
+            )
+            assert res.status_code == 204
+            assert email_task.delay.called
+            user = User.objects.get(email="foo@bar.baz")
+            assert user.first_name == "Foo"
+            assert user.last_name == "Bar"
 
 
 @pytest.mark.django_db
@@ -351,14 +372,16 @@ class TestPasswordReset:
         assert res.status_code == 200
         assert len(mailoutbox) == 1
 
-    def test_password_reset_from_email_link(self, client_unauthenticated, normal_user, mailoutbox):
+    def test_password_reset_from_email_link(self, client_unauthenticated, mailoutbox):
         """
         Test that the password reset link works.
         """
         assert len(mailoutbox) == 0
+        user = UserFactory()
+        assert user.verified_email is False
         res = client_unauthenticated.post(
             reverse("rest_password_reset"),
-            data={"email": normal_user.email},
+            data={"email": user.email},
         )
         assert res.status_code == 200
         assert len(mailoutbox) == 1
@@ -367,7 +390,7 @@ class TestPasswordReset:
         assert m
         uid, token = m.groups()
         res = client_unauthenticated.post(
-            reverse("rest_password_reset_confirm"),
+            reverse("user_password_reset"),
             data={
                 "uid": uid,
                 "token": token,
@@ -376,6 +399,8 @@ class TestPasswordReset:
             },
         )
         assert res.status_code == 200
+        user.refresh_from_db()
+        assert user.verified_email, "email should be verified after password reset"
 
 
 @pytest.mark.django_db

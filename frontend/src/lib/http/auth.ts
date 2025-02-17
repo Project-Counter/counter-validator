@@ -10,7 +10,7 @@ export const urls = {
   signup: "registration/",
   apiKey: "core/api-key/",
   requestReset: "auth/password/reset/",
-  doReset: "auth/password/reset/confirm/",
+  doReset: "core/user/password-reset",
   verifyEmail: "registration/verify-email/",
   resendVerificationEmail: "registration/resend-email/",
 }
