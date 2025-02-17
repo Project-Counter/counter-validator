@@ -100,14 +100,26 @@
       <!-- buttons -->
       <v-btn
         color="subdued"
+        variant="tonal"
         @click="emit('cancel')"
       >
         Cancel
       </v-btn>
+
+      <v-btn
+        v-if="!user"
+        variant="tonal"
+        :disabled="!valid"
+        color="secondary"
+        @click="saveUser(true)"
+        >Create & invite</v-btn
+      >
+
       <v-btn
         color="primary"
+        variant="elevated"
         :disabled="!valid"
-        @click="saveUser"
+        @click="saveUser()"
       >
         {{ user ? "Save" : "Create" }}
       </v-btn>
@@ -116,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { createUser, updateUser } from "@/lib/http/users"
+import { createUser, sendInvitationEmail, updateUser } from "@/lib/http/users"
 import { User } from "@/lib/definitions/api"
 import { HttpStatusError } from "@/lib/http/util"
 import { useAppStore } from "@/stores/app"
@@ -137,7 +149,7 @@ const store = useAppStore()
 // hints
 const emailErrorMessages = ref<string[]>([])
 
-async function saveUser() {
+async function saveUser(invite: boolean = false) {
   const userData = {
     first_name: firstName.value,
     last_name: lastName.value,
@@ -153,7 +165,10 @@ async function saveUser() {
     } else {
       // Create user
       const user = await createUser(userData)
-      emit("userCreated", user)
+      if (invite) {
+        await sendInvitationEmail(user)
+      }
+      emit("userCreated", { user, invite })
     }
   } catch (err) {
     if (err instanceof HttpStatusError && err?.res?.status === 400) {

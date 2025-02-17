@@ -21,7 +21,7 @@
 
             <template #default="{ isActive }">
               <UserEditWidget
-                @user-created="userCreated(isActive)"
+                @user-created="userCreated(isActive, $event)"
                 @cancel="isActive.value = false"
               />
             </template>
@@ -162,9 +162,13 @@ const search = ref("")
 // user editing and creation
 const store = useAppStore()
 
-function userCreated(isActive: Ref<boolean>) {
+function userCreated(isActive: Ref<boolean>, event: { user: User; invite: boolean }) {
   isActive.value = false
-  store.displayNotification({ message: "User successfully created", type: "success" })
+  if (event.invite) {
+    store.displayNotification({ message: "User successfully created and invited", type: "success" })
+  } else {
+    store.displayNotification({ message: "User successfully created", type: "success" })
+  }
   loadUsers()
 }
 
