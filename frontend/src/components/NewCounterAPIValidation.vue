@@ -31,9 +31,6 @@
               @update:model-value="selectPlatform"
             />
           </v-col>
-          <v-col cols="auto">
-            {{ urlAutoAdded }}
-          </v-col>
         </v-row>
         <div class="my-3">
           <v-divider>or enter manually</v-divider>
