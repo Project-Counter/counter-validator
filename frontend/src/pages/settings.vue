@@ -8,8 +8,8 @@
     <h3 class="mt-10">Account</h3>
     <p class="text-caption text-medium-emphasis mb-3">Some info about you</p>
 
-    <user-form />
-    <change-password />
+    <UserForm />
+    <ChangePassword />
 
     <h3 class="mt-10">API keys</h3>
     <p class="text-caption text-medium-emphasis mb-3">
