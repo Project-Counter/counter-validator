@@ -12,38 +12,58 @@
         :disabled="loading"
       >
         <h2 class="mb-3">Server</h2>
-        <v-autocomplete
-          v-model="platform"
-          clearable
-          hint="Type to search in the COUNTER Registry"
-          item-subtitle="abbrev"
-          item-title="name"
-          item-value="id"
-          :items="platforms"
-          label="Search in platforms"
-          :loading="loadingPlatforms"
-          persistent-clear
-          persistent-hint
-          prepend-inner-icon="mdi-magnify"
-          @update:model-value="selectPlatform"
-        />
+
+        <v-row dense>
+          <v-col>
+            <v-autocomplete
+              v-model="platform"
+              clearable
+              hint="Type to search in the COUNTER Registry"
+              item-subtitle="abbrev"
+              item-title="name"
+              item-value="id"
+              :items="platforms"
+              label="Search in platforms"
+              :loading="loadingPlatforms"
+              persistent-clear
+              persistent-hint
+              prepend-inner-icon="mdi-magnify"
+              @update:model-value="selectPlatform"
+            />
+          </v-col>
+          <v-col cols="auto">
+            {{ urlAutoAdded }}
+          </v-col>
+        </v-row>
         <div class="my-3">
           <v-divider>or enter manually</v-divider>
         </div>
         <v-row dense>
           <v-col
             cols="12"
-            md="8"
+            sm="6"
+            md="2"
+          >
+            <v-select
+              v-model="cop"
+              label="CoP version"
+              :items="copVersions"
+            ></v-select>
+          </v-col>
+          <v-col
+            cols="12"
+            md="7"
           >
             <v-text-field
               v-model="url"
               label="URL"
               :rules="[rules.required]"
+              @update:model-value="urlAutoAdded = false"
             />
           </v-col>
           <v-col
             cols="12"
-            md="4"
+            md="3"
           >
             <v-text-field
               v-model="credentials.platform"
@@ -93,14 +113,11 @@
       <v-form>
         <h2 class="mb-3">Endpoint selection</h2>
         <v-row>
-          <v-col>
-            <v-select
-              v-model="cop"
-              label="CoP version"
-              :items="copVersions"
-            ></v-select>
-          </v-col>
-          <v-col>
+          <v-col
+            cols="12"
+            sm="8"
+            md="6"
+          >
             <v-select
               v-model="endpoint"
               :items="apiEndpoints"
@@ -118,13 +135,11 @@
               </template>
             </v-select>
           </v-col>
-        </v-row>
-
-        <v-row v-if="reportEndpoint">
           <v-col
-            cols="6"
+            v-if="reportEndpoint"
+            cols="12"
+            sm="4"
             md="3"
-            lg="2"
           >
             <v-select
               v-model="reportCode"
@@ -133,6 +148,7 @@
             ></v-select>
           </v-col>
         </v-row>
+
         <v-row v-if="reportEndpoint">
           <v-col cols="9">
             <MonthRangePicker
@@ -403,15 +419,15 @@
 </template>
 
 <script setup lang="ts">
-import { CounterAPIEndpoint, Credentials } from "@/lib/definitions/api"
-import { loadPlatform, loadPlatforms, loadSushiService } from "@/lib/http/platform"
+import { CounterAPIEndpoint, Credentials, SushiService } from "@/lib/definitions/api"
+import { loadPlatform, loadPlatforms } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
 import {
   CoP,
-  getReportInfo,
-  ReportCode,
-  possibleAttributeValues,
   copVersions,
+  getReportInfo,
+  possibleAttributeValues,
+  ReportCode,
 } from "@/lib/definitions/counter"
 import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { validateCounterAPI } from "@/lib/http/validation"
@@ -430,10 +446,12 @@ const platforms = shallowRef()
 
 // credentials and related select options
 const platform = ref(null)
+const sushiServices = ref<SushiService[]>([])
 
 const cop = ref<CoP>("5")
 
 const url = ref("https://sashimi.celus.net/")
+const urlAutoAdded = ref(false)
 
 const reportCode = ref<ReportCode>(ReportCode.TR)
 const reportCodes = Object.values(ReportCode)
@@ -502,10 +520,24 @@ watch(
 async function selectPlatform() {
   if (!platform.value) return
   loading.value = true
-  const c = await loadSushiService((await loadPlatform(platform.value)).sushi_services[0])
-  url.value = c.url
+  sushiServices.value = (await loadPlatform(platform.value)).sushi_services
   loading.value = false
 }
+
+watchEffect(() => {
+  if (sushiServices.value) {
+    const ss = sushiServices.value.find((s) => s.counter_release === cop.value)
+    if (ss) {
+      url.value = ss.url
+      urlAutoAdded.value = true
+      return
+    }
+  }
+  if (urlAutoAdded.value) {
+    // we want to clean up the URL, but only if it was auto-added
+    url.value = ""
+  }
+})
 
 async function loadPlatformData() {
   loadingPlatforms.value = true

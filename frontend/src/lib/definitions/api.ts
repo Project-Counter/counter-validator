@@ -1,3 +1,5 @@
+import { CoP } from "@/lib/definitions/counter"
+
 export type ApiKey = {
   prefix: string
   created: string
@@ -155,22 +157,22 @@ export type Platform = {
   deprecated: boolean
 }
 
-export type PlatformDetail = Platform & {
-  reports: Report[]
-  content_provider_name: string
-  website: string
-  sushi_services: string[]
-}
-
 export type SushiService = {
   id: string
-  counter_release: string
+  counter_release: CoP
   url: string
   ip_address_authorization?: boolean
   api_key_required?: boolean
   platform_attr_required?: boolean
   requestor_id_required?: boolean
   deprecated: boolean
+}
+
+export type PlatformDetail = Platform & {
+  reports: Report[]
+  content_provider_name: string
+  website: string
+  sushi_services: SushiService[]
 }
 
 export type CounterAPIEndpoint = "/reports/[id]" | "/reports" | "/status" | "/members"

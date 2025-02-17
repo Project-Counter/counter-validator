@@ -1,6 +1,6 @@
 import factory
 
-from counter.models import Platform
+from counter.models import Platform, SushiService
 
 REPORT_TYPE_CODES = [
     "TR",
@@ -32,3 +32,17 @@ class PlatformFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("company")
     abbrev = factory.Faker("lexify", text="????", letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     website = factory.Faker("url")
+
+
+class SushiServiceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SushiService
+
+    id = factory.Faker("uuid4")
+    counter_release = factory.Faker("random_element", elements=COP_VERSIONS)
+    url = factory.Faker("url")
+    platform = factory.SubFactory(PlatformFactory)
+    ip_address_authorization = factory.Faker("boolean")
+    api_key_required = factory.Faker("boolean")
+    platform_attr_required = factory.Faker("boolean")
+    requestor_id_required = factory.Faker("boolean")

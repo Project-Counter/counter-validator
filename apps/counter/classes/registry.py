@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import models
 
 from counter.models import Platform, Report, SushiService
-from counter.serializers import PlatformSerializer, ReportSerializer, SushiServiceSerializer
+from counter.serializers import PlatformCreateSerializer, ReportSerializer, SushiServiceSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class RegistrySync:
         platforms = self.get_platforms()
         for i, platform_data in enumerate(platforms):
             logger.debug("Processing platform %d/%d", i + 1, len(platforms))
-            serializer = PlatformSerializer(
+            serializer = PlatformCreateSerializer(
                 get_or_none(Platform, pk=platform_data["id"]), data=platform_data
             )
             serializer.is_valid(raise_exception=True)

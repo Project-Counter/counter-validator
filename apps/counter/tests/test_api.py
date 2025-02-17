@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from counter.fake_data import PlatformFactory
+from counter.fake_data import PlatformFactory, SushiServiceFactory
 
 
 @pytest.mark.django_db
@@ -13,21 +13,28 @@ class TestPlatformAPI:
         assert res.status_code == 200
         assert len(res.json()) == 10
         first = res.json()[0]
-        assert "name" in first
-        assert "abbrev" in first
-        assert "id" in first
-        assert "deprecated" in first
+        assert set(first.keys()) == {"name", "abbrev", "id", "deprecated"}
 
     def test_platform_detail(self, client_authenticated_user):
         platform = PlatformFactory()
+        SushiServiceFactory(platform=platform)
         res = client_authenticated_user.get(reverse("platform-detail", kwargs={"pk": platform.pk}))
         assert res.status_code == 200
         assert res.json()["name"] == platform.name
         data = res.json()
-        assert "name" in data
-        assert "abbrev" in data
-        assert "id" in data
-        assert "deprecated" in data
+        assert set(data.keys()) == {
+            "name",
+            "abbrev",
+            "id",
+            "deprecated",
+            "reports",
+            "sushi_services",
+            "website",
+            "content_provider_name",
+        }
+        assert type(data["reports"]) is list
+        assert type(data["sushi_services"]) is list
+        assert type(data["sushi_services"][0]) is dict
 
     def test_platform_create(self, client_authenticated_user):
         """

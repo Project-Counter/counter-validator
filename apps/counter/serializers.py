@@ -42,7 +42,7 @@ class PlatformSimpleSerializer(serializers.ModelSerializer):
 
 class PlatformSerializer(serializers.ModelSerializer):
     reports = ReportSerializer(many=True, read_only=True)
-    sushi_services = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    sushi_services = SushiServiceSerializer(many=True, read_only=True)
     deprecated = serializers.ReadOnlyField()
 
     class Meta:
@@ -56,6 +56,27 @@ class PlatformSerializer(serializers.ModelSerializer):
             "website",
             "sushi_services",
             "deprecated",
+        )
+
+
+class PlatformCreateSerializer(serializers.ModelSerializer):
+    """
+    Used for syncing data from the registry, so the structure matches the registry API
+    """
+
+    reports = ReportSerializer(many=True, read_only=True)
+    sushi_services = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = counter.models.Platform
+        fields = (
+            "id",
+            "name",
+            "abbrev",
+            "reports",
+            "content_provider_name",
+            "website",
+            "sushi_services",
         )
 
 
