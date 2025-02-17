@@ -121,7 +121,7 @@
                   :public-view="publicView"
                   @select-message="selectMessage"
                 />
-                <div v-if="validation">
+                <div v-else-if="validation">
                   Everything looks good! No validation messages to show.
 
                   <div class="text-h2 text-center py-14">
