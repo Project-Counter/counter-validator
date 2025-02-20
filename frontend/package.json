@@ -13,6 +13,7 @@
     "@vueuse/core": "^11.0.3",
     "chart.js": "^4.4.6",
     "color": "^4.2.3",
+    "compare-versions": "^6.1.1",
     "core-js": "^3.38.1",
     "data-forge": "^1.10.2",
     "date-fns": "^4.1.0",

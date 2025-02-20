@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from ..fake_data import UserFactory
 from ..models import User, UserApiKey
+from ..version import get_server_version
 
 
 @pytest.mark.django_db
@@ -450,3 +451,12 @@ class TestUserAccountUpdate:
         assert res.status_code == 200
         normal_user.refresh_from_db()
         assert not normal_user.is_superuser
+
+
+@pytest.mark.django_db
+class TestVersionAPI:
+    def test_version(self, client):
+        res = client.get(reverse("version"))
+        assert res.status_code == 200
+        assert set(res.json().keys()) == {"server", "upstream"}
+        assert res.json()["server"] == get_server_version()

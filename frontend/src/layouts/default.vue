@@ -40,6 +40,13 @@
             prepend-icon="mdi-account-plus"
           />
         </section>
+
+        <v-list-item
+          title="About"
+          to="/about"
+          prepend-icon="mdi-information"
+        ></v-list-item>
+
         <section v-if="store.user?.has_admin_role">
           <v-list-subheader>Admin</v-list-subheader>
           <v-list-item
@@ -93,7 +100,22 @@
     </v-navigation-drawer>
     <v-main>
       <v-container fluid>
+        <!-- version checking -
+             upToDate may be null if the versions are not available,
+             so we only alert if it is really false -->
+        <v-alert
+          v-if="versions.upToDate === false"
+          type="warning"
+          class="mb-6"
+        >
+          <strong>This COUNTER Validator version is outdated</strong>. The latest version is
+          <strong>{{ versions.upstream }}</strong
+          >, but you are using <strong>{{ versions.server }}</strong
+          >. Please update your installation to ensure the best results.
+        </v-alert>
+
         <router-view v-if="store.user || route.meta.requiresAuth === false" />
+
         <v-alert
           v-else
           type="warning"
@@ -114,6 +136,8 @@
 <script setup lang="ts">
 import { logout } from "@/lib/http/auth"
 import { useAppStore } from "@/stores/app"
+import { useVersionStore } from "@/stores/version"
+
 const store = useAppStore()
 
 const drawer: Ref<boolean | null | undefined> = ref(null)
@@ -125,4 +149,16 @@ async function doLogout() {
   await logout()
   if (!store.user?.id) await router.push("/login")
 }
+
+// version checking
+const versions = useVersionStore()
+
+async function checkVersions() {
+  await versions.update()
+}
+
+onMounted(() => {
+  checkVersions()
+  setInterval(checkVersions, 1000 * 60 * 30) // check every 30 minutes
+})
 </script>

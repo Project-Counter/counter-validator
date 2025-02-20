@@ -46,6 +46,7 @@
       />
     </template>
   </v-snackbar>
+
   <v-snackbar
     v-if="store.notification"
     v-model="store.showNotification"
@@ -68,6 +69,7 @@ import { useTheme } from "vuetify"
 
 const store = useAppStore()
 
+// errors
 const errorShow = ref(false)
 
 function handleErr(err: Error, _: unknown, info: string) {
@@ -78,12 +80,11 @@ function handleErr(err: Error, _: unknown, info: string) {
 
 onErrorCaptured(handleErr)
 
-checkUser().then()
-
 function reload() {
   window.location.reload()
 }
 
+// theme
 const theme = useTheme()
 watch(
   () => store.darkTheme,
@@ -92,6 +93,10 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  checkUser()
+})
 </script>
 
 <style>

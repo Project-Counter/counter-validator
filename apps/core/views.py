@@ -17,6 +17,7 @@ from .models import User, UserApiKey
 from .permissions import IsValidatorAdminUser
 from .serializers import UserSerializer
 from .signals import password_reset_signal
+from .version import get_server_version, get_upstream_version
 
 logger = logging.getLogger(__name__)
 
@@ -127,3 +128,21 @@ class UserPasswordResetView(PasswordResetConfirmView):
         response = super().post(request, *args, **kwargs)
         password_reset_signal.send(self.__class__, request=request, user=serializer.user)
         return response
+
+
+class VersionView(APIView):
+    permission_classes = []
+
+    def get(self, request):
+        try:
+            server_version = get_server_version()
+        except Exception as e:
+            logger.error("Failed to get server version", exc_info=e)
+            server_version = None
+
+        try:
+            upstream_version = get_upstream_version()
+        except Exception as e:
+            logger.error("Failed to get upstream version", exc_info=e)
+            upstream_version = None
+        return Response({"server": server_version, "upstream": upstream_version})
