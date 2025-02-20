@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import sys
 from pathlib import Path
 
+from celery.schedules import crontab
 from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -91,6 +92,13 @@ CELERY_TASK_TRACK_STARTED = True
 
 CELERY_TASK_ROUTES = {
     "core.tasks.validate": {"queue": "validation"},
+}
+
+CELERY_BEAT_SCHEDULE = {
+    "expired_validations_cleanup": {
+        "task": "validations.tasks.expired_validations_cleanup",
+        "schedule": crontab(minute="0", hour="0"),  # every day at midnight
+    }
 }
 
 

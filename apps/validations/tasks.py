@@ -104,3 +104,8 @@ def validate_counter_api(pk):
         obj.core.duration = end - start
         obj.core.save()
         obj.save()
+
+
+@celery.shared_task(base=ValidationTask)
+def expired_validations_cleanup():
+    logger.info("Removed expired validations: %s", Validation.objects.expired().delete()[1])

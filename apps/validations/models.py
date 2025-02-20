@@ -195,6 +195,9 @@ class ValidationQuerySet(models.QuerySet):
             Q(core__expiration_date__isnull=True) | Q(core__expiration_date__gte=now())
         )
 
+    def expired(self):
+        return self.filter(core__expiration_date__lt=now())
+
     def public(self):
         return self.exclude(public_id__isnull=True)
 
