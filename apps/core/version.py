@@ -29,7 +29,7 @@ def get_upstream_version_lowlevel() -> str:
     response = requests.get(
         f"{UPSTREAM_SERVER.rstrip('/')}{VERSION_INFO_PATH}",
         {"our-version": get_server_version()},
-        timeout=2,
+        timeout=5,
     )
     if response.status_code != 200:
         raise RuntimeError(f"Failed to get upstream version: {response.status_code}")
