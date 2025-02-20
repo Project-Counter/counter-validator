@@ -9,4 +9,5 @@
 <route>
 meta:
   requiresAuth: false
+  layout: "public"
 </route>

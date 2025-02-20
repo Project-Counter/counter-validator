@@ -26,7 +26,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <p>Copyright &copy; 2024&ndash;{{ currentYear }} COUNTER Metrics Limited</p>
+        <p>&copy; {{ currentYear }} COUNTER Metrics Limited</p>
       </v-col>
     </v-row>
   </v-container>
