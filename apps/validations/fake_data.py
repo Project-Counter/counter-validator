@@ -67,6 +67,7 @@ class CounterAPIValidationRequestDataFactory(factory.Factory):
     end_date = factory.LazyAttribute(lambda o: month_end(o.begin_date))
     use_short_dates = False
     extra_attributes = factory.LazyFunction(dict)
+    user_note = factory.Faker("text")
 
 
 class CounterAPIValidationFactory(ValidationFactory):

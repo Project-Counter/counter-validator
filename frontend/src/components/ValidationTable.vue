@@ -144,6 +144,7 @@ import { useValidationFilters } from "@/composables/validationFiltering"
 import debounce from "lodash/debounce"
 import { DataTableHeader } from "@/lib/vuetifyTypes"
 import UserName from "@/components/UserName.vue"
+import ShortenText from "@/components/ShortenText.vue"
 
 const props = withDefaults(
   defineProps<{

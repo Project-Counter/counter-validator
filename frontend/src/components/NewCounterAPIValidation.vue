@@ -394,6 +394,15 @@
             </v-table>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model="userNote"
+              label="Note"
+              hint="Optional note to self"
+            />
+          </v-col>
+        </v-row>
       </v-sheet>
     </template>
 
@@ -458,6 +467,7 @@ const beginDate = ref(startOfMonth(lastMonth))
 const endDate = ref(endOfMonth(lastMonth))
 const shortDateFormat = ref<boolean>(false)
 const dateFormatter = computed(() => (shortDateFormat.value ? shortIsoDate : isoDate))
+const userNote = ref<string>("")
 
 const credentials = reactive<Credentials>({
   customer_id: "",
@@ -564,6 +574,7 @@ async function create() {
       reportEndpoint.value ? endDate.value : undefined,
       extra,
       shortDateFormat.value,
+      userNote.value,
     )
   } catch (err) {
     console.error(err)
@@ -604,7 +615,7 @@ async function handleBaseValidation() {
       if (baseValidation.requested_end_date)
         endDate.value = new Date(baseValidation.requested_end_date)
       if (baseValidation.use_short_dates) shortDateFormat.value = baseValidation.use_short_dates
-      // if (baseValidation.user_note) userNote.value = baseValidation.user_note
+      if (baseValidation.user_note) userNote.value = baseValidation.user_note
       if (baseValidation.requested_extra_attributes) {
         // filters, switches and attributes to show are store in the extra attributes
         const ea = baseValidation.requested_extra_attributes

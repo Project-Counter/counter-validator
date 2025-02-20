@@ -500,6 +500,7 @@ class TestCounterAPIValidationAPI:
         data = factory.build(
             dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory, cop_version="5.1"
         )
+        data["user_note"] = "Lorem ipsum"
         with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("counter-api-validation-list"),
@@ -529,6 +530,7 @@ class TestCounterAPIValidationAPI:
         assert out["requested_cop_version"] == "5.1"
         assert out["cop_version"] == "5.1", "cop_version should be taken from the request"
         assert out["use_short_dates"] is False
+        assert out["user_note"] == "Lorem ipsum"
 
     @pytest.mark.parametrize(
         ["empty_credential_fields", "status_code"],
@@ -627,18 +629,36 @@ class TestCounterAPIValidationAPI:
         res = client_authenticated_user.get(reverse("validation-detail", args=[val.pk]))
         assert res.status_code == 200
         data = res.json()
-        assert "id" in data
-        assert "url" in data
-        assert "credentials" in data
+        assert set(data.keys()) == {
+            "api_endpoint",
+            "api_key_prefix",
+            "cop_version",
+            "created",
+            "credentials",
+            "data_source",
+            "error_message",
+            "expiration_date",
+            "file_size",
+            "file_url",
+            "filename",
+            "id",
+            "public_id",
+            "report_code",
+            "requested_begin_date",
+            "requested_cop_version",
+            "requested_end_date",
+            "requested_extra_attributes",
+            "requested_report_code",
+            "result_data",
+            "stats",
+            "status",
+            "url",
+            "use_short_dates",
+            "user",
+            "user_note",
+            "validation_result",
+        }
         assert data["credentials"] == val.credentials
-        assert "requested_cop_version" in data
-        assert "cop_version" in data
-        assert "requested_report_code" in data
-        assert "report_code" in data
-        assert "api_endpoint" in data
-        assert "requested_extra_attributes" in data
-        assert "requested_begin_date" in data
-        assert "requested_end_date" in data
 
     def test_create_with_api_key(self, client_with_api_key, normal_user):
         data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
