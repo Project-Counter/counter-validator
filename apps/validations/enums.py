@@ -36,3 +36,14 @@ class ValidationStatus(models.IntegerChoices):
 
 class MessageKeys(Enum):
     level = "l"
+
+
+severity_to_color = {
+    SeverityLevel.UNKNOWN: "#aaaaaa",
+    SeverityLevel.PASSED: "#0fa40f",
+    SeverityLevel.NOTICE: "#0267b4",
+    SeverityLevel.WARNING: "#fc6100",
+    SeverityLevel.ERROR: "#dd0000",
+    SeverityLevel.CRITICAL_ERROR: "#aa0000",
+    SeverityLevel.FATAL_ERROR: "#8f0026",
+}

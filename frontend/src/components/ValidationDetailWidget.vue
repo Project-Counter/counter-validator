@@ -45,6 +45,27 @@
             <v-card v-bind="cardAttrs">
               <v-card-title>
                 Basic information
+
+                <v-tooltip
+                  location="bottom"
+                  max-width="600px"
+                >
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-if="!publicView"
+                      class="float-end ms-4"
+                      color="primary"
+                      variant="flat"
+                      v-bind="props"
+                      :href="`/api/v1/validations/validation/${validation.id}/export`"
+                    >
+                      <v-icon class="me-2">mdi-download</v-icon>
+                      Export
+                    </v-btn>
+                  </template>
+                  Export the validation as an Excel file
+                </v-tooltip>
+
                 <v-tooltip
                   location="bottom"
                   max-width="600px"

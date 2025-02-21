@@ -241,3 +241,6 @@ VALIDATION_LIFETIME = config("VALIDATION_LIFETIME", cast=int, default=7)
 
 # development stuff
 DEBUG_SLEEP = config("DEBUG_SLEEP", cast=float, default=0)
+
+# silencing warning about partially configured pagination
+SILENCED_SYSTEM_CHECKS = ["rest_framework.W001"]

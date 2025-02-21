@@ -402,6 +402,17 @@ class TestValidationAPI:
             "is_validator_admin",
         }
 
+    def test_validation_export(self, client_authenticated_user, normal_user):
+        v = ValidationFactory.create(core__user=normal_user)
+        res = client_authenticated_user.get(reverse("validation-export", args=[v.pk]))
+        assert res.status_code == 200
+        assert (
+            res["Content-Type"]
+            == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        assert res["Content-Disposition"].startswith("attachment; filename=validation-")
+        assert res["Content-Disposition"].endswith(".xlsx")
+
 
 @pytest.mark.django_db
 class TestFileValidationAPI:

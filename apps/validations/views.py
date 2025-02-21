@@ -1,7 +1,7 @@
 from core.permissions import HasUserAPIKey, HasVerifiedEmail, IsValidatorAdminUser
 from django.db.models import Q
 from django.db.transaction import atomic
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
+from validations.export import ValidationXlsxExporter
 from validations.filters import (
     OrderByFilter,
     SeverityFilter,
@@ -183,6 +184,18 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         validation: Validation = self.get_object()
         validation.unpublish()
         return Response(self.get_serializer(validation).data)
+
+    @action(detail=True, methods=("GET",), url_path="export")
+    def export(self, request, pk=None):
+        validation: Validation = self.get_object()
+        exporter = ValidationXlsxExporter(validation)
+        return HttpResponse(
+            exporter.export(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": f"attachment; filename=validation-{validation.id}.xlsx"
+            },
+        )
 
 
 class PublicValidationViewSet(ReadOnlyModelViewSet):
