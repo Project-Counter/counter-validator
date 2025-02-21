@@ -103,6 +103,7 @@ const {
 watch(
   () =>
     [
+      url.value,
       validationResultFilter.value.join(","),
       copVersionFilter.value.join(","),
       reportCodeFilter.value.join(","),

@@ -210,6 +210,7 @@ function updateNormalFilters() {
 watch(
   () =>
     [
+      url.value,
       publishedFilter.value ? publishedFilter.value.toString() : "",
       copVersionFilter.value.join(","),
       reportCodeFilter.value.join(","),
