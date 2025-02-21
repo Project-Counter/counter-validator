@@ -53,6 +53,7 @@
         v-model:report-code-filter="reportCodeFilter"
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
+        v-model:text-filter="textFilter"
         text-filter-label="User"
         show-text-filter
         class="pb-8"
@@ -89,18 +90,37 @@ const { url, params, filters } = usePaginatedAPI(urls.coreList)
 const loading = ref(false)
 const totalCount = ref(0)
 
-const { validationResultFilter, copVersionFilter, reportCodeFilter, endpointFilter, sourceFilter } =
-  useValidationFilters()
+const {
+  validationResultFilter,
+  copVersionFilter,
+  reportCodeFilter,
+  endpointFilter,
+  sourceFilter,
+  textFilter,
+} = useValidationFilters()
 
 // the effect will also load data in the beginning
-watchEffect(() => {
-  filters.validation_result = validationResultFilter.value.join(",")
-  filters.cop_version = copVersionFilter.value.join(",")
-  filters.report_code = reportCodeFilter.value.join(",")
-  filters.api_endpoint = endpointFilter.value.join(",")
-  filters.data_source = sourceFilter.value.join(",")
-  load()
-})
+watch(
+  () =>
+    [
+      validationResultFilter.value.join(","),
+      copVersionFilter.value.join(","),
+      reportCodeFilter.value.join(","),
+      endpointFilter.value.join(","),
+      sourceFilter.value.join(","),
+      textFilter.value,
+    ].join("---"),
+  () => {
+    filters.validation_result = validationResultFilter.value.join(",")
+    filters.cop_version = copVersionFilter.value.join(",")
+    filters.report_code = reportCodeFilter.value.join(",")
+    filters.api_endpoint = endpointFilter.value.join(",")
+    filters.data_source = sourceFilter.value.join(",")
+    filters.search = textFilter.value
+    load()
+  },
+  { immediate: true },
+)
 
 // loading of data
 async function load() {

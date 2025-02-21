@@ -194,22 +194,44 @@ const {
   textFilter,
 } = useValidationFilters()
 
-// the following will also perform the initial load of validations
-watchEffect(() => {
+function updateNormalFilters() {
   filters.validation_result = validationResultFilter.value.join(",")
   filters.cop_version = copVersionFilter.value.join(",")
   filters.report_code = reportCodeFilter.value.join(",")
   filters.api_endpoint = endpointFilter.value.join(",")
   filters.data_source = sourceFilter.value.join(",")
-  if (publishedFilter.value !== null) filters.published = publishedFilter.value.toString()
+  if (publishedFilter.value != null) filters.published = publishedFilter.value.toString()
   else delete filters.published
-  loadValidations()
-})
+}
+
+// note: we need to watch a combined value of all filters because using useRouteQuery
+//       in useValidationFilters means new arrays are created on each change, which causes
+//       the watcher to trigger even if the values are the same
+watch(
+  () =>
+    [
+      publishedFilter.value ? publishedFilter.value.toString() : "",
+      copVersionFilter.value.join(","),
+      reportCodeFilter.value.join(","),
+      validationResultFilter.value.join(","),
+      endpointFilter.value.join(","),
+      sourceFilter.value.join(","),
+    ].join("---"),
+  () => {
+    updateNormalFilters()
+    loadValidations()
+  },
+)
+
+function updateDebouncedFilters() {
+  filters.search = textFilter.value || ""
+}
 
 watch(
   textFilter,
   debounce(() => {
-    filters.search = textFilter.value || ""
+    console.debug("textFilter changed", textFilter.value)
+    updateDebouncedFilters()
     loadValidations()
   }, 300),
 )
@@ -250,6 +272,12 @@ async function checkUnfinished() {
     checkTimeout = null
   }
 }
+
+onMounted(() => {
+  updateNormalFilters()
+  updateDebouncedFilters()
+  loadValidations()
+})
 
 onUnmounted(() => {
   if (checkTimeout) clearTimeout(checkTimeout)

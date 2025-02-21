@@ -7,15 +7,34 @@ import {
   severityLevelColorMap,
   severityLevelIconMap,
 } from "@/lib/definitions/api"
+import { useRouteQuery } from "@vueuse/router"
 
 export function useValidationFilters() {
-  const validationResultFilter = ref<SeverityLevel[]>([])
-  const copVersionFilter = ref<CoP[]>([])
-  const reportCodeFilter = ref<ReportCode[]>([])
-  const endpointFilter = ref<CounterAPIEndpoint[]>([])
-  const sourceFilter = ref<DataSource[]>([])
-  const publishedFilter = ref<boolean | null>(null)
-  const textFilter = ref<string>("")
+  function arrayTransform<T>(param: T | T[]): T[] {
+    return Array.isArray(param) ? param : [param]
+  }
+
+  const boolTransform = {
+    set: (val: boolean | null): string => (val ? "Yes" : val === null ? "All" : "No"),
+    get: (val: string): boolean | null => (val === "Yes" ? true : val === "No" ? false : null),
+  }
+
+  const validationResultFilter = useRouteQuery<SeverityLevel[]>("severity", [], {
+    transform: arrayTransform,
+  })
+  const copVersionFilter = useRouteQuery<CoP[]>("cop", [], {
+    transform: arrayTransform,
+  })
+  const reportCodeFilter = useRouteQuery<ReportCode[]>("report", [], { transform: arrayTransform })
+  const endpointFilter = useRouteQuery<CounterAPIEndpoint[]>("endpoint", [], {
+    transform: arrayTransform,
+  })
+  const sourceFilter = useRouteQuery<DataSource[]>("source", [], { transform: arrayTransform })
+  const publishedFilter = useRouteQuery("published", undefined, {
+    transform: boolTransform,
+  })
+  // const textFilter = ref<string>("")
+  const textFilter = useRouteQuery<string>("text", "")
 
   // filters
   const severityLevels = [

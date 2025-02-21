@@ -117,7 +117,7 @@ const copVersionFilter = defineModel<CoP[]>("copVersionFilter")
 const reportCodeFilter = defineModel<ReportCode[]>("reportCodeFilter")
 const endpointFilter = defineModel<CounterAPIEndpoint[]>("endpointFilter")
 const sourceFilter = defineModel<DataSource[]>("sourceFilter")
-const publishedFilter = defineModel<boolean | null | undefined>("publishedFilter")
+const publishedFilter = defineModel<boolean | null>("publishedFilter")
 const textFilter = defineModel<string>("textFilter")
 
 // props
