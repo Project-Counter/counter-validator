@@ -4,28 +4,25 @@
       <template #prepend>
         <v-app-bar-nav-icon @click="drawer = !drawer" />
       </template>
-      <v-app-bar-title>COUNTER Validation Tool</v-app-bar-title>
+      <v-app-bar-title>
+        <router-link
+          to="/"
+          class="raleway text-decoration-none text-white font-weight-medium text-h5"
+          >COUNTER Validation Tool</router-link
+        >
+      </v-app-bar-title>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer">
       <v-list
         density="compact"
         nav
       >
-        <v-list-item
-          prepend-icon="mdi-home"
-          title="Home"
-          to="/"
-        />
         <section v-if="store.user?.id">
           <v-list-item
             prepend-icon="mdi-file-multiple"
             title="My validations"
             to="/validation/"
-          />
-          <v-list-item
-            prepend-icon="mdi-cog"
-            title="Settings"
-            to="/settings/"
+            nav
           />
         </section>
         <section v-else>
@@ -40,12 +37,6 @@
             prepend-icon="mdi-account-plus"
           />
         </section>
-
-        <v-list-item
-          title="About"
-          to="/about"
-          prepend-icon="mdi-information"
-        ></v-list-item>
 
         <section v-if="store.user?.has_admin_role">
           <v-list-subheader>Admin</v-list-subheader>
@@ -80,8 +71,23 @@
         v-if="store.user?.id"
         #append
       >
-        <v-divider />
-        <v-list>
+        <v-list
+          density="compact"
+          nav
+        >
+          <v-list-item
+            prepend-icon="mdi-cog"
+            title="Settings"
+            to="/settings/"
+          />
+          <v-list-item
+            title="About"
+            to="/about"
+            prepend-icon="mdi-information"
+          ></v-list-item>
+
+          <v-divider />
+
           <v-list-item
             :subtitle="store.user?.email"
             :title="[store.user?.first_name, store.user?.last_name].join(' ')"
@@ -96,6 +102,22 @@
           variant="tonal"
           @click="doLogout"
         />
+      </template>
+
+      <template
+        v-else
+        #append
+      >
+        <v-list
+          nav
+          density="compact"
+        >
+          <v-list-item
+            title="About"
+            to="/about"
+            prepend-icon="mdi-information"
+          ></v-list-item>
+        </v-list>
       </template>
     </v-navigation-drawer>
     <v-main>
