@@ -47,3 +47,18 @@ a {
 .light-border {
   border-color: #bbbbbb;
 }
+
+.raleway {
+  font-family: "Raleway", Arial, sans-serif;
+  font-optical-sizing: auto;
+}
+
+.ml-1300 {
+  // left margin to ensure the content is max 1300px wide, but 16px if the screen is smaller
+  margin-left: max(16px, calc((100% - 1300px) / 2));
+}
+
+.mr-1300 {
+  // right margin to ensure the content is max 1300px wide, but 16px if the screen is smaller
+  margin-right: max(16px, calc((100% - 1300px) / 2));
+}

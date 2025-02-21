@@ -7,20 +7,19 @@
       <a
         href="https://www.countermetrics.org/"
         target="_blank"
+        class="ml-1300 pl-4 py-4 hidden-sm-and-down"
       >
         <img
           src="/counter_logo_secondary.png"
           alt="COUNTER logo"
-          height="64"
-          class="py-4 ml-16 hidden-sm-and-down"
+          height="28"
         />
       </a>
       <v-spacer></v-spacer>
-      <h1 class="text-h4 text-primary mr-16 font-weight-bold">
+      <h1 class="text-h4 text-primary font-weight-bold mr-1300 pr-4">
         <router-link
           to="/"
-          class="text-decoration-none"
-          style="font-family: raleway, Arial, serif"
+          class="text-decoration-none raleway"
           >COUNTER Validation Tool</router-link
         >
       </h1>
@@ -50,7 +49,7 @@
       color="secondary"
       class="pt-2 pt-md-8 pb-2 pb-md-16 px-2 px-md-8"
     >
-      <v-container>
+      <v-container max-width="1300px">
         <v-row>
           <v-col cols="auto">&copy; {{ new Date().getFullYear() }} COUNTER Metrics Limited</v-col>
           <v-spacer></v-spacer>
