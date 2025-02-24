@@ -1,9 +1,9 @@
 <template>
   <v-data-table-server
     v-model="selected"
-    v-model:items-per-page="params.pageSize"
-    v-model:page="params.page"
-    v-model:sort-by="params.sortBy"
+    v-model:items-per-page="pageSize"
+    v-model:page="page"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="items"
     :mobile="null"
@@ -145,6 +145,7 @@ import debounce from "lodash/debounce"
 import { DataTableHeader } from "@/lib/vuetifyTypes"
 import UserName from "@/components/UserName.vue"
 import ShortenText from "@/components/ShortenText.vue"
+import { usePaginationWithMemory } from "@/composables/usePaginationWithMemory"
 
 const props = withDefaults(
   defineProps<{
@@ -182,7 +183,9 @@ if (props.admin) {
 
 // validations list
 const { url, params, filters } = usePaginatedAPI(props.admin ? urls.adminList : urls.list)
+const { page, pageSize, sortBy } = usePaginationWithMemory(params)
 const totalCount = ref(0)
+const lastUrl = ref("")
 
 const {
   validationResultFilter,
@@ -238,6 +241,8 @@ watch(
 )
 
 async function loadValidations() {
+  if (url.value === lastUrl.value) return
+  lastUrl.value = url.value
   loading.value = true
   try {
     const { count, results } = await getValidationsFromUrl(url.value)

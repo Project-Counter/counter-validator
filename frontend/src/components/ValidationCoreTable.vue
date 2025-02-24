@@ -1,8 +1,8 @@
 <template>
   <v-data-table-server
-    v-model:items-per-page="params.pageSize"
-    v-model:page="params.page"
-    v-model:sort-by="params.sortBy"
+    v-model:items-per-page="pageSize"
+    v-model:page="page"
+    v-model:sort-by="sortBy"
     :headers="headers"
     :items="items"
     density="compact"
@@ -69,6 +69,7 @@ import { filesize } from "filesize"
 import type { VDataTable } from "vuetify/components"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { useValidationFilters } from "@/composables/validationFiltering"
+import { usePaginationWithMemory } from "@/composables/usePaginationWithMemory"
 
 const items = ref<ValidationCore[]>([])
 
@@ -89,6 +90,7 @@ const headers: ReadonlyHeaders = [
 const { url, params, filters } = usePaginatedAPI(urls.coreList)
 const loading = ref(false)
 const totalCount = ref(0)
+const { page, pageSize, sortBy } = usePaginationWithMemory(params)
 
 const {
   validationResultFilter,

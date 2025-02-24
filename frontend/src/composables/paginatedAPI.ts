@@ -1,7 +1,13 @@
 import { VDataTable } from "vuetify/components"
 
+export type PaginatedAPIParams = {
+  page: number
+  pageSize: number
+  sortBy: VDataTable["sortBy"]
+}
+
 export function usePaginatedAPI(apiUrl: string) {
-  const params = reactive<{ page: number; pageSize: number; sortBy: VDataTable["sortBy"] }>({
+  const params = reactive<PaginatedAPIParams>({
     page: 1,
     pageSize: 10,
     sortBy: [{ key: "", order: "asc" }],
