@@ -120,7 +120,7 @@
       </v-alert>
       <div class="text-end pt-4">
         <v-btn
-          :to="{ name: '/' }"
+          to="/validation/"
           color="secondary"
           >Go to validations</v-btn
         >
