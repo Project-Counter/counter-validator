@@ -240,8 +240,8 @@ watch(
   }, 300),
 )
 
-async function loadValidations() {
-  if (url.value === lastUrl.value) return
+async function loadValidations(force = false) {
+  if (url.value === lastUrl.value && !force) return
   lastUrl.value = url.value
   loading.value = true
   try {

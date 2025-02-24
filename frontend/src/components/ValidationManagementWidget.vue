@@ -90,7 +90,7 @@ async function deleteSelected() {
   deleting.value = false
   store.displayNotification({ message: "Validation(s) were successfully deleted", type: "success" })
   if (validationTable.value) {
-    validationTable.value.loadValidations()
+    validationTable.value.loadValidations(true)
   }
 }
 </script>
