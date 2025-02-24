@@ -133,6 +133,7 @@
 import { FUpload } from "@/lib/definitions/upload"
 import { validateFile } from "@/lib/http/validation"
 import { filesize } from "filesize"
+import { HttpStatusError } from "@/lib/http/util"
 
 const model = defineModel<FUpload[]>({ required: true })
 
@@ -171,8 +172,12 @@ async function upload(file: FUpload) {
   try {
     await validateFile(file)
   } catch (err) {
-    console.error(err)
-    file.err = `${err}`
+    if (err instanceof HttpStatusError && err.res?.status === 400) {
+      const data = await err.res?.json()
+      if (data.file) file.err = data.file.join("; ")
+    } else {
+      file.err = `${err}`
+    }
     anyError.value = true
   }
 }
