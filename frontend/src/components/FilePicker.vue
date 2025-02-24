@@ -175,6 +175,8 @@ async function upload(file: FUpload) {
     if (err instanceof HttpStatusError && err.res?.status === 400) {
       const data = await err.res?.json()
       if (data.file) file.err = data.file.join("; ")
+    } else if (err instanceof HttpStatusError && err.res?.status === 413) {
+      file.err = "The uploaded file is too large"
     } else {
       file.err = `${err}`
     }
