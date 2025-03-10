@@ -43,7 +43,7 @@
             @click="emit('select-message', stat)"
           >
             <v-icon class="mr-1">mdi-filter-outline</v-icon>
-            Apply filter
+            See messages
           </v-btn>
         </td>
       </tr>
