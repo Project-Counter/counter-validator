@@ -121,7 +121,10 @@
       </template>
     </v-navigation-drawer>
     <v-main>
-      <v-container fluid>
+      <v-container
+        fluid
+        class="pa-0 pa-sm-2"
+      >
         <!-- version checking -
              upToDate may be null if the versions are not available,
              so we only alert if it is really false -->

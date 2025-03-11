@@ -50,6 +50,7 @@ declare module 'vue' {
     ValidationManagementWidget: typeof import('./components/ValidationManagementWidget.vue')['default']
     ValidationMessagesTable: typeof import('./components/ValidationMessagesTable.vue')['default']
     ValidationMessageStatsTable: typeof import('./components/ValidationMessageStatsTable.vue')['default']
+    ValidationQueueInfoWidget: typeof import('./components/ValidationQueueInfoWidget.vue')['default']
     ValidationStatus: typeof import('./components/ValidationStatus.vue')['default']
     ValidationTable: typeof import('./components/ValidationTable.vue')['default']
   }

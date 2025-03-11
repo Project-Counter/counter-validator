@@ -20,6 +20,19 @@ from decouple import Csv, config
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(BASE_DIR / "apps"))
 
+# Django backend settings
+
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", cast=bool, default=False)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="")
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv(), default="")
+SESSION_COOKIE_NAME = "coval_sessionid"
+REDIS_HOST = config("REDIS_HOST", default="localhost")
+REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
+REDIS_CACHE_DB_NUMBER = config("REDIS_CACHE_DB_NUMBER", cast=int, default=1)
+REDIS_CELERY_DB_NUMBER = config("REDIS_CELERY_DB_NUMBER", cast=int, default=3)
+
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/"
 
 # Database
 
@@ -38,7 +51,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config("REDIS_URL", default="redis://localhost:6379/1"),
+        "LOCATION": config("REDIS_URL", default=REDIS_URL + str(REDIS_CACHE_DB_NUMBER)),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.lz4.Lz4Compressor",
@@ -47,14 +60,6 @@ CACHES = {
     }
 }
 
-
-# Django backend settings
-
-SECRET_KEY = config("SECRET_KEY")
-DEBUG = config("DEBUG", cast=bool, default=False)
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="")
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv(), default="")
-SESSION_COOKIE_NAME = "coval_sessionid"
 
 # Django REST Framework settings
 
@@ -86,12 +91,17 @@ USE_TZ = True
 # Celery settings
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "default"
-CELERY_BROKER_URL = "redis://localhost/3"
+CELERY_BROKER_URL = REDIS_URL + str(REDIS_CELERY_DB_NUMBER)
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 
+CELERY_VALIDATION_QUEUE = "validation"
+
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+
 CELERY_TASK_ROUTES = {
-    "core.tasks.validate": {"queue": "validation"},
+    "validations.tasks.validate_file": {"queue": CELERY_VALIDATION_QUEUE},
+    "validations.tasks.validate_counter_api": {"queue": CELERY_VALIDATION_QUEUE},
 }
 
 CELERY_BEAT_SCHEDULE = {

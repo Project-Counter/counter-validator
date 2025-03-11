@@ -1,5 +1,8 @@
 <template>
-  <v-card :color="color">
+  <v-card
+    :color="color"
+    elevation="4"
+  >
     <v-card-title v-if="title">
       <v-icon v-if="icon">{{ icon }}</v-icon>
       <span>{{ title }}</span>
@@ -59,7 +62,7 @@ const props = withDefaults(
     color?: string
     format?: "float" | "int" | "percent" | "fileSize"
   }>(),
-  { format: "float", title: "", unit: "", icon: "", color: "grey-lighten-3" },
+  { format: "float", title: "", unit: "", icon: "", color: "white" },
 )
 
 const numSizeClass = "text-h5"

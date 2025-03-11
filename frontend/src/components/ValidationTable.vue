@@ -286,6 +286,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  console.log("Cleaning up ValidationTable on unmount")
   if (checkTimeout) clearTimeout(checkTimeout)
 })
 </script>

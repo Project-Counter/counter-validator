@@ -206,3 +206,9 @@ export type SplitStatsRec = {
 }
 
 export type SplitStats = SplitStatsRec[]
+
+export type QueueInfo = {
+  queued: number
+  running: number
+  workers: number
+}

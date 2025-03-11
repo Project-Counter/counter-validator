@@ -10,8 +10,10 @@ from rest_framework.mixins import CreateModelMixin, DestroyModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
+from validations.celery_queue import get_number_of_running_validations, get_validation_queue_length
 from validations.export import ValidationXlsxExporter
 from validations.filters import (
     OrderByFilter,
@@ -298,3 +300,11 @@ class ValidationMessageViewSet(ReadOnlyModelViewSet):
             # either this is a public validation, or it does not exist for the user
             validation = get_object_or_404(Validation, public_id=self.kwargs["validation_pk"])
         return ValidationMessage.objects.filter(validation=validation)
+
+
+class ValidationQueueInfo(APIView):
+    def get(self, request):
+        queue_length = get_validation_queue_length()
+        running = get_number_of_running_validations()
+        worker_num = 1  # this is hardcoded for now
+        return Response({"queued": queue_length, "running": running, "workers": worker_num})

@@ -2,6 +2,11 @@
   <v-container fluid>
     <v-row>
       <v-col>
+        <ValidationQueueInfoWidget elevation="4" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
         <h2>Overall stats</h2>
       </v-col>
     </v-row>
@@ -11,8 +16,8 @@
         v-bind="colSizes"
       >
         <v-card
-          color="grey-lighten-3"
           height="100%"
+          elevation="4"
         >
           <v-card-title>
             <span>Total validations</span>

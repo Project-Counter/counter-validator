@@ -47,7 +47,7 @@
       app
       border
       color="secondary"
-      class="pt-2 pt-md-8 pb-2 pb-md-16 px-2 px-md-8"
+      class="pt-2 pb-2 pb-md-16 px-2 px-md-8"
     >
       <v-container max-width="1300px">
         <v-row>

@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework.routers import SimpleRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 
@@ -17,4 +18,7 @@ validation_router.register(
 )
 
 urlpatterns = router.urls
+urlpatterns += [
+    path("queue/", views.ValidationQueueInfo.as_view(), name="validation-queue-info"),
+]
 urlpatterns += validation_router.urls

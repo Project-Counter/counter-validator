@@ -5054,7 +5054,7 @@ __metadata:
     vue-chartjs: "npm:^5.3.2"
     vue-router: "npm:^4.4.3"
     vue-tsc: "npm:^2.1.10"
-    vuetify: "npm:^3.7.3"
+    vuetify: "npm:^3.7.15"
     vuetify3-dialog: "npm:^1.5.4"
   languageName: unknown
   linkType: soft
@@ -6315,9 +6315,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vuetify@npm:^3.7.3":
-  version: 3.7.4
-  resolution: "vuetify@npm:3.7.4"
+"vuetify@npm:^3.7.15":
+  version: 3.7.16
+  resolution: "vuetify@npm:3.7.16"
   peerDependencies:
     typescript: ">=4.7"
     vite-plugin-vuetify: ">=1.0.0"
@@ -6330,7 +6330,7 @@ __metadata:
       optional: true
     webpack-plugin-vuetify:
       optional: true
-  checksum: 10c0/75d9d90b01f1291af46142175a9afdc7c55bc3a2668ad616c4dcdaf9a9a537a98c0865739e7507e91ba73dfb0c082c31fc52069c1dde986acd4a7527580aff5a
+  checksum: 10c0/786606ad1b6bcc4e33fa164ef8a06845134fad58cbd90bb907822467c34390176a3d1a8458737d066637586f662213444f95e9d818239217b08f8709f3155c1a
   languageName: node
   linkType: hard
 
