@@ -544,6 +544,34 @@ class TestCounterAPIValidationAPI:
         assert out["user_note"] == "Lorem ipsum"
 
     @pytest.mark.parametrize(
+        ["empty_field", "missing", "allowed"],
+        [
+            ("user_note", True, True),
+            ("user_note", False, True),
+            ("use_short_dates", True, True),
+            ("use_short_dates", False, False),
+        ],
+    )
+    def test_create_with_empty_field(
+        self, client_authenticated_user, empty_field, allowed, missing
+    ):
+        data = factory.build(dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory)
+        if missing:
+            del data[empty_field]
+        else:
+            data[empty_field] = ""
+        with patch("validations.tasks.validate_counter_api.delay_on_commit"):
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            if allowed:
+                assert res.status_code == 201
+            else:
+                assert res.status_code == 400
+
+    @pytest.mark.parametrize(
         ["empty_credential_fields", "status_code"],
         [
             [[], 201],

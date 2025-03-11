@@ -159,7 +159,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
     end_date = serializers.DateField(required=False)
     use_short_dates = serializers.BooleanField(default=False)
     extra_attributes = serializers.JSONField(default=dict)
-    user_note = serializers.CharField(required=False)
+    user_note = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
