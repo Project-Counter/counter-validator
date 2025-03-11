@@ -17,14 +17,28 @@
           sm="4"
         >
           <div class="font-weight-medium">Running Validations</div>
-          <v-chip :color="runningNumberColor">{{ runningNumber }}</v-chip>
+          <v-progress-circular
+            :color="runningNumberColor"
+            :indeterminate="autorenew ? 'disable-shrink' : false"
+            :model-value="100"
+            width="2"
+            bg-color="#a5a5a5"
+            >{{ runningNumber }}</v-progress-circular
+          >
         </v-col>
         <v-col
           cols="12"
           sm="4"
         >
           <div class="font-weight-medium">Validations in Queue</div>
-          <v-chip :color="queueLengthColor">{{ queueLength }}</v-chip>
+          <v-progress-circular
+            :color="queueLengthColor"
+            :indeterminate="autorenew ? 'disable-shrink' : false"
+            :model-value="100"
+            width="2"
+            bg-color="#a5a5a5"
+            >{{ queueLength }}</v-progress-circular
+          >
         </v-col>
         <v-col
           cols="12"
