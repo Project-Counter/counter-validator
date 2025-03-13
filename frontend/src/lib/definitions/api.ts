@@ -21,6 +21,9 @@ export type User = {
   has_admin_role?: boolean
   last_login?: string
   verified_email?: boolean
+  date_joined?: string
+  validations_total?: number
+  validations_last_week?: number
 }
 
 export type Report = {

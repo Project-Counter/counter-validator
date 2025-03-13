@@ -39,6 +39,8 @@ class UserSerializerSimple(serializers.ModelSerializer):
 
 class UserSerializer(UserSerializerSimple):
     verified_email = serializers.BooleanField(read_only=True)
+    validations_total = serializers.IntegerField(read_only=True)
+    validations_last_week = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = models.User
@@ -46,6 +48,9 @@ class UserSerializer(UserSerializerSimple):
         fields = UserSerializerSimple.Meta.fields + (
             "last_login",
             "verified_email",
+            "date_joined",
+            "validations_total",
+            "validations_last_week",
         )
 
     def update(self, instance, validated_data):

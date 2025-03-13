@@ -150,6 +150,8 @@ const headers: DataTableHeader[] = [
   { title: "Active", key: "is_active" },
   { title: "Is admin", key: "is_validator_admin" },
   { title: "Last login", key: "last_login" },
+  { title: "Validations total", key: "validations_total", align: "end", width: 100 },
+  { title: "Validations last week", key: "validations_last_week", align: "end", width: 100 },
   { title: "Actions", key: "actions", sortable: false },
 ]
 

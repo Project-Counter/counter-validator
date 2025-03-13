@@ -1,9 +1,11 @@
 import logging
+from datetime import timedelta
 
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
 from dj_rest_auth.views import PasswordResetConfirmView
-from django.db.models import Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Subquery, Value
+from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -11,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from validations.models import ValidationCore
 
 from . import serializers
 from .models import User, UserApiKey
@@ -85,12 +88,29 @@ class UserManagementViewSet(ModelViewSet):
         qs = User.objects.all()
         if not self.request.user.is_superuser:
             qs = qs.exclude(is_superuser=True)
+        cutoff_date = now() - timedelta(days=7)
         qs = qs.annotate(
             _verified_email=Exists(
                 EmailAddress.objects.filter(
                     user_id=OuterRef("id"), email=OuterRef("email"), verified=True
                 )
-            )
+            ),
+            validations_total=Subquery(
+                ValidationCore.objects.filter(user_id=OuterRef("id"))
+                .order_by()
+                .annotate(x=Value(1))
+                .values("x")
+                .annotate(count=Count("id"))
+                .values("count")
+            ),
+            validations_last_week=Subquery(
+                ValidationCore.objects.filter(user_id=OuterRef("id"), created__gte=cutoff_date)
+                .order_by()
+                .annotate(x=Value(1))
+                .values("x")
+                .annotate(count=Count("id"))
+                .values("count")
+            ),
         )
         return qs
 

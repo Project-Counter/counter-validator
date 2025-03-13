@@ -71,8 +71,9 @@ class TestUserManagementAPI:
             assert res.status_code == 200
             assert len(res.json()) == (3 if can_see_superusers else 2)
 
-    def test_user_list_content(self, users_and_clients):
-        res = users_and_clients["su"][1].get(reverse("user-list"))
+    def test_user_list_content(self, users_and_clients, django_assert_max_num_queries):
+        with django_assert_max_num_queries(5):
+            res = users_and_clients["su"][1].get(reverse("user-list"))
         assert res.status_code == 200
         assert len(res.json()) == 3
         first = res.json()[0]
@@ -87,6 +88,9 @@ class TestUserManagementAPI:
             "is_active",
             "last_login",
             "verified_email",
+            "date_joined",
+            "validations_total",
+            "validations_last_week",
         }
 
     def test_user_list_efficiency(self, client_validator_admin_user, django_assert_max_num_queries):
