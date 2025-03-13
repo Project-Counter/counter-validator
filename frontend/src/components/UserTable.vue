@@ -103,26 +103,35 @@
         </template>
       </v-dialog>
 
-      <v-btn
-        color="secondary"
-        prepend-icon="mdi-email"
-        size="small"
-        class="mr-1"
-        variant="tonal"
-        @click="sendInvitation(item)"
-        >Send invitation</v-btn
-      >
+      <v-menu>
+        <template #activator="{ props }">
+          <v-btn
+            variant="text"
+            icon
+            v-bind="props"
+          >
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            base-color="secondary"
+            prepend-icon="mdi-email"
+            @click="sendInvitation(item)"
+          >
+            <v-list-item-title>Send invitation</v-list-item-title>
+          </v-list-item>
 
-      <v-btn
-        v-if="item.id !== store.user?.id"
-        color="error"
-        prepend-icon="mdi-delete"
-        variant="tonal"
-        size="small"
-        @click="deleteUser(item)"
-      >
-        Delete
-      </v-btn>
+          <v-list-item
+            v-if="item.id !== store.user?.id"
+            base-color="error"
+            prepend-icon="mdi-delete"
+            @click="deleteUser(item)"
+          >
+            <v-list-item-title>Delete</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </template>
   </v-data-table>
 </template>
