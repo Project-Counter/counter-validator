@@ -744,7 +744,7 @@ class TestCounterAPIValidationAPI:
         """
         Make sure that the `use_short_dates` parameter is reflected in the request to the API.
         """
-        settings.CTOOLS_URL = "http://localhost:8180/"
+        settings.VALIDATIO_MODULES_URLS = "http://localhost:8180/"
         data = factory.build(
             dict,
             FACTORY_CLASS=CounterAPIValidationRequestDataFactory,

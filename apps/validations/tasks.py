@@ -8,12 +8,15 @@ import zlib
 import celery
 import requests
 from celery.contrib.django.task import DjangoTask
-from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from validations.enums import ValidationStatus
 from validations.hashing import checksum_bytes
 from validations.models import CounterAPIValidation, Validation
+from validations.validation_modules import (
+    create_validation_module_lock,
+    get_available_validation_module_url,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,15 +30,23 @@ class ValidationTask(DjangoTask):
 
 @celery.shared_task(base=ValidationTask)
 def validate_file(pk: uuid.UUID):
-    start = time.monotonic()
+    while not (vm_url := get_available_validation_module_url()):
+        logger.info("No available validation module, waiting...")
+        time.sleep(1)
+
+    logger.info("Using validation module: %s", vm_url)
+
     obj = Validation.objects.select_related("core").get(pk=pk)
     obj.core.status = ValidationStatus.RUNNING
     obj.core.save()
 
+    start = time.monotonic()
+    lock = create_validation_module_lock(vm_url)
+    lock.acquire(blocking=True)
     try:
         with obj.file.open("rb") as fp:
             req = requests.post(
-                settings.CTOOLS_URL + "file.php",
+                vm_url + "file.php",
                 params={"extension": os.path.splitext(obj.filename)[1].lstrip(".")},
                 data=fp,
             )
@@ -48,6 +59,8 @@ def validate_file(pk: uuid.UUID):
         obj.core.save()
         obj.save()
         return
+    finally:
+        lock.release()
 
     json = req.json()
     obj.core.stats = obj.add_result(json.get("result", {}))
@@ -64,19 +77,24 @@ def validate_file(pk: uuid.UUID):
 
 @celery.shared_task(base=ValidationTask)
 def validate_counter_api(pk):
-    start = time.monotonic()
+    while not (vm_url := get_available_validation_module_url()):
+        logger.info("No available validation module, waiting...")
+        time.sleep(1)
+
+    logger.info("Using validation module: %s", vm_url)
+
     obj = CounterAPIValidation.objects.select_related("core").get(pk=pk)
     obj.core.status = ValidationStatus.RUNNING
     obj.core.save()
 
+    start = time.monotonic()
     req_url = obj.get_url()
     logger.debug("Requesting URL: %s", req_url)
     resp = None
+    lock = create_validation_module_lock(vm_url)
+    lock.acquire(blocking=True)
     try:
-        resp = requests.post(
-            settings.CTOOLS_URL + "sushi.php",
-            json={"url": req_url},
-        )
+        resp = requests.post(vm_url + "sushi.php", json={"url": req_url})
         resp.raise_for_status()
     except Exception as e:
         obj.core.status = ValidationStatus.FAILURE
@@ -100,6 +118,7 @@ def validate_counter_api(pk):
             obj.file = SimpleUploadedFile(name="foo.json", content=content)
             obj.filename = f'Counter API {obj.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
     finally:
+        lock.release()
         end = time.monotonic()
         obj.core.duration = end - start
         obj.core.save()

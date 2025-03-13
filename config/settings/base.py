@@ -32,7 +32,8 @@ REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
 REDIS_CACHE_DB_NUMBER = config("REDIS_CACHE_DB_NUMBER", cast=int, default=1)
 REDIS_CELERY_DB_NUMBER = config("REDIS_CELERY_DB_NUMBER", cast=int, default=3)
 
-REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/"
+REDIS_URL_BASE = f"redis://{REDIS_HOST}:{REDIS_PORT}/"
+REDIS_URL = f"{REDIS_URL_BASE}{REDIS_CACHE_DB_NUMBER}"
 
 # Database
 
@@ -51,7 +52,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config("REDIS_URL", default=REDIS_URL + str(REDIS_CACHE_DB_NUMBER)),
+        "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.lz4.Lz4Compressor",
@@ -91,7 +92,7 @@ USE_TZ = True
 # Celery settings
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "default"
-CELERY_BROKER_URL = REDIS_URL + str(REDIS_CELERY_DB_NUMBER)
+CELERY_BROKER_URL = REDIS_URL_BASE + str(REDIS_CELERY_DB_NUMBER)
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 
@@ -239,7 +240,12 @@ if MAILGUN_API_KEY := config("MAILGUN_API_KEY", default=""):
     }
 
 # our own settings
-CTOOLS_URL = config("CTOOLS_URL", default="http://localhost:8180/")
+VALIDATION_MODULES_URLS = config(
+    "VALIDATION_MODULES_URLS", default="http://localhost:8180/", cast=Csv(delimiter=";")
+)
+# access to the validation modules is controlled by a lock mechanism, to guard against
+# the lock being held indefinitely due to some error, we set a timeout for the lock
+VALIDATION_MODULE_LOCK_TIMEOUT = config("VALIDATION_MODULE_LOCK_TIMEOUT", cast=int, default=180)
 REGISTRY_URL = config("REGISTRY_URL", default="https://registry.countermetrics.org")
 MAX_FILE_SIZE = config("MAX_FILE_SIZE", cast=int, default=20 * (1024**2))
 # size of the hash in bytes. Blake 2b is used as the hashing algorithm

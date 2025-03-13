@@ -28,16 +28,16 @@ backend port, you have to do it using an env variable `VITE_BE_PORT` like this:
 
 ### C5Tools server
 
-For this you will need the c5tool package which is available in a separate repository. When you get
-it, you need to start the docker container with the following command:
+For this you will need the `c5tool` package which is available in a separate repository. When you
+get it, you need to start the docker container with the following command:
 
 ```docker compose up```
 
-It will start a container with the c5tools server which will listen to port 8180 by default.
-You can pass this port to the backend using an env variable `CTOOLS_URL` in the .env file in the
-root of the project. For example like this:
+It will start a container with the `c5tools` server which will listen to port 8180 by default.
+You can pass this port to the backend using an env variable `VALIDATION_MODULES_URLS` in the .env
+file in the root of the project. For example like this:
 
-```CTOOLS_URL=http://localhost:8180```
+```VALIDATION_MODULES_URLS=http://localhost:8180```
 
 
 ### Registry data
