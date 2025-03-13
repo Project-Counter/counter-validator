@@ -6,9 +6,17 @@ export const useVersionStore = defineStore("version", () => {
   // server version
   const server = ref<string>("")
   const upstream = ref<string>("")
-  const upToDate = computed<boolean | null>(() => {
+  const frontend = import.meta.env.VITE_APP_VERSION
+  const serverUpToDate = computed<boolean | null>(() => {
     if (server.value && upstream.value) {
       return compareVersions(server.value, upstream.value) >= 0
+    }
+    // we don't know yet
+    return null
+  })
+  const frontEndUpToDate = computed<boolean | null>(() => {
+    if (server.value) {
+      return compareVersions(frontend, server.value) >= 0
     }
     // we don't know yet
     return null
@@ -23,7 +31,9 @@ export const useVersionStore = defineStore("version", () => {
   return {
     server,
     upstream,
-    upToDate,
+    serverUpToDate,
     update,
+    frontend,
+    frontEndUpToDate,
   }
 })

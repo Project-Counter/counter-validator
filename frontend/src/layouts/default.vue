@@ -126,10 +126,10 @@
         class="pa-0 pa-sm-2"
       >
         <!-- version checking -
-             upToDate may be null if the versions are not available,
+             serverUpToDate may be null if the versions are not available,
              so we only alert if it is really false -->
         <v-alert
-          v-if="versions.upToDate === false"
+          v-if="versions.serverUpToDate === false"
           type="warning"
           class="mb-6"
         >
@@ -155,6 +155,34 @@
         </v-alert>
       </v-container>
     </v-main>
+
+    <v-overlay
+      v-if="versions.frontEndUpToDate === false"
+      :model-value="versions.frontEndUpToDate === false"
+      class="align-center justify-center text-center"
+    >
+      <v-card class="pa-4">
+        <v-card-title> Reload needed </v-card-title>
+        <v-card-text>
+          <div>
+            The server has been updated, we need to reload the application to ensure smooth
+            operation.
+          </div>
+
+          <div class="py-8 d-flex align-center">
+            <span class="mr-4 text-h6">{{ versions.frontend }}</span>
+            <v-progress-linear
+              indeterminate
+              color="primary"
+              height="18"
+            >
+              <v-icon color="white">mdi-arrow-right-thin</v-icon>
+            </v-progress-linear>
+            <span class="ml-4 text-h6">{{ versions.server }}</span>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-overlay>
   </v-app>
 </template>
 
@@ -181,6 +209,14 @@ const versions = useVersionStore()
 async function checkVersions() {
   await versions.update()
 }
+
+watchEffect(() => {
+  if (versions.frontEndUpToDate === false) {
+    setTimeout(() => {
+      window.location.reload()
+    }, 3000)
+  }
+})
 
 onMounted(() => {
   checkVersions()

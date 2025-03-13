@@ -14,10 +14,10 @@
             class="text-disabled ps-2"
           >
             (upstream version {{ version.upstream }}
-            <span v-if="version.upToDate === false">
+            <span v-if="version.serverUpToDate === false">
               <v-icon color="error">mdi-alert</v-icon> not up to date
             </span>
-            <span v-else-if="version.upToDate">
+            <span v-else-if="version.serverUpToDate">
               <v-icon color="success">mdi-check</v-icon> up to date</span
             >)
           </span>

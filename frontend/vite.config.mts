@@ -12,6 +12,11 @@ import vueDevTools from "vite-plugin-vue-devtools"
 import { defineConfig } from "vite"
 import { fileURLToPath, URL } from "node:url"
 
+// Version
+import pkg from "./package.json"
+
+process.env.VITE_APP_VERSION = pkg.version
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -75,6 +80,16 @@ export default defineConfig({
       },
       "/media/": {
         target: `http://127.0.0.1:${process.env.VITE_BE_PORT || 8000}/`,
+      },
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: "modern-compiler", // or "modern"
+      },
+      sass: {
+        api: "modern-compiler", // or "modern"
       },
     },
   },

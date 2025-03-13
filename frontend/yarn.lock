@@ -2267,6 +2267,63 @@ __metadata:
   languageName: node
   linkType: hard
 
+"counter-validation-tool@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "counter-validation-tool@workspace:."
+  dependencies:
+    "@babel/types": "npm:^7.25.4"
+    "@eslint/eslintrc": "npm:^3.1.0"
+    "@eslint/js": "npm:^9.9.1"
+    "@mdi/font": "npm:^7.4.47"
+    "@types/color": "npm:^4"
+    "@types/eslint__js": "npm:^8.42.3"
+    "@types/lodash": "npm:^4.17.13"
+    "@types/node": "npm:^22.5.0"
+    "@typescript-eslint/parser": "npm:^8.10.0"
+    "@vitejs/plugin-vue": "npm:^5.1.2"
+    "@vue/eslint-config-typescript": "npm:^13.0.0"
+    "@vueuse/core": "npm:^12.7.0"
+    "@vueuse/router": "npm:^12.7.0"
+    chart.js: "npm:^4.4.6"
+    color: "npm:^4.2.3"
+    compare-versions: "npm:^6.1.1"
+    core-js: "npm:^3.38.1"
+    data-forge: "npm:^1.10.2"
+    date-fns: "npm:^4.1.0"
+    eslint: "npm:^9.9.1"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-config-standard: "npm:^17.1.0"
+    eslint-plugin-import: "npm:^2.29.1"
+    eslint-plugin-n: "npm:^16.0.0"
+    eslint-plugin-node: "npm:^11.1.0"
+    eslint-plugin-promise: "npm:^6.0.0"
+    eslint-plugin-vue: "npm:^9.27.0"
+    filesize: "npm:^10.1.6"
+    lodash: "npm:^4.17.21"
+    pinia: "npm:^2.2.2"
+    prettier: "npm:^3.3.3"
+    roboto-fontface: "npm:^0.10.0"
+    sass: "npm:^1.77.8"
+    sass-embedded: "npm:^1.77.8"
+    typescript: "npm:~5.6.3"
+    typescript-eslint: "npm:^8.10.0"
+    unplugin-auto-import: "npm:^0.18.2"
+    unplugin-fonts: "npm:^1.1.1"
+    unplugin-vue-components: "npm:^0.27.4"
+    unplugin-vue-router: "npm:^0.10.7"
+    vite: "npm:^5.4.2"
+    vite-plugin-vue-devtools: "npm:^7.6.4"
+    vite-plugin-vue-layouts: "npm:^0.11.0"
+    vite-plugin-vuetify: "npm:^2.0.4"
+    vue: "npm:^3.4.38"
+    vue-chartjs: "npm:^5.3.2"
+    vue-router: "npm:^4.4.3"
+    vue-tsc: "npm:^2.1.10"
+    vuetify: "npm:^3.7.15"
+    vuetify3-dialog: "npm:^1.5.4"
+  languageName: unknown
+  linkType: soft
+
 "cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.5":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
@@ -5001,63 +5058,6 @@ __metadata:
   checksum: 10c0/1442650cfea5e4617ce14743784f6f578817e31db56f9c8aaf96a82daa9bc20b6ccd66c0d677dbf302a4da3e70664dc3bef11a1aec85e6aff3cecccb945b1d35
   languageName: node
   linkType: hard
-
-"root-workspace-0b6124@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "root-workspace-0b6124@workspace:."
-  dependencies:
-    "@babel/types": "npm:^7.25.4"
-    "@eslint/eslintrc": "npm:^3.1.0"
-    "@eslint/js": "npm:^9.9.1"
-    "@mdi/font": "npm:^7.4.47"
-    "@types/color": "npm:^4"
-    "@types/eslint__js": "npm:^8.42.3"
-    "@types/lodash": "npm:^4.17.13"
-    "@types/node": "npm:^22.5.0"
-    "@typescript-eslint/parser": "npm:^8.10.0"
-    "@vitejs/plugin-vue": "npm:^5.1.2"
-    "@vue/eslint-config-typescript": "npm:^13.0.0"
-    "@vueuse/core": "npm:^12.7.0"
-    "@vueuse/router": "npm:^12.7.0"
-    chart.js: "npm:^4.4.6"
-    color: "npm:^4.2.3"
-    compare-versions: "npm:^6.1.1"
-    core-js: "npm:^3.38.1"
-    data-forge: "npm:^1.10.2"
-    date-fns: "npm:^4.1.0"
-    eslint: "npm:^9.9.1"
-    eslint-config-prettier: "npm:^9.1.0"
-    eslint-config-standard: "npm:^17.1.0"
-    eslint-plugin-import: "npm:^2.29.1"
-    eslint-plugin-n: "npm:^16.0.0"
-    eslint-plugin-node: "npm:^11.1.0"
-    eslint-plugin-promise: "npm:^6.0.0"
-    eslint-plugin-vue: "npm:^9.27.0"
-    filesize: "npm:^10.1.6"
-    lodash: "npm:^4.17.21"
-    pinia: "npm:^2.2.2"
-    prettier: "npm:^3.3.3"
-    roboto-fontface: "npm:^0.10.0"
-    sass: "npm:^1.77.8"
-    sass-embedded: "npm:^1.77.8"
-    typescript: "npm:~5.6.3"
-    typescript-eslint: "npm:^8.10.0"
-    unplugin-auto-import: "npm:^0.18.2"
-    unplugin-fonts: "npm:^1.1.1"
-    unplugin-vue-components: "npm:^0.27.4"
-    unplugin-vue-router: "npm:^0.10.7"
-    vite: "npm:^5.4.2"
-    vite-plugin-vue-devtools: "npm:^7.6.4"
-    vite-plugin-vue-layouts: "npm:^0.11.0"
-    vite-plugin-vuetify: "npm:^2.0.4"
-    vue: "npm:^3.4.38"
-    vue-chartjs: "npm:^5.3.2"
-    vue-router: "npm:^4.4.3"
-    vue-tsc: "npm:^2.1.10"
-    vuetify: "npm:^3.7.15"
-    vuetify3-dialog: "npm:^1.5.4"
-  languageName: unknown
-  linkType: soft
 
 "run-applescript@npm:^7.0.0":
   version: 7.0.0
