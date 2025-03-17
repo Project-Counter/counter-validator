@@ -109,7 +109,11 @@ CELERY_BEAT_SCHEDULE = {
     "expired_validations_cleanup": {
         "task": "validations.tasks.expired_validations_cleanup",
         "schedule": crontab(minute="0", hour="0"),  # every day at midnight
-    }
+    },
+    "update_registry_models": {
+        "task": "counter.tasks.update_registry_models",
+        "schedule": crontab(minute="10", hour="0"),  # every day at 00:10
+    },
 }
 
 
