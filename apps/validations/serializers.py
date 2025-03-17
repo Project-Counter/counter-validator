@@ -1,3 +1,7 @@
+import logging
+from io import BytesIO
+
+import magic
 from core.serializers import UserSerializerSimple
 from django.conf import settings
 from rest_framework import serializers
@@ -6,6 +10,8 @@ from rest_framework.exceptions import ValidationError
 from .enums import ValidationStatus
 from .hashing import checksum_string
 from .models import CounterAPIValidation, Validation, ValidationCore, ValidationMessage
+
+logger = logging.getLogger(__name__)
 
 
 class CredentialsSerializer(serializers.Serializer):
@@ -124,13 +130,46 @@ class FileValidationCreateSerializer(serializers.Serializer):
 
     file = serializers.FileField()
     user_note = serializers.CharField(required=False)
+    mime_to_type = {
+        "application/json": "json",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+        # map all text based format to csv
+        "text/csv": "csv",
+        "text/tab-separated-values": "csv",
+    }
+
+    @classmethod
+    def file_to_type(cls, fileobj: BytesIO):
+        buffer = fileobj.read(16384)
+        detected_type = magic.from_buffer(buffer, mime=True)
+        if detected_type == "text/plain":
+            # this can be CSV, TSV, etc., but also JSON :( - we need to make the best guess
+            # ourselves
+            line_number = buffer.count(b"\n") + 1
+            if buffer.count(b"{") > 4:
+                detected_type = "application/json"
+            elif buffer.count(b",") >= line_number:
+                # at least as many commas as lines, so it's a CSV
+                detected_type = "text/csv"
+            elif buffer.count(b"\t") >= line_number:
+                # at least as many tabs as lines, so it's a TSV
+                detected_type = "text/tab-separated-values"
+            else:
+                detected_type = "text/plain"
+
+        logger.info(f"Detected file type: {detected_type}")
+        fileobj.seek(0)
+        return cls.mime_to_type.get(detected_type, "default")
 
     def validate_file(self, value):
         # empty files are handled by the FileField itself, so we just check the max size
-        if value.size > settings.MAX_FILE_SIZE:
+        file_type = self.file_to_type(value)
+        size_limit = settings.FILE_SIZE_LIMITS.get(file_type, settings.FILE_SIZE_LIMITS["default"])
+        if value.size > size_limit:
             raise ValidationError(
                 detail=(
-                    f"Max file size exceeded: " f"{value.size} > {settings.MAX_FILE_SIZE} bytes"
+                    f"Max file size for type '{file_type}' exceeded: "
+                    f"{value.size} > {size_limit} bytes"
                 )
             )
         return value

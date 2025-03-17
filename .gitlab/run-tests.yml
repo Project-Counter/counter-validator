@@ -15,7 +15,7 @@ tests:run_tests:
     REDIS_HOST: redis
     REDIS_PORT: 6379
   before_script:
-    - apt-get update && apt-get install -y curl
+    - apt-get update && apt-get install -y curl libmagic1t64
     - export PATH="$PATH:/root/.local/bin"
     - poetry install --no-root
   script:

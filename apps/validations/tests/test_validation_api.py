@@ -457,8 +457,8 @@ class TestFileValidationAPI:
         assert "empty" in res.json()["file"][0]
 
     def test_create_with_too_large_a_file(self, settings, client_authenticated_user):
-        settings.MAX_FILE_SIZE = 1023
-        file = SimpleUploadedFile("tr.json", content=b"X" * (settings.MAX_FILE_SIZE + 1))
+        settings.FILE_SIZE_LIMITS = {"default": 1023}
+        file = SimpleUploadedFile("tr.json", content=b"X" * 1024)
         with patch("validations.tasks.validate_file.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("validation-file"),
@@ -467,7 +467,7 @@ class TestFileValidationAPI:
             )
             p.assert_not_called()
         assert res.status_code == 400
-        assert "Max file size exceeded" in res.json()["file"][0]
+        assert res.json()["file"][0].startswith("Max file size for type")
 
     def test_create_with_api_key(self, client_with_api_key, normal_user):
         filename = "tr.json"
@@ -501,6 +501,60 @@ class TestFileValidationAPI:
             )
             p.assert_not_called()
             assert res.status_code == 403
+
+    def test_create_with_file_type_limit(self, settings, client_authenticated_user):
+        settings.FILE_SIZE_LIMITS = {"default": 1023}
+        with open("test_data/reports/50-Sample-TR.json", "rb") as f:
+            file = SimpleUploadedFile("tr.json", f.read())
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file"),
+                data={"file": file},
+                format="multipart",
+            )
+            p.assert_not_called()
+            assert res.status_code == 400
+            assert res.json()["file"][0].startswith("Max file size for type 'json' exceeded:")
+
+    def test_create_with_file_type_limit_unknown_type(self, settings, client_authenticated_user):
+        settings.FILE_SIZE_LIMITS = {"default": 1023}
+        file = SimpleUploadedFile("tr.json", b"x" * 1024)
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file"),
+                data={"file": file},
+                format="multipart",
+            )
+            p.assert_not_called()
+            assert res.status_code == 400
+            assert res.json()["file"][0].startswith("Max file size for type 'default' exceeded:")
+
+    @pytest.mark.parametrize(
+        ["filetype", "filename"],
+        [
+            ("csv", "50-Sample-TR.csv"),
+            ("json", "50-Sample-TR.json"),
+            ("xlsx", "50-Sample-TR.xlsx"),
+            ("csv", "50-Sample-TR.tsv"),
+        ],
+    )
+    def test_create_with_file_type_limit_filetype(
+        self, settings, client_authenticated_user, filetype, filename
+    ):
+        settings.FILE_SIZE_LIMITS = {"default": 1023}
+        with open(f"test_data/reports/{filename}", "rb") as f:
+            file = SimpleUploadedFile(filename, f.read())
+        with patch("validations.tasks.validate_file.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("validation-file"),
+                data={"file": file},
+                format="multipart",
+            )
+            p.assert_not_called()
+            assert res.status_code == 400
+            assert res.json()["file"][0].startswith(
+                f"Max file size for type '{filetype}' exceeded:"
+            )
 
 
 @pytest.mark.django_db

@@ -247,13 +247,19 @@ VALIDATION_MODULES_URLS = config(
 # the lock being held indefinitely due to some error, we set a timeout for the lock
 VALIDATION_MODULE_LOCK_TIMEOUT = config("VALIDATION_MODULE_LOCK_TIMEOUT", cast=int, default=180)
 REGISTRY_URL = config("REGISTRY_URL", default="https://registry.countermetrics.org")
-MAX_FILE_SIZE = config("MAX_FILE_SIZE", cast=int, default=20 * (1024**2))
 # size of the hash in bytes. Blake 2b is used as the hashing algorithm
 HASHING_DIGEST_SIZE = config("FILE_HASHING_DIGEST_SIZE", cast=int, default=32)
 HASHING_SALT = config("FILE_HASHING_SALT", default=SECRET_KEY)
 # the time in days the validation is valid, after that it will no longer be available
 # and will be deleted at the next cleanup
 VALIDATION_LIFETIME = config("VALIDATION_LIFETIME", cast=int, default=7)
+# per-file type file size limit in bytes
+FILE_SIZE_LIMITS = {
+    "json": config("FILE_SIZE_LIMIT_JSON", cast=int, default=100_000_000),
+    "xlsx": config("FILE_SIZE_LIMIT_XLSX", cast=int, default=10_000_000),
+    "csv": config("FILE_SIZE_LIMIT_CSV", cast=int, default=10_000_000),
+    "default": config("FILE_SIZE_LIMIT_DEFAULT", cast=int, default=1_000_000),
+}
 
 # development stuff
 DEBUG_SLEEP = config("DEBUG_SLEEP", cast=float, default=0)
