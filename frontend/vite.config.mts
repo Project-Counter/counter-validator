@@ -83,15 +83,19 @@ export default defineConfig({
       },
     },
   },
+  // the following should make is faster and get rid of unwanted reloads due
+  // to code optimization
+  optimizeDeps: { exclude: ["vuetify"] },
   css: {
     preprocessorOptions: {
       scss: {
-        api: "modern-compiler", // or "modern"
+        api: "modern",
       },
       sass: {
-        api: "modern-compiler", // or "modern"
+        api: "modern",
       },
     },
+    preprocessorMaxWorkers: true,
   },
   build: {
     sourcemap: true,

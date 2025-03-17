@@ -4,7 +4,7 @@
     class="d-inline"
     @submit.prevent="save"
   >
-    <v-row class="mb-1">
+    <v-row class="mb-0">
       <v-col
         cols="12"
         md="6"
@@ -28,7 +28,7 @@
         />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="mt-0">
       <v-col
         cols="12"
         md="6"
@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import * as rules from "@/lib/formRules"
 import { User } from "@/lib/definitions/api"
-import { updateUser, resendVerificationEmail } from "@/lib/http/auth"
+import { updateAccount, resendVerificationEmail } from "@/lib/http/auth"
 import { useAppStore } from "@/stores/app"
 
 const store = useAppStore()
@@ -108,7 +108,7 @@ async function save() {
   loading.value = true
   user.value.first_name = user.value.first_name.replace(/\s+/g, " ")
   user.value.last_name = user.value.last_name.replace(/\s+/g, " ")
-  await updateUser(user.value)
+  await updateAccount(user.value)
   if (store.user) user.value = { ...store.user }
   loading.value = false
 }

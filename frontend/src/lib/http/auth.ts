@@ -30,7 +30,7 @@ export async function checkUser() {
   }
 }
 
-export async function updateUser(obj: User) {
+export async function updateAccount(obj: User) {
   try {
     await wrapFetch(urls.user, {
       method: "PATCH",
@@ -39,6 +39,12 @@ export async function updateUser(obj: User) {
   } finally {
     await checkUser()
   }
+}
+
+export async function deleteAccount() {
+  await wrapFetch(urls.user, {
+    method: "DELETE",
+  })
 }
 
 export async function login(email: string, password: string) {

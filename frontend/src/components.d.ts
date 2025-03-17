@@ -13,6 +13,7 @@ declare module 'vue' {
     BarChart: typeof import('./components/BarChart.vue')['default']
     ChangePassword: typeof import('./components/ChangePassword.vue')['default']
     DateTooltip: typeof import('./components/DateTooltip.vue')['default']
+    DeleteAccountButton: typeof import('./components/DeleteAccountButton.vue')['default']
     DoughnutChart: typeof import('./components/DoughnutChart.vue')['default']
     FilePicker: typeof import('./components/FilePicker.vue')['default']
     IsoDateTime: typeof import('./components/IsoDateTime.vue')['default']

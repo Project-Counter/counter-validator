@@ -10,6 +10,10 @@
 
     <UserForm />
     <ChangePassword />
+    <DeleteAccountButton
+      class="ml-12"
+      @delete="performDelete"
+    />
 
     <h3 class="mt-10">API keys</h3>
     <p class="text-caption text-medium-emphasis mb-3">
@@ -20,4 +24,21 @@
   </v-sheet>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRouter } from "vue-router"
+import { deleteAccount } from "@/lib/http/auth"
+import { useAppStore } from "@/stores/app"
+
+const router = useRouter()
+const store = useAppStore()
+
+async function performDelete() {
+  await deleteAccount()
+  store.user = null
+  store.displayNotification({
+    message: "Your account has been deleted",
+    type: "success",
+  })
+  router.push("/")
+}
+</script>

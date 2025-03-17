@@ -76,6 +76,15 @@ class UserDetailView(APIView):
     def patch(self, request, **kwargs):
         return self.put(request, **kwargs)
 
+    def delete(self, request, **kwargs):
+        user = request.user
+        if user.is_superuser and User.objects.filter(is_superuser=True).count() == 1:
+            raise PermissionDenied(
+                "You cannot delete your own account - you are the last superuser"
+            )
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class UserManagementViewSet(ModelViewSet):
     serializer_class = serializers.UserSerializer

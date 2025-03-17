@@ -41,6 +41,23 @@ class TestUserDetailAPI:
         assert res.status_code == 200
         assert res.json()["verified_email"] is False
 
+    def test_user_can_delete_own_account(self, client_authenticated_user, normal_user):
+        res = client_authenticated_user.delete(reverse("current-user"))
+        assert res.status_code == 204
+        assert not User.objects.filter(pk=normal_user.pk).exists()
+
+    def test_superuser_can_only_delete_himself_if_he_is_not_last_superuser(
+        self, admin_client, admin_user
+    ):
+        res = admin_client.delete(reverse("current-user"))
+        assert res.status_code == 403
+        assert User.objects.filter(pk=admin_user.pk).exists()
+        # add another superuser
+        UserFactory(is_superuser=True)
+        res = admin_client.delete(reverse("current-user"))
+        assert res.status_code == 204
+        assert not User.objects.filter(pk=admin_user.pk).exists()
+
 
 @pytest.mark.django_db
 class TestUserManagementAPI:
