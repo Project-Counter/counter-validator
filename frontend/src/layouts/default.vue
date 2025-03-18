@@ -53,7 +53,7 @@
             to="/history"
           />
           <v-list-item
-            prepend-icon="mdi-chart-box"
+            prepend-icon="mdi-monitor-dashboard"
             title="Monitoring"
             subtitle="Validation queue and workers"
             to="/monitoring"
