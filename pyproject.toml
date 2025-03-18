@@ -4,9 +4,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "counter-validation-tool"
-version = "0.3.0"
+version = "0.4.0"
 description = ""
-authors = ["Beda Kosata <beda@bigdigdata.com>", "Jakub Smetana <jakub.smetana@protonmail.com>"]
+authors = [
+    "Beda Kosata <beda@bigdigdata.com>",
+    "Jakub Smetana <jakub.smetana@protonmail.com>",
+]
 readme = "README.md"
 package-mode = false
 
@@ -14,7 +17,7 @@ package-mode = false
 python = "^3.12"
 celery = "^5.4.0"
 colorlog = "^6.8.2"
-dj-rest-auth = {extras = ["with-social"], version = "^6.0.0"}
+dj-rest-auth = { extras = ["with-social"], version = "^6.0.0" }
 django-celery-results = "^2.5.1"
 django-redis = "^5.4.0"
 djangorestframework = "^3.15.2"
@@ -42,7 +45,7 @@ pytest = "^8.3.2"
 pytest-cov = "^5.0.0"
 pytest-django = "^4.8.0"
 ruff = "^0.6.9"
-watchdog = {version = "^5.0.2", extras = ["watchmedo"]}
+watchdog = { version = "^5.0.2", extras = ["watchmedo"] }
 dj-inmemorystorage = "^2.1.0"
 
 [tool.pytest.ini_options]
@@ -53,20 +56,20 @@ addopts = "--reuse-db"
 [tool.ruff]
 line-length = 100
 lint.ignore = [
-	"ISC001",  # warns about not working with the formatter
+    "ISC001", # warns about not working with the formatter
 ]
 lint.select = [
-    "A",   # flake8-builtins
-    "B",   # flake8-bugbear
-    "DJ",  # flake8-django
-    "E",   # pycodestyle - errors
-    "F",   # pyflakes
-	# "FIX", # flake8-fixme
+    "A",  # flake8-builtins
+    "B",  # flake8-bugbear
+    "DJ", # flake8-django
+    "E",  # pycodestyle - errors
+    "F",  # pyflakes
+    # "FIX", # flake8-fixme
     "I",   # isort
-	"ISC", # flake8-implicit-str-concat
-	"N",   # pep8-naming
-	"SIM", # flake8-simplify
-	"UP",  # pyupgrade (simplify)
+    "ISC", # flake8-implicit-str-concat
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade (simplify)
     "W",   # pycodestyle - warnings
 ]
 target-version = "py310"
@@ -75,5 +78,5 @@ target-version = "py310"
 indent-style = "space"
 
 [tool.ruff.lint.per-file-ignores]
-"test_*.py" = ["B011"]  # test files should have asserts
+"test_*.py" = ["B011"]               # test files should have asserts
 "apps/*/migrations/**.py" = ["E501"]
