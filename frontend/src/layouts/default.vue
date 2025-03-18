@@ -88,6 +88,7 @@
           />
           <v-list-item
             title="About"
+            :subtitle="`Version ${versions.frontend}`"
             to="/about"
             prepend-icon="mdi-information"
           ></v-list-item>
