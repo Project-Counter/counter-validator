@@ -7,24 +7,37 @@
     </v-row>
     <v-row>
       <v-col>
-        <p>
-          <strong>Version {{ version.server }}</strong>
-          <span
-            v-if="version.upstream"
-            class="text-disabled ps-2"
-          >
-            (upstream version {{ version.upstream }}
-            <span v-if="version.serverUpToDate === false">
-              <v-icon color="error">mdi-alert</v-icon> not up to date
-            </span>
-            <span v-else-if="version.serverUpToDate">
-              <v-icon color="success">mdi-check</v-icon> up to date</span
-            >)
-          </span>
-        </p>
+        <table class="overview">
+          <tbody>
+            <tr>
+              <th>Version</th>
+              <td>{{ version.server }}</td>
+            </tr>
+            <tr>
+              <th>Upstream version</th>
+              <td>
+                <span class="me-3">{{ version.upstream }}</span>
+                <span v-if="version.serverUpToDate === false">
+                  <v-icon color="error">mdi-alert</v-icon> not up to date
+                </span>
+                <span v-else-if="version.serverUpToDate">
+                  <v-icon color="success">mdi-check</v-icon> up to date</span
+                >
+              </td>
+              <td>
+                <a
+                  :href="version.upstreamUrl + 'changelog'"
+                  target="_blank"
+                >
+                  <v-icon>mdi-open-in-new</v-icon>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="mt-12">
       <v-col>
         <p>&copy; {{ currentYear }} COUNTER Metrics Limited</p>
       </v-col>
@@ -44,7 +57,15 @@ onBeforeMount(() => {
 })
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+table.overview {
+  font-size: 1.25rem;
+  th {
+    text-align: left;
+    margin-right: 1rem;
+  }
+}
+</style>
 
 <route>
 meta:

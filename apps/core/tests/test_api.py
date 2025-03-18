@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from ..fake_data import UserFactory
 from ..models import User, UserApiKey
-from ..version import get_server_version
+from ..version import UPSTREAM_SERVER, get_server_version
 
 
 @pytest.mark.django_db
@@ -479,8 +479,9 @@ class TestVersionAPI:
     def test_version(self, client):
         res = client.get(reverse("version"))
         assert res.status_code == 200
-        assert set(res.json().keys()) == {"server", "upstream"}
+        assert set(res.json().keys()) == {"server", "upstream", "upstream_url"}
         assert res.json()["server"] == get_server_version()
+        assert res.json()["upstream_url"] == UPSTREAM_SERVER
 
 
 @pytest.mark.django_db

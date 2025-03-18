@@ -21,7 +21,7 @@ from .models import User, UserApiKey
 from .permissions import IsValidatorAdminUser
 from .serializers import UserSerializer
 from .signals import password_reset_signal
-from .version import get_server_version, get_upstream_version
+from .version import UPSTREAM_SERVER, get_server_version, get_upstream_version
 
 logger = logging.getLogger(__name__)
 
@@ -175,7 +175,13 @@ class VersionView(APIView):
         except Exception as e:
             logger.error("Failed to get upstream version", exc_info=e)
             upstream_version = None
-        return Response({"server": server_version, "upstream": upstream_version})
+        return Response(
+            {
+                "server": server_version,
+                "upstream": upstream_version,
+                "upstream_url": UPSTREAM_SERVER,
+            }
+        )
 
 
 class ChangelogView(APIView):
