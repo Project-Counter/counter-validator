@@ -27,12 +27,16 @@ urlpatterns = [
     path(f"{API_PREFIX}/counter/", include("counter.urls")),
     path(f"{API_PREFIX}/validations/", include("validations.urls")),
     path(f"{API_PREFIX}/auth/", include("dj_rest_auth.urls")),
-    path(f"{API_PREFIX}/registration/", include("dj_rest_auth.registration.urls")),
     path(
         f"{API_PREFIX}/account/", include("django.contrib.auth.urls")
     ),  # contains link to reset password
     path(settings.DJANGO_ADMIN_PATH, admin.site.urls),
 ]
+
+if settings.ALLOW_USER_REGISTRATION:
+    urlpatterns += [
+        path(f"{API_PREFIX}/registration/", include("dj_rest_auth.registration.urls")),
+    ]
 
 if settings.DEBUG:
     import debug_toolbar

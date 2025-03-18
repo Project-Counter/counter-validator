@@ -4,6 +4,7 @@ from datetime import timedelta
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
 from dj_rest_auth.views import PasswordResetConfirmView
+from django.conf import settings
 from django.db.models import Count, Exists, OuterRef, Subquery, Value
 from django.utils.timezone import now
 from rest_framework import status
@@ -189,3 +190,11 @@ class ChangelogView(APIView):
 
     def get(self, request):
         return Response(get_changelog_entries())
+
+
+class SystemInfoView(APIView):
+    permission_classes = []
+
+    def get(self, request):
+        data = {name: getattr(settings, name) for name in settings.EXPORTED_SETTINGS}
+        return Response(data)

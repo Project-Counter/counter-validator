@@ -66,3 +66,7 @@ class ValidatorAccountAdapter(DefaultAccountAdapter):
         body = loader.render_to_string("registration/invitation_email.html", context)
         email_message = EmailMultiAlternatives(subject, body, to=[user.email])
         email_message.send()
+
+    def is_open_for_signup(self, request):
+        raise NotImplementedError("This is a dummy implementation")
+        return settings.ALLOW_USER_REGISTRATION

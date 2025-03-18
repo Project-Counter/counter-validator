@@ -324,7 +324,7 @@ class TestRegistrationAPI:
     def test_registration(self, client_unauthenticated):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
-                reverse("rest_register"),
+                "/api/v1/registration/",
                 data={
                     "email": "foo@bar.baz",
                     "password1": "fksldj2938wflkjsw",
@@ -338,7 +338,7 @@ class TestRegistrationAPI:
     def test_registration_invalid_email(self, client_unauthenticated):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
-                reverse("rest_register"),
+                "/api/v1/registration/",
                 data={
                     "email": "foo@bar",
                     "password1": "fksldj2938wflkjsw",
@@ -351,7 +351,7 @@ class TestRegistrationAPI:
     def test_registration_already_used_email(self, client_unauthenticated, normal_user):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
-                reverse("rest_register"),
+                "/api/v1/registration/",
                 data={
                     "email": normal_user.email,
                     "password1": "fksldj2938wflkjsw",
@@ -367,7 +367,7 @@ class TestRegistrationAPI:
     def test_names_are_stored(self, client_unauthenticated):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
-                reverse("rest_register"),
+                "/api/v1/registration/",
                 data={
                     "email": "foo@bar.baz",
                     "first_name": "Foo",

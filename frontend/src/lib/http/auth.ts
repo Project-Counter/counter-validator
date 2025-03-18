@@ -1,6 +1,6 @@
 import { useAppStore } from "@/stores/app"
 import { HttpStatusError, jsonFetch, wrapFetch } from "./util"
-import { ApiKey, User } from "../definitions/api"
+import { ApiKey, SystemInfo, User } from "../definitions/api"
 
 export const urls = {
   user: "core/me",
@@ -13,6 +13,7 @@ export const urls = {
   doReset: "core/user/password-reset",
   verifyEmail: "registration/verify-email/",
   resendVerificationEmail: "registration/resend-email/",
+  systemInfo: "core/system-info",
 }
 
 export async function checkUser() {
@@ -128,4 +129,8 @@ export async function resendVerificationEmail(email: string) {
     method: "POST",
     json: { email },
   })
+}
+
+export async function fetchSystemInfo() {
+  return jsonFetch<SystemInfo>(urls.systemInfo)
 }

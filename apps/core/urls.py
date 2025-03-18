@@ -12,4 +12,5 @@ urlpatterns = router.urls + [
     path("user/password-reset", views.UserPasswordResetView.as_view(), name="user_password_reset"),
     path("version", views.VersionView.as_view(), name="version"),
     path("changelog", views.ChangelogView.as_view(), name="changelog"),
+    path("system-info", views.SystemInfoView.as_view(), name="system-info"),
 ]

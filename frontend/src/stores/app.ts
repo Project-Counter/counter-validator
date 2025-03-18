@@ -1,8 +1,9 @@
 import { defineStore } from "pinia"
-import type { User } from "@/lib/definitions/api"
+import type { SystemInfo, User } from "@/lib/definitions/api"
 import { VueError } from "@/lib/definitions/VueError"
 import { useStorage } from "@vueuse/core"
 import { Notification } from "@/lib/definitions/notifications"
+import { fetchSystemInfo } from "@/lib/http/auth"
 
 export const useAppStore = defineStore("app", () => {
   // user and auth
@@ -29,6 +30,20 @@ export const useAppStore = defineStore("app", () => {
     showNotification.value = true
   }
 
+  // system info
+  const systemInfo = ref<SystemInfo | null>(null)
+  async function updateSystemInfo() {
+    systemInfo.value = await fetchSystemInfo()
+  }
+
+  const isUserRegistrationAllowed = computed<boolean>(() => {
+    return systemInfo.value?.ALLOW_USER_REGISTRATION || false
+  })
+
+  onMounted(async () => {
+    await updateSystemInfo()
+  })
+
   return {
     user,
     userVerified,
@@ -37,5 +52,8 @@ export const useAppStore = defineStore("app", () => {
     notification,
     showNotification,
     displayNotification,
+    systemInfo,
+    updateSystemInfo,
+    isUserRegistrationAllowed,
   }
 })

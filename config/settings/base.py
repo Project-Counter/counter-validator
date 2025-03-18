@@ -264,6 +264,12 @@ FILE_SIZE_LIMITS = {
     "csv": config("FILE_SIZE_LIMIT_CSV", cast=int, default=10_000_000),
     "default": config("FILE_SIZE_LIMIT_DEFAULT", cast=int, default=1_000_000),
 }
+ALLOW_USER_REGISTRATION = config("ALLOW_USER_REGISTRATION", cast=bool, default=True)
+
+EXPORTED_SETTINGS = [
+    "ALLOW_USER_REGISTRATION",
+    "FILE_SIZE_LIMITS",
+]
 
 # development stuff
 DEBUG_SLEEP = config("DEBUG_SLEEP", cast=float, default=0)

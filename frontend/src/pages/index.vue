@@ -27,7 +27,8 @@
           class="mx-auto pa-6 my-8"
         >
           <v-card-title class="text-h4"
-            >{{ store.user ? "Use" : "Register" }} for FREE</v-card-title
+            >{{ store.user || !store.isUserRegistrationAllowed ? "Use" : "Register" }} for
+            FREE</v-card-title
           >
           <v-card-text>
             <ul class="ms-6 text-body-1">
@@ -61,6 +62,7 @@
         class="text-center"
       >
         <v-btn
+          v-if="store.isUserRegistrationAllowed"
           color="primary"
           size="x-large"
           rounded

@@ -217,3 +217,8 @@ export type QueueInfo = {
   running: number
   workers: number
 }
+
+export type SystemInfo = {
+  ALLOW_USER_REGISTRATION: boolean
+  FILE_SIZE_LIMITS: Record<string, number>
+}

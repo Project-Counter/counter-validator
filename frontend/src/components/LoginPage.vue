@@ -23,7 +23,7 @@
         />
       </v-col>
       <v-col
-        v-if="page != Page.Signup"
+        v-if="page != Page.Signup && store.isUserRegistrationAllowed"
         cols="auto"
       >
         <v-btn
@@ -50,7 +50,9 @@
 
 <script setup lang="ts">
 import { LoginSubPage as Page } from "@/lib/login"
+import { useAppStore } from "@/stores/app"
 
+const store = useAppStore()
 const props = defineProps<{
   initialPage?: Page
 }>()
