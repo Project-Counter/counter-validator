@@ -2,7 +2,31 @@
   <v-container fluid>
     <v-row>
       <v-col>
-        <ValidationQueueInfoWidget elevation="4" />
+        <h1>Stats</h1>
+      </v-col>
+      <v-spacer></v-spacer>
+      <v-col>
+        <v-autocomplete
+          v-model="user"
+          :items="users"
+          item-value="id"
+          item-title="first_name"
+          label="Filter by user"
+          return-object
+          clearable
+        >
+          <template #item="{ item, props }">
+            <v-list-item
+              v-bind="props"
+              :title="item.raw.first_name + ' ' + item.raw.last_name"
+              :subtitle="item.raw.email"
+            >
+            </v-list-item>
+          </template>
+          <template #selection="{ item }">
+            {{ item.raw.first_name }} {{ item.raw.last_name }}
+          </template>
+        </v-autocomplete>
       </v-col>
     </v-row>
     <v-row>
@@ -11,13 +35,11 @@
       </v-col>
     </v-row>
     <v-row v-if="allStats">
-      <v-col
-        v-if="allStats.total"
-        v-bind="colSizes"
-      >
+      <v-col v-bind="colSizes">
         <v-card
           height="100%"
           elevation="4"
+          min-height="280"
         >
           <v-card-title>
             <span>Total validations</span>
@@ -30,7 +52,7 @@
         </v-card>
       </v-col>
       <v-col
-        v-if="allStats.duration"
+        v-if="allStats.total && allStats.duration"
         v-bind="colSizes"
       >
         <StatsCard
@@ -40,7 +62,7 @@
         />
       </v-col>
       <v-col
-        v-if="allStats.file_size"
+        v-if="allStats.total && allStats.file_size"
         v-bind="colSizes"
       >
         <StatsCard
@@ -51,7 +73,7 @@
         />
       </v-col>
       <v-col
-        v-if="allStats.used_memory"
+        v-if="allStats.total && allStats.used_memory"
         v-bind="colSizes"
       >
         <StatsCard
@@ -60,17 +82,6 @@
           unit="Bytes"
           format="fileSize"
         />
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col>
-        <h2>Validations composition</h2>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <SplitStatsVisualization />
       </v-col>
     </v-row>
 
@@ -91,13 +102,33 @@
         />
       </v-col>
     </v-row>
+
+    <v-row>
+      <v-col>
+        <h2>Validations composition</h2>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <SplitStatsVisualization :user="user ?? undefined" />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { getStats, getTimeStats } from "@/lib/http/validation"
 import { formatInteger } from "@/lib/formatting"
-import { Stats, TimeStats, severityLevelColorMap, SeverityLevel } from "@/lib/definitions/api"
+import {
+  Stats,
+  TimeStats,
+  severityLevelColorMap,
+  SeverityLevel,
+  StoredUser,
+} from "@/lib/definitions/api"
+
+import { fetchUsers } from "@/lib/http/users"
+
 import Color from "color"
 
 // display
@@ -110,18 +141,25 @@ const colSizes = {
   xl: 2,
 }
 
+const user = ref<StoredUser | null>(null)
+const users = ref<StoredUser[]>([])
+
+async function loadUsers() {
+  users.value = await fetchUsers()
+}
+
 // basic stats cards
 const allStats = ref<Stats>()
 
 async function loadStats() {
-  allStats.value = await getStats()
+  allStats.value = await getStats(user.value ?? undefined)
 }
 
 // chart in time
 const timeStats = ref<TimeStats>()
 
 async function loadTimeStats() {
-  timeStats.value = await getTimeStats()
+  timeStats.value = await getTimeStats(user.value ?? undefined)
 }
 
 const timeChartData = computed(() => {
@@ -143,7 +181,13 @@ const timeChartData = computed(() => {
   }
 })
 
+watch(user, () => {
+  loadStats()
+  loadTimeStats()
+})
+
 onMounted(() => {
+  loadUsers()
   loadStats()
   loadTimeStats()
 })

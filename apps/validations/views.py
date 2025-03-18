@@ -1,3 +1,4 @@
+from core.models import User
 from core.permissions import HasUserAPIKey, HasVerifiedEmail, IsValidatorAdminUser
 from django.db.models import Q
 from django.db.transaction import atomic
@@ -263,19 +264,29 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         return ValidationCore.objects.select_related("user").order_by("-created")
 
+    def _get_stats_kwargs(self, request):
+        kwargs = {}
+        if user_id := request.query_params.get("user"):
+            user = get_object_or_404(User, pk=user_id)
+            kwargs["user"] = user
+        return kwargs
+
     @action(detail=False, methods=("GET",))
     def stats(self, request):
-        stats = ValidationCore.get_stats()
+        kwargs = self._get_stats_kwargs(request)
+        stats = ValidationCore.get_stats(**kwargs)
         return Response(stats)
 
     @action(detail=False, methods=("GET",), url_path="time-stats")
     def time_stats(self, request):
-        stats = ValidationCore.get_time_stats()
+        kwargs = self._get_stats_kwargs(request)
+        stats = ValidationCore.get_time_stats(**kwargs)
         return Response(stats)
 
     @action(detail=False, methods=("GET",), url_path="split-stats")
     def split_stats(self, request):
-        stats = ValidationCore.get_split_stats()
+        kwargs = self._get_stats_kwargs(request)
+        stats = ValidationCore.get_split_stats(**kwargs)
         return Response(stats)
 
 

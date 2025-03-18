@@ -53,6 +53,12 @@
             to="/history"
           />
           <v-list-item
+            prepend-icon="mdi-chart-box"
+            title="Monitoring"
+            subtitle="Validation queue and workers"
+            to="/monitoring"
+          />
+          <v-list-item
             prepend-icon="mdi-chart-bar"
             subtitle="Basic stats about validations"
             title="Stats"

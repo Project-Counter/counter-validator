@@ -60,7 +60,7 @@ const runningNumber = ref<number>(0)
 const workerNumber = ref<number>(0)
 
 const loading = ref(false)
-const autorenew = ref(false)
+const autorenew = ref(true)
 const refreshTimeout = 2000
 let autorenewTimeout: number | null = null
 

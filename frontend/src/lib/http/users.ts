@@ -1,12 +1,12 @@
 import { jsonFetch, wrapFetch } from "./util"
-import { User } from "../definitions/api"
+import { StoredUser, User } from "../definitions/api"
 
 export const urls = {
   list: "core/user/",
 }
 
-export async function fetchUsers(): Promise<User[]> {
-  return await jsonFetch<User[]>(urls.list, {
+export async function fetchUsers(): Promise<StoredUser[]> {
+  return await jsonFetch<StoredUser[]>(urls.list, {
     method: "GET",
   })
 }

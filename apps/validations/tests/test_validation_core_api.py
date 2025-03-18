@@ -147,6 +147,9 @@ class TestValidationCoreAPI:
         res = client_su_user.delete(reverse("validation-core-detail", args=[v.pk]))
         assert res.status_code == 405
 
+
+@pytest.mark.django_db
+class TestValidationCoreStats:
     def test_stats(self, client_su_user, django_assert_max_num_queries):
         ValidationCoreFactory.create_batch(10)
         with django_assert_max_num_queries(9):
@@ -154,6 +157,7 @@ class TestValidationCoreAPI:
             assert res.status_code == 200
             data = res.json()
             assert "total" in data
+            assert data["total"] == 10
             for key in ["duration", "file_size", "used_memory"]:
                 assert key in data
                 assert "min" in data[key]
@@ -190,3 +194,53 @@ class TestValidationCoreAPI:
                 "report_code",
                 "count",
             }
+
+    def test_stats_with_user_filter(self, client_su_user):
+        u1 = UserFactory()
+        u2 = UserFactory()
+        ValidationCoreFactory.create_batch(2, user=u1, file_size=100)
+        ValidationCoreFactory.create_batch(3, user=u2, file_size=200)
+        res = client_su_user.get(reverse("validation-core-stats"), {"user": u1.pk})
+        assert res.status_code == 200
+        data = res.json()
+        assert data["total"] == 2
+        assert data["file_size"]["min"] == 100
+        assert data["file_size"]["max"] == 100
+        assert data["file_size"]["avg"] == 100
+        assert data["file_size"]["median"] == 100
+
+    def test_stats_with_user_filter_not_found(self, client_su_user):
+        res = client_su_user.get(reverse("validation-core-stats"), {"user": 0})
+        assert res.status_code == 404
+
+    def test_time_stats_with_user_filter(self, client_su_user):
+        u1 = UserFactory()
+        u2 = UserFactory()
+        ValidationCoreFactory.create_batch(2, user=u1)
+        ValidationCoreFactory.create_batch(3, user=u2)
+        res = client_su_user.get(reverse("validation-core-time-stats"), {"user": u1.pk})
+        assert res.status_code == 200
+        data = res.json()
+        assert len(data) == 1, "just today"
+        assert "total" in data[0]
+        assert data[0]["total"] == 2
+
+    def test_time_stats_with_user_filter_not_found(self, client_su_user):
+        res = client_su_user.get(reverse("validation-core-time-stats"), {"user": 0})
+        assert res.status_code == 404
+
+    def test_split_stats_with_user_filter(self, client_su_user):
+        u1 = UserFactory()
+        u2 = UserFactory()
+        ValidationCoreFactory.create_batch(2, user=u1, validation_result=SeverityLevel.NOTICE)
+        ValidationCoreFactory.create_batch(3, user=u2, validation_result=SeverityLevel.ERROR)
+        res = client_su_user.get(reverse("validation-core-split-stats"), {"user": u1.pk})
+        assert res.status_code == 200
+        data = res.json()
+        assert len(data) == 1
+        assert data[0]["count"] == 2
+        assert data[0]["result"] == "Notice"
+
+    def test_split_stats_with_user_filter_not_found(self, client_su_user):
+        res = client_su_user.get(reverse("validation-core-split-stats"), {"user": 0})
+        assert res.status_code == 404

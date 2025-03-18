@@ -26,6 +26,8 @@ export type User = {
   validations_last_week?: number
 }
 
+export type StoredUser = User & { id: number }
+
 export type Report = {
   counter_release: string
   report_id: string

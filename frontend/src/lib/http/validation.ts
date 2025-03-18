@@ -3,6 +3,7 @@ import {
   QueueInfo,
   SplitStats,
   Stats,
+  StoredUser,
   TimeStats,
   Validation,
   ValidationCore,
@@ -148,16 +149,19 @@ export async function deleteValidation(id: string) {
   })
 }
 
-export async function getStats(): Promise<Stats> {
-  return jsonFetch<Stats>(urls.stats)
+export async function getStats(user?: StoredUser): Promise<Stats> {
+  const url = user ? `${urls.stats}?user=${user.id}` : urls.stats
+  return jsonFetch<Stats>(url)
 }
 
-export async function getTimeStats(): Promise<TimeStats> {
-  return jsonFetch<TimeStats>(urls.timeStats)
+export async function getTimeStats(user?: StoredUser): Promise<TimeStats> {
+  const url = user ? `${urls.timeStats}?user=${user.id}` : urls.timeStats
+  return jsonFetch<TimeStats>(url)
 }
 
-export async function getSplitStats(): Promise<SplitStats> {
-  return jsonFetch<SplitStats>(urls.splitStats)
+export async function getSplitStats(user?: StoredUser): Promise<SplitStats> {
+  const url = user ? `${urls.splitStats}?user=${user.id}` : urls.splitStats
+  return jsonFetch<SplitStats>(url)
 }
 
 export async function getQueueInfo(): Promise<QueueInfo> {

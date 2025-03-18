@@ -114,7 +114,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         super().save(*args, **kwargs)
 
     @classmethod
-    def get_stats(cls) -> dict:
+    def get_stats(cls, user: User | None = None) -> dict:
         """
         Get statistics of the validations.
         """
@@ -126,7 +126,10 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
             attrs[f"{attr}__avg"] = models.Avg(attr)
             attrs[f"{attr}__median"] = Median(attr)
 
-        data = cls.objects.aggregate(**attrs)
+        qs = cls.objects.all()
+        if user:
+            qs = qs.filter(user=user)
+        data = qs.aggregate(**attrs)
         # remap the keys to a nested structure
         out = {"total": data["total"]}
         for key in min_max_attrs:
@@ -139,7 +142,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         return out
 
     @classmethod
-    def get_time_stats(cls) -> dict:
+    def get_time_stats(cls, user: User | None = None) -> dict:
         """
         Stats of validations by day.
         """
@@ -147,9 +150,11 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
             res.name: models.Count("pk", filter=Q(validation_result=res)) for res in SeverityLevel
         }
         sl_map = {res.name: res.label for res in SeverityLevel}
-
+        qs = cls.objects.all()
+        if user:
+            qs = qs.filter(user=user)
         data = (
-            cls.objects.values(date=F("created__date"))
+            qs.values(date=F("created__date"))
             .annotate(total=models.Count("pk"), **result_aggregs)
             .order_by("date")
         )
@@ -166,7 +171,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         return out
 
     @classmethod
-    def get_split_stats(cls) -> dict:
+    def get_split_stats(cls, user: User | None = None) -> dict:
         """
         Total number of validations split by the following criteria:
 
@@ -177,8 +182,11 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
         results = [
             When(validation_result=Value(sl.value), then=Value(sl.label)) for sl in SeverityLevel
         ]
+        qs = cls.objects.all()
+        if user:
+            qs = qs.filter(user=user)
         data = (
-            cls.objects.annotate_source()
+            qs.annotate_source()
             .annotate_method()
             .annotate(
                 result=Case(*results, default=Value("unknown")),

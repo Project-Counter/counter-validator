@@ -3,35 +3,35 @@
     <v-row>
       <v-col v-bind="colSizes">
         <DoughnutChart
-          v-if="byResult"
+          v-if="byResult && byResult.datasets[0].data.length > 0"
           :data="byResult"
           title="By result"
         />
       </v-col>
       <v-col v-bind="colSizes">
         <DoughnutChart
-          v-if="byCoP"
+          v-if="byCoP && byCoP.datasets[0].data.length > 0"
           :data="byCoP"
           title="By CoP"
         />
       </v-col>
       <v-col v-bind="colSizes">
         <DoughnutChart
-          v-if="byReportCode"
+          v-if="byReportCode && byReportCode.datasets[0].data.length > 0"
           :data="byReportCode"
           title="By report id"
         />
       </v-col>
       <v-col v-bind="colSizes">
         <DoughnutChart
-          v-if="byMethod"
+          v-if="byMethod && byMethod.datasets[0].data.length > 0"
           :data="byMethod"
           title="By method"
         />
       </v-col>
       <v-col v-bind="colSizes">
         <DoughnutChart
-          v-if="bySource"
+          v-if="bySource && bySource.datasets[0].data.length > 0"
           :data="bySource"
           title="By source"
         />
@@ -41,10 +41,14 @@
 </template>
 
 <script setup lang="ts">
-import { severityLevelColorMap, SplitStats } from "@/lib/definitions/api"
+import { severityLevelColorMap, SplitStats, StoredUser } from "@/lib/definitions/api"
 import { getSplitStats } from "@/lib/http/validation"
 import { ChartData } from "chart.js"
 import { DataFrame } from "data-forge"
+
+const props = defineProps<{
+  user?: StoredUser
+}>()
 
 const stats = ref<SplitStats>([])
 const df = ref<DataFrame>()
@@ -91,8 +95,8 @@ const byResult = ref()
 const byCoP = ref()
 const byReportCode = ref()
 
-onMounted(async () => {
-  stats.value = await getSplitStats()
+watchEffect(async () => {
+  stats.value = await getSplitStats(props.user)
   df.value = new DataFrame({
     values: stats.value,
   })

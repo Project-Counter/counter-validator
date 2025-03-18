@@ -25,6 +25,7 @@ declare module 'vue-router/auto-routes' {
     '/admin/users': RouteRecordInfo<'/admin/users', '/admin/users', Record<never, never>, Record<never, never>>,
     '/history': RouteRecordInfo<'/history', '/history', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
+    '/monitoring': RouteRecordInfo<'/monitoring', '/monitoring', Record<never, never>, Record<never, never>>,
     '/public/[public_id]': RouteRecordInfo<'/public/[public_id]', '/public/:public_id', { public_id: ParamValue<true> }, { public_id: ParamValue<false> }>,
     '/register': RouteRecordInfo<'/register', '/register', Record<never, never>, Record<never, never>>,
     '/reset-password': RouteRecordInfo<'/reset-password', '/reset-password', Record<never, never>, Record<never, never>>,

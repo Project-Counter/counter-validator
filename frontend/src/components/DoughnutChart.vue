@@ -1,7 +1,7 @@
 <template>
   <Doughnut
     :options="options"
-    :data="dataX"
+    :data="props.data"
   />
 </template>
 
@@ -12,8 +12,6 @@ import { ArcElement, Chart as ChartJS, ChartData, Colors, Legend, Title, Tooltip
 ChartJS.register(Title, Tooltip, Legend, ArcElement, Colors)
 
 const props = defineProps<{ data: ChartData<"doughnut">; title?: string }>()
-
-const dataX = ref({ ...props.data })
 
 const options = ref({
   responsive: true,
