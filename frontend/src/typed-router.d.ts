@@ -23,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/about': RouteRecordInfo<'/about', '/about', Record<never, never>, Record<never, never>>,
     '/accept-invitation': RouteRecordInfo<'/accept-invitation', '/accept-invitation', Record<never, never>, Record<never, never>>,
     '/admin/users': RouteRecordInfo<'/admin/users', '/admin/users', Record<never, never>, Record<never, never>>,
+    '/changelog': RouteRecordInfo<'/changelog', '/changelog', Record<never, never>, Record<never, never>>,
     '/history': RouteRecordInfo<'/history', '/history', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
     '/monitoring': RouteRecordInfo<'/monitoring', '/monitoring', Record<never, never>, Record<never, never>>,

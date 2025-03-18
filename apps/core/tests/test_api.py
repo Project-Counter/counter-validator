@@ -481,3 +481,13 @@ class TestVersionAPI:
         assert res.status_code == 200
         assert set(res.json().keys()) == {"server", "upstream"}
         assert res.json()["server"] == get_server_version()
+
+
+@pytest.mark.django_db
+class TestChangelogAPI:
+    def test_changelog(self, client):
+        res = client.get(reverse("changelog"))
+        assert res.status_code == 200
+        assert isinstance(res.json(), list)
+        assert len(res.json()) > 0
+        assert "version" in res.json()[0]

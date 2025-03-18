@@ -16,6 +16,7 @@ from rest_framework.viewsets import ModelViewSet
 from validations.models import ValidationCore
 
 from . import serializers
+from .changelog import get_changelog_entries
 from .models import User, UserApiKey
 from .permissions import IsValidatorAdminUser
 from .serializers import UserSerializer
@@ -175,3 +176,10 @@ class VersionView(APIView):
             logger.error("Failed to get upstream version", exc_info=e)
             upstream_version = None
         return Response({"server": server_version, "upstream": upstream_version})
+
+
+class ChangelogView(APIView):
+    permission_classes = []
+
+    def get(self, request):
+        return Response(get_changelog_entries())

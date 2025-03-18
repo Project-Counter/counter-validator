@@ -11,6 +11,7 @@ declare module 'vue' {
     ApiKeyRevoke: typeof import('./components/ApiKeyRevoke.vue')['default']
     ApiKeyTable: typeof import('./components/ApiKeyTable.vue')['default']
     BarChart: typeof import('./components/BarChart.vue')['default']
+    ChangelogWidget: typeof import('./components/ChangelogWidget.vue')['default']
     ChangePassword: typeof import('./components/ChangePassword.vue')['default']
     DateTooltip: typeof import('./components/DateTooltip.vue')['default']
     DeleteAccountButton: typeof import('./components/DeleteAccountButton.vue')['default']
