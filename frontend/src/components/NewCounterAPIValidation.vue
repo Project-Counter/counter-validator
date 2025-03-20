@@ -456,7 +456,7 @@ const sushiServices = ref<SushiService[]>([])
 
 const cop = ref<CoP>("5")
 
-const url = ref("https://sashimi.celus.net/")
+const url = ref("")
 const urlAutoAdded = ref(false)
 
 const reportCode = ref<ReportCode>(ReportCode.TR)
