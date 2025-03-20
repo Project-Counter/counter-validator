@@ -382,6 +382,21 @@ class TestRegistrationAPI:
             assert user.first_name == "Foo"
             assert user.last_name == "Bar"
 
+    def test_email_to_admins_sent_after_registration(self, client_unauthenticated, mailoutbox):
+        with patch("core.signals.async_mail_admins") as email_task:
+            res = client_unauthenticated.post(
+                "/api/v1/registration/",
+                data={
+                    "email": "foo@bar.baz",
+                    "password1": "fksld39082dwfjl",
+                    "password2": "fksld39082dwfjl",
+                },
+            )
+            assert res.status_code == 204
+            assert email_task.delay.called
+            assert "New user registered" in email_task.delay.call_args[0][0]
+            assert "foo@bar.baz" in email_task.delay.call_args[0][1]
+
 
 @pytest.mark.django_db
 class TestPasswordReset:
