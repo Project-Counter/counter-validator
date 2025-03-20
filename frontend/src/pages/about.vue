@@ -33,6 +33,17 @@
                 </a>
               </td>
             </tr>
+            <tr>
+              <th>Source repository</th>
+              <td>
+                <v-icon class="me-2">mdi-github</v-icon>
+                <a
+                  href="https://github.com/Project-Counter/counter-validation-tool"
+                  target="_blank"
+                  >GitHub</a
+                >
+              </td>
+            </tr>
           </tbody>
         </table>
       </v-col>
