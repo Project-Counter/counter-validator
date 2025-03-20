@@ -37,6 +37,7 @@
               <li>Release 5 and 5.1 COUNTER API (sushi) Validation</li>
               <li>Fetch Your Old Test Report</li>
               <li>Test Development Environment</li>
+              <li>Share Your Validations with Others</li>
               <li>Get On-Screen Error Display and Download Reports</li>
             </ul>
           </v-card-text>
@@ -92,6 +93,17 @@
           <a href="https://www.countermetrics.org/">COUNTER Metrics Limited</a>, a not-for-profit
           organisation sustained by the global community of members, including libraries, consortia,
           publishers, aggregators, and technology providers.
+        </p>
+
+        <p class="mt-8">
+          The COUNTER Validation Tool is published as open source and available on
+
+          <a
+            href="https://github.com/Project-Counter/counter-validation-tool"
+            target="_blank"
+            >GitHub</a
+          >. There you will find the complete source code and information about how to run your own
+          instance of the tool. You can also report issues and contribute to the project there.
         </p>
       </v-col>
     </v-row>
