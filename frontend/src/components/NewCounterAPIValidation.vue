@@ -19,7 +19,6 @@
               v-model="platform"
               clearable
               hint="Type to search in the COUNTER Registry"
-              item-subtitle="abbrev"
               item-title="name"
               item-value="id"
               :items="platforms"
@@ -28,8 +27,17 @@
               persistent-clear
               persistent-hint
               prepend-inner-icon="mdi-magnify"
+              :custom-filter="platformSearchFilter"
               @update:model-value="selectPlatform"
-            />
+            >
+              <template #item="{ props, item }">
+                <v-list-item
+                  v-bind="props"
+                  :title="item.raw.name"
+                  :subtitle="item.raw.abbrev"
+                ></v-list-item>
+              </template>
+            </v-autocomplete>
           </v-col>
         </v-row>
         <div class="my-3">
@@ -425,7 +433,7 @@
 </template>
 
 <script setup lang="ts">
-import { CounterAPIEndpoint, Credentials, SushiService } from "@/lib/definitions/api"
+import { CounterAPIEndpoint, Credentials, Platform, SushiService } from "@/lib/definitions/api"
 import { loadPlatform, loadPlatforms } from "@/lib/http/platform"
 import * as rules from "@/lib/formRules"
 import {
@@ -448,7 +456,7 @@ const loadingPlatforms = ref(true)
 const store = useAppStore()
 const router = useRouter()
 const creatingValidation = ref(false)
-const platforms = shallowRef()
+const platforms = shallowRef<Platform[]>()
 
 // credentials and related select options
 const platform = ref(null)
@@ -537,6 +545,14 @@ async function loadPlatformData() {
   loadingPlatforms.value = true
   platforms.value = await loadPlatforms()
   loadingPlatforms.value = false
+}
+
+function platformSearchFilter(value: string, search: string, item: { raw: Platform }) {
+  // split search into words and look for each word in the item name and abbrev
+  const words = search.toLowerCase().split(" ")
+  return words.every(
+    (w) => item.raw.name.toLowerCase().includes(w) || item.raw.abbrev.toLowerCase().includes(w),
+  )
 }
 
 async function create() {
