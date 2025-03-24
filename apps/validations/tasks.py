@@ -63,12 +63,14 @@ def validate_file(pk: uuid.UUID):
         lock.release()
 
     json = req.json()
+    logger.debug("Validation result: %s", json)
     obj.core.stats = obj.add_result(json.get("result", {}))
     obj.core.used_memory = json["memory"]
     obj.core.status = ValidationStatus.SUCCESS
     if header := json["result"].get("header"):
-        obj.core.cop_version = header.get("cop_version", "")
-        obj.core.report_code = header.get("report_id", "")
+        # replace potentially null values with ""
+        obj.core.cop_version = header.get("cop_version", "") or ""
+        obj.core.report_code = header.get("report_id", "") or ""
     end = time.monotonic()
     obj.core.duration = end - start
     obj.core.save()
