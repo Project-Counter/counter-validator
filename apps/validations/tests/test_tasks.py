@@ -42,6 +42,7 @@ class ResponseMock:
                     "s": "Report header is messed up",
                 },
             ],
+            "datetime": "2025-03-25 09:25:14",
         },
         "memory": 4194304,
     }
@@ -71,30 +72,40 @@ class TestFileValidationTask:
         obj = Validation.create_from_file(user=UserFactory(), file=file)
         json = ResponseMock.json()
         mock = requests_mock.post(re.compile(".*"), json=json, status_code=200)
-        validate_file(obj.pk)
-        assert mock.called_once
-        obj.refresh_from_db()
+        with patch("validations.validation_module_api.async_mail_admins") as mock_mail_admins:
+            validate_file(obj.pk)
+            assert mock_mail_admins.call_count == 0
+            assert mock.call_count == 1
+            obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
 
         assert obj.core.used_memory == json["memory"]
         assert obj.core.cop_version == json["result"]["header"]["cop_version"]
         assert obj.core.report_code == json["result"]["header"]["report_id"]
 
-    def test_task_success(self, settings, requests_mock):
-        file = SimpleUploadedFile("test1.json", b"test data")
+    @pytest.mark.parametrize(
+        ["file_name", "result", "message_count"],
+        [
+            ("errors.json", SeverityLevel.CRITICAL_ERROR, 8),
+            ("module-error.json", SeverityLevel.FATAL_ERROR, 1),
+            ("ok-result.json", SeverityLevel.PASSED, 0),
+        ],
+    )
+    def test_task_success(self, settings, requests_mock, file_name, result, message_count):
+        file = SimpleUploadedFile(file_name, b"test data")
         obj = Validation.create_from_file(user=UserFactory(), file=file)
         obj.core.status = ValidationStatus.WAITING
         obj.core.save()
-        with open(settings.BASE_DIR / "test_data/validation_results/test1.json") as datafile:
+        with open(settings.BASE_DIR / "test_data/validation_results/" / file_name) as datafile:
             mock = requests_mock.post(re.compile(".*"), text=datafile.read(), status_code=200)
             validate_file(obj.pk)
             assert mock.called_once
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
-        assert obj.core.validation_result == SeverityLevel.WARNING
-        assert "messages" not in obj.result_data
-        assert "Warning" in obj.core.stats
-        assert obj.messages.count() == 165, "There are 165 messages in the test file"
+        assert obj.core.validation_result == result
+        assert (
+            obj.messages.count() == message_count
+        ), f"There are {message_count} messages in the test file"
 
     @pytest.mark.parametrize("http_status", [400, 401, 403, 404, 405, 500])
     def test_task_c5tools_error(self, http_status, requests_mock):
@@ -111,7 +122,7 @@ class TestFileValidationTask:
         assert obj.core.duration > 0
         assert obj.core.error_message != ""
 
-    def test_task_result_save_error(self, settings, requests_mock):
+    def test_task_result_save_error(self, requests_mock):
         """
         Test that when the task crashed during save of the model, the status will
         be FAILED and not RUNNING
@@ -126,10 +137,28 @@ class TestFileValidationTask:
             mock.return_value.json.side_effect = Exception("test")
             validate_file(obj.pk)
             assert mock.call_count == 1
-            assert mock.return_value.raise_for_status.call_count == 1
-            assert mock.return_value.json.call_count == 1
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.FAILURE
+        assert obj.core.error_message == "test"
+
+    def test_task_error_in_update_validation_result(self, requests_mock):
+        """
+        Test that when the task crashed during save of the model, the status will
+        be FAILED and not RUNNING
+        """
+        file = SimpleUploadedFile("tr.csv", b"test data")
+        obj = Validation.create_from_file(user=UserFactory(), file=file)
+        obj.core.status = ValidationStatus.WAITING
+        obj.core.save()
+        json = ResponseMock.json()
+        requests_mock = requests_mock.post(re.compile(".*"), json=json, status_code=200)
+        with patch("validations.tasks.update_validation_result") as mock:
+            mock.side_effect = Exception("test")
+            validate_file(obj.pk)
+            assert mock.call_count == 1
+        obj.refresh_from_db()
+        assert obj.core.status == ValidationStatus.FAILURE
+        assert obj.core.error_message == "test"
 
 
 @pytest.mark.django_db
@@ -148,6 +177,21 @@ class TestCounterAPIValidationTask:
         assert obj.core.cop_version == json["result"]["header"]["cop_version"]
         assert obj.core.report_code == json["result"]["header"]["report_id"]
         assert obj.file is not None
+        assert obj.core.file_size > 0
         with open("test_data/reports/50-Sample-TR.json", "rb") as infile:
             assert obj.file.read() == infile.read()
         assert obj.filename.startswith("Counter API")
+
+    def test_task_error_in_update_validation_result(self, requests_mock):
+        obj = CounterAPIValidationFactory(
+            core__user=UserFactory(), core__status=ValidationStatus.WAITING
+        )
+        json = ResponseMock.json()
+        requests_mock = requests_mock.post(re.compile(".*"), json=json, status_code=200)
+        with patch("validations.tasks.update_validation_result") as mock:
+            mock.side_effect = Exception("test")
+            validate_counter_api(obj.pk)
+            assert mock.call_count == 1
+        obj.refresh_from_db()
+        assert obj.core.status == ValidationStatus.FAILURE
+        assert obj.core.error_message == "test"

@@ -1,0 +1,50 @@
+{
+    "memory": 4194304,
+    "result": {
+      "datetime": "2025-03-25 06:54:28",
+      "result": "Passed",
+      "header": {
+        "result": [
+          "Validation Result for COUNTER Release 5 Report",
+          "",
+          "Title Master Report (TR)",
+          "for Client Demo Site",
+          "created 2019-04-25T11:39:56Z by Publisher Platform Delta",
+          "covering 2016-01-01 to 2016-03-31",
+          "(please see the Report Header sheet for details)"
+        ],
+        "report": {
+          "A1": "Report_Name",
+          "B1": "Title Master Report",
+          "A2": "Report_ID",
+          "B2": "TR",
+          "A3": "Release",
+          "B3": "5",
+          "A4": "Institution_Name",
+          "B4": "Client Demo Site",
+          "A5": "Institution_ID",
+          "B5": "ISNI:1234123412341234",
+          "A6": "Metric_Types",
+          "A7": "Report_Filters",
+          "A8": "Report_Attributes",
+          "B8": "Attributes_To_Show=Data_Type|Section_Type|YOP|Access_Type|Access_Method",
+          "A9": "Exceptions",
+          "A10": "Reporting_Period",
+          "B10": "Begin_Date=2016-01-01; End_Date=2016-03-31",
+          "A11": "Created",
+          "B11": "2019-04-25T11:39:56Z",
+          "A12": "Created_By",
+          "B12": "Publisher Platform Delta"
+        },
+        "report_id": "TR",
+        "format": "tabular",
+        "cop_version": "5",
+        "institution_name": "Client Demo Site",
+        "created": "2019-04-25T11:39:56Z",
+        "created_by": "Publisher Platform Delta",
+        "begin_date": "2016-01-01",
+        "end_date": "2016-03-31"
+      },
+      "messages": []
+    }
+  }

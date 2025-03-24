@@ -16,13 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { ValidationDetail } from "@/lib/definitions/api"
+import { Status, ValidationDetail } from "@/lib/definitions/api"
 import { getValidationDetail } from "@/lib/http/validation"
 import { HttpStatusError } from "@/lib/http/util"
 
 const validation = ref<ValidationDetail>()
 const route = useRoute()
 const validationNotFound = ref<boolean>(false)
+const timeoutHandle = ref<number | null>(null)
 
 async function load() {
   if ("id" in route.params) {
@@ -36,10 +37,23 @@ async function load() {
         throw e
       }
     }
+    if (
+      validation.value?.status === Status.RUNNING ||
+      validation.value?.status === Status.WAITING
+    ) {
+      timeoutHandle.value = setTimeout(load, 2000)
+    }
   }
 }
 
 onMounted(load)
+
+onUnmounted(() => {
+  if (timeoutHandle.value) {
+    clearTimeout(timeoutHandle.value)
+    timeoutHandle.value = null
+  }
+})
 </script>
 
 <style scoped lang="scss"></style>

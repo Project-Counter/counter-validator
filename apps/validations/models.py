@@ -55,6 +55,8 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     by deleting the Validation object - while keeping this object for long-term statistics.
     """
 
+    MAX_ERROR_MESSAGE_LENGTH = 1000
+
     cop_version = models.CharField(
         max_length=16,
         blank=True,
@@ -111,6 +113,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     def save(self, *args, **kwargs):
         if not self.expiration_date and settings.VALIDATION_LIFETIME:
             self.expiration_date = now() + timedelta(days=settings.VALIDATION_LIFETIME)
+        self.error_message = self.error_message[: self.MAX_ERROR_MESSAGE_LENGTH]
         super().save(*args, **kwargs)
 
     @classmethod

@@ -101,6 +101,20 @@ export const statusMap = new Map<Status, string>([
   [Status.FAILURE, "Failure"],
 ])
 
+export const statusColorMap = new Map<Status, string>([
+  [Status.WAITING, "warning"],
+  [Status.RUNNING, "primary"],
+  [Status.SUCCESS, "success"],
+  [Status.FAILURE, "error"],
+])
+
+export const statusIconMap = new Map<Status, string>([
+  [Status.WAITING, "mdi-clock"],
+  [Status.RUNNING, "mdi-clock"],
+  [Status.SUCCESS, "mdi-check"],
+  [Status.FAILURE, "mdi-close"],
+])
+
 export type Credentials = {
   customer_id: string
   requestor_id?: string

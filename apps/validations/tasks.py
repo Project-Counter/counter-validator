@@ -1,18 +1,15 @@
-import base64
 import logging
 import os
 import time
 import uuid
-import zlib
 
 import celery
 import requests
 from celery.contrib.django.task import DjangoTask
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from validations.enums import ValidationStatus
-from validations.hashing import checksum_bytes
 from validations.models import CounterAPIValidation, Validation
+from validations.validation_module_api import update_validation_result
 from validations.validation_modules import (
     create_validation_module_lock,
     get_available_validation_module_url,
@@ -56,33 +53,20 @@ def validate_file(pk: uuid.UUID):
         obj.core.error_message = str(e)
         end = time.monotonic()
         obj.core.duration = end - start
-        obj.core.save()
-        obj.save()
+        obj.core.save(update_fields=["status", "error_message", "duration"])
         return
     finally:
         lock.release()
 
     end = time.monotonic()
     try:
-        json = req.json()
-        result = json.get("result", {})
-        obj.core.stats = obj.add_result(result)
-        obj.core.used_memory = json.get("memory", 0)
-        obj.core.status = ValidationStatus.SUCCESS
-        if header := result.get("header"):
-            # replace potentially null values with ""
-            obj.core.cop_version = header.get("cop_version", "") or ""
-            obj.core.report_code = header.get("report_id", "") or ""
-        obj.core.duration = end - start
-        obj.core.save()
-        obj.save()
+        logger.debug("Validation result: %s", req.json())
+        update_validation_result(obj, req.json(), end - start)
     except Exception as e:
         obj.core.status = ValidationStatus.FAILURE
         obj.core.error_message = str(e)
-        obj.core.duration = end - start
-        # only save fields which are safe to save - values in others may be corrupted
         obj.core.save(update_fields=["status", "error_message", "duration"])
-        obj.save()
+        return
 
 
 @celery.shared_task(base=ValidationTask)
@@ -106,34 +90,27 @@ def validate_counter_api(pk):
     try:
         resp = requests.post(vm_url + "sushi.php", json={"url": req_url})
         resp.raise_for_status()
-
-        json = resp.json()
-        logger.debug("Validation result: %s", json)
-        obj.core.stats = obj.add_result(json.get("result", {}))
-        obj.core.used_memory = json.get("memory", 0)
-        obj.core.status = ValidationStatus.SUCCESS
-        if header := json.get("result", {}).get("header"):
-            obj.core.cop_version = header.get("cop_version", "")
-            obj.core.report_code = header.get("report_id", "")
-        if report := json.get("report"):
-            # report is base64 encoded zlib compressed JSON
-            content = zlib.decompress(base64.b64decode(report.encode("utf-8")))
-            obj.core.file_checksum = checksum_bytes(content)
-            obj.core.file_size = len(content)
-            obj.file = SimpleUploadedFile(name="foo.json", content=content)
-            obj.filename = f'Counter API {obj.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
     except Exception as e:
         obj.core.status = ValidationStatus.FAILURE
         obj.core.error_message = str(e)
         logger.warning("Error while requesting URL: %s", e)
         if resp:
             logger.warning("Response text: %s", resp.text)
-    finally:
-        lock.release()
         end = time.monotonic()
         obj.core.duration = end - start
         obj.core.save()
         obj.save()
+    finally:
+        lock.release()
+
+    end = time.monotonic()
+    try:
+        update_validation_result(obj, resp.json(), end - start)
+    except Exception as e:
+        obj.core.status = ValidationStatus.FAILURE
+        obj.core.error_message = str(e)
+        obj.core.save(update_fields=["status", "error_message", "duration"])
+        return
 
 
 @celery.shared_task(base=ValidationTask)

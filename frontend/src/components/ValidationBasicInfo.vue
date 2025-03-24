@@ -23,6 +23,10 @@
       <tr>
         <th>Task status</th>
         <td>
+          <v-icon
+            :color="statusColorMap.get(validation.status)"
+            :icon="statusIconMap.get(validation.status)"
+          />
           {{ validation && (statusMap.get(validation.status) ?? "Unknown") }}
         </td>
       </tr>
@@ -173,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { statusMap, ValidationDetail } from "@/lib/definitions/api"
+import { statusMap, statusColorMap, statusIconMap, ValidationDetail } from "@/lib/definitions/api"
 import { intlFormatDistance } from "date-fns"
 import { filesize } from "filesize"
 import { publishValidation, unpublishValidation } from "@/lib/http/validation"

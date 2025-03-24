@@ -44,6 +44,29 @@
   <v-tabs-window v-model="tab">
     <v-tabs-window-item value="details">
       <v-container>
+        <v-row v-if="!finished">
+          <v-col v-bind="colAttrs">
+            <v-card v-bind="cardAttrs">
+              <v-card-text v-if="inProgress">
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                  class="me-4"
+                />
+                The validation is still running. Please check back later.
+              </v-card-text>
+              <v-card-text v-else>
+                <v-alert type="error">
+                  The validation failed. Here are the details:
+
+                  <div class="overflow-auto pt-4">
+                    <pre>{{ validation.error_message }}</pre>
+                  </div>
+                </v-alert>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
         <v-row>
           <v-col v-bind="colAttrs">
             <v-card v-bind="cardAttrs">
@@ -56,7 +79,7 @@
                 >
                   <template #activator="{ props }">
                     <v-btn
-                      v-if="!publicView"
+                      v-if="!publicView && finished"
                       class="float-end ms-4"
                       color="primary"
                       variant="flat"
@@ -259,6 +282,10 @@ const tableHeader = computed(() => {
 
 const finished = computed(() => {
   return props.validation?.status === Status.SUCCESS
+})
+
+const inProgress = computed(() => {
+  return props.validation?.status === Status.RUNNING || props.validation?.status === Status.WAITING
 })
 
 // message selected in the stats table
