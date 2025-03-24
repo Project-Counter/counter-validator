@@ -1,5 +1,6 @@
 from core.models import User
 from core.permissions import HasUserAPIKey, HasVerifiedEmail, IsValidatorAdminUser
+from django.conf import settings
 from django.db.models import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseForbidden
@@ -314,8 +315,10 @@ class ValidationMessageViewSet(ReadOnlyModelViewSet):
 
 
 class ValidationQueueInfo(APIView):
+    permission_classes = [IsValidatorAdminUser]
+
     def get(self, request):
         queue_length = get_validation_queue_length()
         running = get_number_of_running_validations()
-        worker_num = 1  # this is hardcoded for now
+        worker_num = len(settings.VALIDATION_MODULES_URLS)
         return Response({"queued": queue_length, "running": running, "workers": worker_num})
