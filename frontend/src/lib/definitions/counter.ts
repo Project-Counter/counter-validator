@@ -183,7 +183,7 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.TR,
     name: "Title Report",
-    attributes: ["Access_Method", "Access_Type", "YOP"],
+    attributes: ["Access_Method", "Access_Type", "Data_Type", "YOP"],
     metrics: [
       "Total_Item_Investigations",
       "Total_Item_Requests",
@@ -235,7 +235,7 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.DR,
     name: "Database Report",
-    attributes: ["Access_Method"],
+    attributes: ["Access_Method", "Data_Type"],
     metrics: [
       "Searches_Automated",
       "Searches_Federated",
@@ -265,7 +265,7 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.PR,
     name: "Platform Report",
-    attributes: ["Access_Method"],
+    attributes: ["Access_Method", "Data_Type"],
     metrics: [
       "Searches_Platform",
       "Total_Item_Investigations",
@@ -291,6 +291,7 @@ export const reportDefinitions: {
       "Access_Type",
       "Article_Version",
       "Authors",
+      "Data_Type",
       "Publication_Date",
       "YOP",
     ],
