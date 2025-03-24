@@ -70,6 +70,7 @@ import type { VDataTable } from "vuetify/components"
 import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import { usePaginationWithMemory } from "@/composables/usePaginationWithMemory"
+import { HttpStatusError } from "@/lib/http/util"
 
 const items = ref<ValidationCore[]>([])
 
@@ -132,6 +133,13 @@ async function load() {
     const { count, results } = await getValidationCoresFromUrl(url.value)
     items.value = results
     totalCount.value = count
+  } catch (e) {
+    if (e instanceof HttpStatusError && e.res?.status === 404 && page.value > 1) {
+      console.log("404, resetting page to 1")
+      page.value = 1
+    } else {
+      throw e
+    }
   } finally {
     loading.value = false
     await checkUnfinished()

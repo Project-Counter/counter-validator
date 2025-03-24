@@ -146,6 +146,7 @@ import { DataTableHeader } from "@/lib/vuetifyTypes"
 import UserName from "@/components/UserName.vue"
 import ShortenText from "@/components/ShortenText.vue"
 import { usePaginationWithMemory } from "@/composables/usePaginationWithMemory"
+import { HttpStatusError } from "@/lib/http/util"
 
 const props = withDefaults(
   defineProps<{
@@ -248,6 +249,14 @@ async function loadValidations(force = false) {
     const { count, results } = await getValidationsFromUrl(url.value)
     items.value = results
     totalCount.value = count
+  } catch (e) {
+    // if there is 404 and the page is set to > 1, we want to reset the page
+    if (e instanceof HttpStatusError && e.res?.status === 404 && page.value > 1) {
+      console.log("404, resetting page to 1")
+      page.value = 1
+    } else {
+      throw e
+    }
   } finally {
     loading.value = false
     await checkUnfinished()

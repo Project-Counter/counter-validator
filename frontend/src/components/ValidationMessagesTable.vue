@@ -138,7 +138,6 @@ async function getMessages() {
     if (err instanceof HttpStatusError && err?.res?.status === 404) {
       if (params.page > 1) {
         params.page = 1
-        getMessages()
         return
       }
       messages.value = []
