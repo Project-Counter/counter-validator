@@ -9,22 +9,22 @@
         <th>Report</th>
         <td>{{ validation.report_code }}</td>
       </tr>
-      <tr>
+      <tr v-if="validation.result_data">
         <th>Date range</th>
         <td>
           {{ validation.result_data.header.begin_date }} &ndash;
           {{ validation.result_data.header.end_date }}
         </td>
       </tr>
-      <tr>
+      <tr v-if="validation.result_data">
         <th>Institution name</th>
         <td>{{ validation.result_data.header.institution_name }}</td>
       </tr>
-      <tr>
+      <tr v-if="validation.result_data">
         <th>Created by</th>
         <td>{{ validation.result_data.header.created_by }}</td>
       </tr>
-      <tr>
+      <tr v-if="validation.result_data">
         <th>Created</th>
         <td>{{ validation.result_data.header.created }}</td>
       </tr>

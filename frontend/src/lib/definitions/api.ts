@@ -149,11 +149,11 @@ export type Validation = {
   use_short_dates: boolean
   public_id: string | null
   user_note: string | null
-  full_url: string
 } & ValidationBase
 
 export type ValidationDetail = Validation & {
-  result_data: Result
+  result_data: Result | null
+  full_url: string
 }
 
 export type Platform = {
