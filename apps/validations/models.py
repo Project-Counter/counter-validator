@@ -256,6 +256,10 @@ class Validation(UUIDPkMixin, models.Model):
         self.core.save()
         super().save(*args, **kwargs)
 
+    @property
+    def is_counter_api_validation(self) -> bool:
+        return hasattr(self, "counterapivalidation")
+
     def extract_validation_result(self) -> SeverityLevel:
         if self.result_data:
             value = self.result_data.get("result", SeverityLevel.UNKNOWN.value)
@@ -403,13 +407,15 @@ class CounterAPIValidation(Validation):
         path = self.core.api_endpoint
         if path == "/reports/[id]":
             path = f"/reports/{self.requested_report_code.lower()}"
+        # make sure arguments are sorted by key
+        clean_creds = dict(sorted((clean_creds | self.requested_extra_attributes).items()))
         return (
             urljoin(
                 self.url,
                 f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}{path}",
             )
             + "?"
-            + urlencode(clean_creds | self.requested_extra_attributes)
+            + urlencode(clean_creds)
         )
 
 

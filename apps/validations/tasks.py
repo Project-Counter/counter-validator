@@ -72,7 +72,7 @@ def validate_file(pk: uuid.UUID):
         if header := result.get("header"):
             # replace potentially null values with ""
             obj.core.cop_version = header.get("cop_version", "") or ""
-            obj.core.report_code = header.get("report_id", "")  # or ""
+            obj.core.report_code = header.get("report_id", "") or ""
         obj.core.duration = end - start
         obj.core.save()
         obj.save()
@@ -106,14 +106,9 @@ def validate_counter_api(pk):
     try:
         resp = requests.post(vm_url + "sushi.php", json={"url": req_url})
         resp.raise_for_status()
-    except Exception as e:
-        obj.core.status = ValidationStatus.FAILURE
-        obj.core.error_message = str(e)
-        logger.warning("Error while requesting URL: %s", e)
-        if resp:
-            logger.warning("Response text: %s", resp.text)
-    else:
+
         json = resp.json()
+        logger.debug("Validation result: %s", json)
         obj.core.stats = obj.add_result(json.get("result", {}))
         obj.core.used_memory = json.get("memory", 0)
         obj.core.status = ValidationStatus.SUCCESS
@@ -127,6 +122,12 @@ def validate_counter_api(pk):
             obj.core.file_size = len(content)
             obj.file = SimpleUploadedFile(name="foo.json", content=content)
             obj.filename = f'Counter API {obj.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
+    except Exception as e:
+        obj.core.status = ValidationStatus.FAILURE
+        obj.core.error_message = str(e)
+        logger.warning("Error while requesting URL: %s", e)
+        if resp:
+            logger.warning("Response text: %s", resp.text)
     finally:
         lock.release()
         end = time.monotonic()

@@ -100,9 +100,15 @@ class ValidationSerializer(serializers.ModelSerializer):
 class ValidationDetailSerializer(ValidationSerializer):
     result_data = serializers.ReadOnlyField()
     user = UserSerializerSimple(read_only=True, source="core.user")
+    full_url = serializers.SerializerMethodField()
 
     class Meta(ValidationSerializer.Meta):
-        fields = ValidationSerializer.Meta.fields + ["result_data", "user"]
+        fields = ValidationSerializer.Meta.fields + ["result_data", "user", "full_url"]
+
+    def get_full_url(self, obj: Validation):
+        if obj.is_counter_api_validation:
+            return obj.counterapivalidation.get_url()
+        return ""
 
 
 class ValidationWithUserSerializer(ValidationSerializer):
@@ -115,12 +121,18 @@ class ValidationWithUserSerializer(ValidationSerializer):
 class PublicValidationDetailSerializer(ValidationSerializer):
     result_data = serializers.ReadOnlyField()
     credentials = serializers.SerializerMethodField()
+    full_url = serializers.SerializerMethodField()
 
     class Meta(ValidationSerializer.Meta):
-        fields = ValidationSerializer.Meta.fields + ["result_data"]
+        fields = ValidationSerializer.Meta.fields + ["result_data", "full_url"]
 
     def get_credentials(self, obj):
         return None
+
+    def get_full_url(self, obj: Validation):
+        if obj.is_counter_api_validation:
+            return obj.counterapivalidation.get_url()
+        return ""
 
 
 class FileValidationCreateSerializer(serializers.Serializer):

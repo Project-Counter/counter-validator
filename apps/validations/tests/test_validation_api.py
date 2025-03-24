@@ -49,7 +49,7 @@ expected_validation_keys = {
     "validation_result",
 }
 
-expected_validation_keys_detail = expected_validation_keys | {"result_data", "user"}
+expected_validation_keys_detail = expected_validation_keys | {"result_data", "user", "full_url"}
 
 
 @pytest.mark.django_db
@@ -94,6 +94,21 @@ class TestValidationAPI:
             data = res.json()
             assert set(data.keys()) == expected_validation_keys_detail
             assert data["data_source"] == "file"
+            assert "full_url" in data
+            assert data["full_url"] == ""
+
+    def test_validation_detail_counter_api(
+        self, client_authenticated_user, normal_user, django_assert_max_num_queries
+    ):
+        v = CounterAPIValidationFactory(core__user=normal_user)
+        with django_assert_max_num_queries(9):
+            res = client_authenticated_user.get(reverse("validation-detail", args=[v.pk]))
+            assert res.status_code == 200
+            data = res.json()
+            assert set(data.keys()) == expected_validation_keys_detail
+            assert data["data_source"] == "counter_api"
+            assert "full_url" in data
+            assert data["full_url"] == v.get_url()
 
     def test_validation_detail_other_users(self, client_authenticated_user):
         v = ValidationFactory()  # this belongs to some randomly created user
@@ -722,35 +737,7 @@ class TestCounterAPIValidationAPI:
         res = client_authenticated_user.get(reverse("validation-detail", args=[val.pk]))
         assert res.status_code == 200
         data = res.json()
-        assert set(data.keys()) == {
-            "api_endpoint",
-            "api_key_prefix",
-            "cop_version",
-            "created",
-            "credentials",
-            "data_source",
-            "error_message",
-            "expiration_date",
-            "file_size",
-            "file_url",
-            "filename",
-            "id",
-            "public_id",
-            "report_code",
-            "requested_begin_date",
-            "requested_cop_version",
-            "requested_end_date",
-            "requested_extra_attributes",
-            "requested_report_code",
-            "result_data",
-            "stats",
-            "status",
-            "url",
-            "use_short_dates",
-            "user",
-            "user_note",
-            "validation_result",
-        }
+        assert set(data.keys()) == expected_validation_keys_detail
         assert data["credentials"] == val.credentials
 
     def test_create_with_api_key(self, client_with_api_key, normal_user):

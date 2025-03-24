@@ -149,6 +149,7 @@ export type Validation = {
   use_short_dates: boolean
   public_id: string | null
   user_note: string | null
+  full_url: string
 } & ValidationBase
 
 export type ValidationDetail = Validation & {

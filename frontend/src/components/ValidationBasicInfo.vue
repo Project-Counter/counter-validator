@@ -105,6 +105,18 @@
     class="text-h6 mt-4 mb-2"
   >
     Requested COUNTER API parameters
+
+    <v-btn
+      size="small"
+      color="subdued"
+      variant="flat"
+      class="float-end"
+      target="_blank"
+      :href="validation.full_url"
+    >
+      <v-icon class="me-2">mdi-open-in-new</v-icon>
+      Open validated URL
+    </v-btn>
   </h3>
   <table
     v-if="validation.requested_cop_version"
