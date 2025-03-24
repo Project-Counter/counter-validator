@@ -547,7 +547,8 @@ async function loadPlatformData() {
   loadingPlatforms.value = false
 }
 
-function platformSearchFilter(value: string, search: string, item: { raw: Platform }) {
+function platformSearchFilter(value: string, search: string, item?: { raw: Platform }) {
+  if (!item) return false
   // split search into words and look for each word in the item name and abbrev
   const words = search.toLowerCase().split(" ")
   return words.every(
