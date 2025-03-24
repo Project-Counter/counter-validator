@@ -38,6 +38,7 @@ export const reportDefinitions: {
   attributes?: string[]
   metrics?: string[]
   switches?: string[]
+  defaultSwitches?: string[]
 }[] = [
   // cop 5, title report
   {
@@ -165,6 +166,7 @@ export const reportDefinitions: {
       "No_License",
     ],
     switches: ["Include_Parent_Details", "Include_Component_Details"],
+    defaultSwitches: ["Include_Parent_Details"],
   },
   {
     cop: "5",
@@ -304,6 +306,7 @@ export const reportDefinitions: {
       "No_License",
     ],
     switches: ["Include_Parent_Details", "Include_Component_Details"],
+    defaultSwitches: ["Include_Parent_Details"],
   },
   {
     cop: "5.1",

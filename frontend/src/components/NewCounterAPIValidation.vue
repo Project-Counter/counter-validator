@@ -652,7 +652,7 @@ async function handleBaseValidation() {
   watch([reportCode, cop], () => {
     // reset attributes to show to all attributes for the selected report
     attributesToShow.value = selectedReportInfo.value?.attributes || []
-    switches.value = []
+    switches.value = selectedReportInfo.value?.defaultSwitches || []
     multiValueFilters.value = {}
     textFilters.value = {}
   })
