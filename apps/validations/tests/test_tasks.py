@@ -4,6 +4,7 @@ File and SUSHI validation tests.
 
 import re
 from base64 import b64encode
+from unittest.mock import patch
 from zlib import compress
 
 import pytest
@@ -109,6 +110,26 @@ class TestFileValidationTask:
         assert obj.core.stats == {}
         assert obj.core.duration > 0
         assert obj.core.error_message != ""
+
+    def test_task_result_save_error(self, settings, requests_mock):
+        """
+        Test that when the task crashed during save of the model, the status will
+        be FAILED and not RUNNING
+        """
+        file = SimpleUploadedFile("tr.csv", b"test data")
+        obj = Validation.create_from_file(user=UserFactory(), file=file)
+        obj.core.status = ValidationStatus.WAITING
+        obj.core.save()
+        with patch("validations.tasks.requests.post") as mock:
+            # raise exception when json is called which should break the task
+            # after the request status is checked
+            mock.return_value.json.side_effect = Exception("test")
+            validate_file(obj.pk)
+            assert mock.call_count == 1
+            assert mock.return_value.raise_for_status.call_count == 1
+            assert mock.return_value.json.call_count == 1
+        obj.refresh_from_db()
+        assert obj.core.status == ValidationStatus.FAILURE
 
 
 @pytest.mark.django_db

@@ -62,19 +62,27 @@ def validate_file(pk: uuid.UUID):
     finally:
         lock.release()
 
-    json = req.json()
-    logger.debug("Validation result: %s", json)
-    obj.core.stats = obj.add_result(json.get("result", {}))
-    obj.core.used_memory = json["memory"]
-    obj.core.status = ValidationStatus.SUCCESS
-    if header := json["result"].get("header"):
-        # replace potentially null values with ""
-        obj.core.cop_version = header.get("cop_version", "") or ""
-        obj.core.report_code = header.get("report_id", "") or ""
     end = time.monotonic()
-    obj.core.duration = end - start
-    obj.core.save()
-    obj.save()
+    try:
+        json = req.json()
+        result = json.get("result", {})
+        obj.core.stats = obj.add_result(result)
+        obj.core.used_memory = json.get("memory", 0)
+        obj.core.status = ValidationStatus.SUCCESS
+        if header := result.get("header"):
+            # replace potentially null values with ""
+            obj.core.cop_version = header.get("cop_version", "") or ""
+            obj.core.report_code = header.get("report_id", "")  # or ""
+        obj.core.duration = end - start
+        obj.core.save()
+        obj.save()
+    except Exception as e:
+        obj.core.status = ValidationStatus.FAILURE
+        obj.core.error_message = str(e)
+        obj.core.duration = end - start
+        # only save fields which are safe to save - values in others may be corrupted
+        obj.core.save(update_fields=["status", "error_message", "duration"])
+        obj.save()
 
 
 @celery.shared_task(base=ValidationTask)

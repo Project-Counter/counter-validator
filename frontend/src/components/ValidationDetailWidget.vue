@@ -27,7 +27,11 @@
       Info
     </v-tab>
 
-    <v-tab prepend-icon="mdi-chart-bar">Statistics</v-tab>
+    <v-tab
+      v-if="finished"
+      prepend-icon="mdi-chart-bar"
+      >Statistics</v-tab
+    >
 
     <v-tab
       v-if="Object.keys(validation.stats).length"
@@ -204,7 +208,7 @@
 </template>
 
 <script setup lang="ts">
-import { Message, ValidationDetail } from "@/lib/definitions/api"
+import { Message, Status, ValidationDetail } from "@/lib/definitions/api"
 import ValidationMessagesTable from "@/components/ValidationMessagesTable.vue"
 import { isEmpty } from "lodash"
 
@@ -251,6 +255,10 @@ const tableHeader = computed(() => {
     out.push([a, b])
   }
   return out
+})
+
+const finished = computed(() => {
+  return props.validation?.status === Status.SUCCESS
 })
 
 // message selected in the stats table
