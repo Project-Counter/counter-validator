@@ -97,7 +97,7 @@ export async function validateFile(file: FUpload) {
 }
 
 export async function validateCounterAPI(
-  credentials: Credentials,
+  credentials: Credentials | undefined,
   url: string,
   cop: CoP,
   endpoint: string,
@@ -109,7 +109,7 @@ export async function validateCounterAPI(
   userNote: string = "",
 ) {
   const data: {
-    credentials: Credentials
+    credentials: Credentials | undefined
     url: string
     cop_version: CoP
     api_endpoint: string

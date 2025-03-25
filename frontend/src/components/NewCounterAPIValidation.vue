@@ -87,7 +87,7 @@
             <v-text-field
               v-model="credentials.customer_id"
               label="Customer ID"
-              :rules="[rules.required]"
+              :rules="copHasEndpointsWithoutAuth ? [] : [rules.required]"
             />
           </v-col>
           <v-col
@@ -117,6 +117,15 @@
     <template #item.2>
       <v-form>
         <h2 class="mb-3">Endpoint selection</h2>
+        <v-row v-if="emptyCredentials">
+          <v-col>
+            <v-alert type="warning">
+              Only a subset of endpoints are available without credentials. To use the full set of
+              endpoints, please fill in the credentials in the previous step.
+            </v-alert>
+          </v-col>
+        </v-row>
+
         <v-row>
           <v-col
             cols="12"
@@ -125,7 +134,7 @@
           >
             <v-select
               v-model="endpoint"
-              :items="apiEndpoints"
+              :items="visibleEndpoints"
               label="Endpoint"
               item-value="code"
               item-title="name"
@@ -324,7 +333,7 @@
                 </tr>
                 <tr>
                   <th>Credentials</th>
-                  <td>
+                  <td v-if="authRequired">
                     <table class="overview dense">
                       <tr
                         v-for="(v, k) in credentials"
@@ -334,6 +343,10 @@
                         <td>{{ v || "-" }}</td>
                       </tr>
                     </table>
+                  </td>
+                  <td v-else>
+                    <v-icon>mdi-close</v-icon>
+                    (no credentials required for this endpoint)
                   </td>
                 </tr>
                 <tr>
@@ -417,6 +430,7 @@
     <template #next>
       <v-btn
         v-if="stepper < 3"
+        color="primary"
         @click="stepper++"
         >Next</v-btn
       >
@@ -439,6 +453,7 @@ import * as rules from "@/lib/formRules"
 import {
   CoP,
   copVersions,
+  endpointsWithoutAuth,
   getReportInfo,
   possibleAttributeValues,
   ReportCode,
@@ -483,6 +498,11 @@ const credentials = reactive<Credentials>({
   api_key: "",
 })
 
+const emptyCredentials = computed(() => {
+  // customer_id is the only required field
+  return !credentials.customer_id.trim()
+})
+
 const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] = [
   { name: "Report", path: "/reports/[id]", code: "reports" },
   { name: "Report list", path: "/reports", code: "report-list" },
@@ -492,9 +512,34 @@ const apiEndpoints: { name: string; path: CounterAPIEndpoint; code: string }[] =
 const endpoint = ref(apiEndpoints[0])
 const reportEndpoint = computed(() => endpoint.value.code === "reports")
 
+const visibleEndpoints = computed(() => {
+  if (!emptyCredentials.value) return apiEndpoints
+  return apiEndpoints.filter(
+    (e) => endpointsWithoutAuth[cop.value] && endpointsWithoutAuth[cop.value].includes(e.path),
+  )
+})
+
+watch(visibleEndpoints, () => {
+  if (!visibleEndpoints.value.includes(endpoint.value)) {
+    endpoint.value = visibleEndpoints.value[0]
+  }
+})
+
 const selectedReportInfo = computed(() => {
   if (!reportEndpoint.value) return null
   return getReportInfo(cop.value, reportCode.value)
+})
+
+const authRequired = computed(() => {
+  if (!reportEndpoint.value) return false
+  return !endpointsWithoutAuth[cop.value].includes(endpoint.value.path)
+})
+
+const copHasEndpointsWithoutAuth = computed(() => {
+  return (
+    Object.keys(endpointsWithoutAuth).includes(cop.value) &&
+    endpointsWithoutAuth[cop.value].length > 0
+  )
 })
 
 // attributes to show + switches (boolean flags which turn on several attributes at once)
@@ -582,7 +627,7 @@ async function create() {
 
   try {
     await validateCounterAPI(
-      credentials,
+      authRequired.value ? credentials : undefined,
       url.value,
       cop.value,
       endpoint.value.path,

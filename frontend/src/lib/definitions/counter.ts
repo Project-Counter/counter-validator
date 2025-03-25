@@ -11,6 +11,10 @@ export const counterAPIEndpoints: CounterAPIEndpoint[] = [
   "/members",
 ]
 
+export const endpointsWithoutAuth: Record<CoP, CounterAPIEndpoint[]> = {
+  "5.1": ["/status"],
+}
+
 export enum ReportCode {
   TR = "TR",
   DR = "DR",

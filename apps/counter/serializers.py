@@ -78,11 +78,3 @@ class PlatformCreateSerializer(serializers.ModelSerializer):
             "website",
             "sushi_services",
         )
-
-
-class Credentials(serializers.Serializer):
-    url = serializers.CharField(max_length=250)
-    platform = serializers.CharField(max_length=250, allow_blank=True)
-    customer_id = serializers.CharField(max_length=250)
-    requestor_id = serializers.CharField(max_length=250, allow_blank=True)
-    api_key = serializers.CharField(max_length=250, allow_blank=True)

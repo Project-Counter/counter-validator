@@ -35,7 +35,7 @@ class HeaderSerializer(serializers.Serializer):
     result = serializers.ListField(
         child=serializers.CharField(allow_blank=True), required=False
     )  # list of strings
-    report = serializers.DictField(required=False)
+    report = serializers.DictField(required=False, allow_null=True)
 
 
 class MessageSerializer(serializers.Serializer):
@@ -57,7 +57,7 @@ class ResultSerializer(serializers.Serializer):
 class ValidationResultSerializer(serializers.Serializer):
     result = ResultSerializer()
     memory = serializers.IntegerField(default=0)
-    report = serializers.CharField(required=False)
+    report = serializers.CharField(required=False, allow_null=True)
 
 
 def decode_report_file(report: str) -> bytes:

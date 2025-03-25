@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class CredentialsSerializer(serializers.Serializer):
     requestor_id = serializers.CharField(required=False, allow_blank=True)
-    customer_id = serializers.CharField()
+    customer_id = serializers.CharField(required=False, allow_blank=True)
     api_key = serializers.CharField(required=False, allow_blank=True)
     platform = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
@@ -201,7 +201,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
     Serializer to create a new COUNTER API validation from a POST request.
     """
 
-    credentials = CredentialsSerializer()
+    credentials = CredentialsSerializer(required=False, allow_null=True)
     url = serializers.URLField()
     api_endpoint = serializers.CharField(default="/reports/[id]")
     cop_version = serializers.CharField()
@@ -218,6 +218,10 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             for attr in ("cop_version", "begin_date", "end_date", "report_code"):
                 if not attrs.get(attr):
                     raise ValidationError(f"{attr} is required if api_endpoint is /reports/[id]")
+        if not attrs.get("credentials") and not (
+            attrs.get("api_endpoint") == "/status" and attrs.get("cop_version") >= "5.1"
+        ):
+            raise ValidationError("Credentials are required for this endpoint")
         return attrs
 
     def create(self, validated_data) -> CounterAPIValidation:
@@ -231,10 +235,12 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
             api_endpoint=validated_data["api_endpoint"],
             cop_version=validated_data["cop_version"],
         )
-        credentials = validated_data["credentials"]
-        if "platform" in credentials and not credentials["platform"]:
-            # remove empty platform altogether
-            credentials.pop("platform")
+        if credentials := validated_data.get("credentials"):
+            if "platform" in credentials and not credentials["platform"]:
+                # remove empty platform altogether
+                credentials.pop("platform")
+        else:
+            credentials = {}
 
         return CounterAPIValidation.objects.create(
             core=core,

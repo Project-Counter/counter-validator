@@ -814,6 +814,70 @@ class TestCounterAPIValidationAPI:
         assert query_dict["begin_date"] == (["2021-01"] if use_short_dates else ["2021-01-01"])
         assert query_dict["end_date"] == (["2021-01"] if use_short_dates else ["2021-01-31"])
 
+    @pytest.mark.parametrize("missing_completely", [True, False])
+    def test_create_with_no_credentials_required(
+        self, client_authenticated_user, requests_mock, missing_completely
+    ):
+        data = factory.build(
+            dict,
+            FACTORY_CLASS=CounterAPIValidationRequestDataFactory,
+            credentials=None,
+            api_endpoint="/status",
+            cop_version="5.1",
+        )
+        del data["begin_date"]
+        del data["end_date"]
+        if missing_completely:
+            del data["credentials"]
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+            rmock = requests_mock.post("http://localhost:8180/sushi.php", json={})
+            validations.tasks.validate_counter_api(res.json()["id"])
+            assert rmock.call_count == 1
+            sent_url = rmock.last_request.json()["url"]
+            _scheme, _netloc, _path, query, _frag = urlsplit(sent_url)
+            query_dict = parse_qs(query)
+            assert query_dict == {}, "no query parameters should be sent"
+
+    @pytest.mark.parametrize(
+        ["cop_version", "api_endpoint", "ok"],
+        [
+            ("5.1", "/status", True),
+            ("5.1", "/reports/[id]", False),
+            ("5", "/status", False),
+            ("5", "/reports/[id]", False),
+            ("5.2", "/status", True),
+            ("5.2", "/reports/[id]", False),
+        ],
+    )
+    def test_cases_with_no_credentials_required(
+        self, client_authenticated_user, cop_version, api_endpoint, ok
+    ):
+        data = factory.build(
+            dict,
+            FACTORY_CLASS=CounterAPIValidationRequestDataFactory,
+            credentials=None,
+            api_endpoint=api_endpoint,
+            cop_version=cop_version,
+        )
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201 if ok else 400
+            if ok:
+                p.assert_called_once_with(UUID(res.json()["id"]))
+            else:
+                assert p.call_count == 0
+
 
 @pytest.mark.django_db
 class TestValidationMessagesAPI:
