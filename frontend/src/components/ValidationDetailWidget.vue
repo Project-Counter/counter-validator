@@ -126,10 +126,10 @@
         </v-row>
 
         <!--
-          without cop_version, the extracted info would be empty anyway
-          this happens for errors or non-report api endpoints
+          without cop_version or for non-report api endpoints,
+          the extracted info would be empty anyway
          -->
-        <v-row v-if="validation?.cop_version">
+        <v-row v-if="hasExtractedInfo">
           <v-col v-bind="colAttrs">
             <v-card v-bind="cardAttrs">
               <v-card-title>Extracted information</v-card-title>
@@ -286,6 +286,10 @@ const finished = computed(() => {
 
 const inProgress = computed(() => {
   return props.validation?.status === Status.RUNNING || props.validation?.status === Status.WAITING
+})
+
+const hasExtractedInfo = computed(() => {
+  return props.validation?.cop_version && props.validation?.api_endpoint === "/reports/[id]"
 })
 
 // message selected in the stats table
