@@ -12,6 +12,7 @@ export const counterAPIEndpoints: CounterAPIEndpoint[] = [
 ]
 
 export const endpointsWithoutAuth: Record<CoP, CounterAPIEndpoint[]> = {
+  "5": [],
   "5.1": ["/status"],
 }
 

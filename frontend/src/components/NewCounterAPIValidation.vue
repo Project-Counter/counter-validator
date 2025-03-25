@@ -1,7 +1,7 @@
 <template>
   <v-stepper
     v-model="stepper"
-    :disabled="!formValid"
+    :disabled="!canProceedToStep2"
     :items="['Server selection', 'Endpoint selection', 'Validation']"
     editable
     :max="4"
@@ -85,6 +85,7 @@
             md="4"
           >
             <v-text-field
+              ref="customerIdField"
               v-model="credentials.customer_id"
               label="Customer ID"
               :rules="copHasEndpointsWithoutAuth ? [] : [rules.required]"
@@ -120,7 +121,7 @@
         <v-row v-if="emptyCredentials">
           <v-col>
             <v-alert type="warning">
-              Only a subset of endpoints are available without credentials. To use the full set of
+              Only a subset of endpoints is available without credentials. To use the full set of
               endpoints, please fill in the credentials in the previous step.
             </v-alert>
           </v-col>
@@ -462,6 +463,7 @@ import { addMonths, endOfMonth, startOfMonth } from "date-fns"
 import { getValidationDetail, validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
 import { isoDate, shortIsoDate, stringify } from "@/lib/formatting"
+import { VTextField } from "vuetify/components/VTextField"
 
 // housekeeping
 const stepper = ref(1)
@@ -521,7 +523,11 @@ const visibleEndpoints = computed(() => {
 
 watch(visibleEndpoints, () => {
   if (!visibleEndpoints.value.includes(endpoint.value)) {
-    endpoint.value = visibleEndpoints.value[0]
+    if (visibleEndpoints.value.length > 0) {
+      endpoint.value = visibleEndpoints.value[0]
+    } else {
+      endpoint.value = apiEndpoints[0]
+    }
   }
 })
 
@@ -531,7 +537,8 @@ const selectedReportInfo = computed(() => {
 })
 
 const authRequired = computed(() => {
-  if (!reportEndpoint.value) return false
+  if (!endpoint.value) return true
+  if (!endpointsWithoutAuth[cop.value]) return true
   return !endpointsWithoutAuth[cop.value].includes(endpoint.value.path)
 })
 
@@ -540,6 +547,21 @@ const copHasEndpointsWithoutAuth = computed(() => {
     Object.keys(endpointsWithoutAuth).includes(cop.value) &&
     endpointsWithoutAuth[cop.value].length > 0
   )
+})
+
+const customerIdField: Ref<VTextField | undefined> = ref()
+watch(copHasEndpointsWithoutAuth, () => {
+  if (customerIdField.value) {
+    const field = customerIdField.value
+    nextTick(() => {
+      field.resetValidation()
+      field.validate()
+    })
+  }
+})
+
+const canProceedToStep2 = computed(() => {
+  return formValid.value && (!authRequired.value || !emptyCredentials.value)
 })
 
 // attributes to show + switches (boolean flags which turn on several attributes at once)
