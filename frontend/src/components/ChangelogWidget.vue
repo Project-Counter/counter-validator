@@ -21,7 +21,10 @@
       :key="entry.version"
       class="changelog-entry"
     >
-      <h3>{{ entry.version }}</h3>
+      <h3 class="text-h5">
+        {{ entry.version }}
+        <span class="text-h6 font-weight-light ms-2">{{ entry.date }}</span>
+      </h3>
 
       <div v-html="mdToHtml(entry.markdown)"></div>
     </div>

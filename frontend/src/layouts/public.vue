@@ -47,7 +47,7 @@
       app
       border
       color="secondary"
-      class="pt-2 pb-2 pb-md-16 px-2 px-md-8"
+      class="pt-2 pb-2 px-2 px-md-8"
     >
       <v-container max-width="1300px">
         <v-row>
@@ -90,6 +90,21 @@
             >
           </v-col>
         </v-row>
+        <v-row class="justify-center">
+          <v-col
+            cols="auto"
+            class="pt-2 pt-md-4"
+          >
+            <v-btn
+              to="/changelog"
+              color="white"
+              variant="outlined"
+              rounded
+              size="small"
+              >Version {{ version.server }}</v-btn
+            >
+          </v-col>
+        </v-row>
       </v-container>
     </v-footer>
   </v-app>
@@ -97,8 +112,15 @@
 
 <script setup lang="ts">
 import { useAppStore } from "@/stores/app"
+import { useVersionStore } from "@/stores/version"
 
 const store = useAppStore()
 
+const version = useVersionStore()
+
 const route = useRoute()
+
+onMounted(() => {
+  version.update()
+})
 </script>

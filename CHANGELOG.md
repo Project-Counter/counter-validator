@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0]
+## [0.5.0] - 2025-03-25
+
+- make it possible to validate CoP 5.1 /status without credentials
+- do not show extracted info for API endpoints which do contain any such data
+- implement a simple DRF serializer based validation of data returned by the
+  validation module and use it to parse and validate incoming data
+- automatically reload running validations in the detail view
+- only show the export button and validation statistics when validation has successfully finished
+- add platform name abbreviations to the list of platforms when starting API validation
+- select Include_Parent_Details for IR reports by default
+- add forgotten Data_Type filter to C5.1 reports
+- reset page in validation table when an action (filter, deleting of items) would lead
+  to a non-existant page
+- show the complete validated URL to the user and let her try it in the browser
+- allow validator admins access to the validation queue API
+- fix Django admin for users not to expect `username`
+- add link to the GitHub repository and upstream server to the About page
+- add info about the open source license and GitHub repo to the main page
+- automatically reload frontend when version difference between backend and frontend is detected
+- update README.md with project overview, technologies used, and development setup instructions
+- remove test COUNTER API server URL as default value from the validation wizard
+- add dates to the changelog
+- add link to the changelog to the About page and to the footer
+
+## [0.4.0] - 2025-03-18
 
 - add changelog + related backend and frontend functions

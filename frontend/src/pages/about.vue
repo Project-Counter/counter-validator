@@ -33,6 +33,17 @@
                 </a>
               </td>
             </tr>
+          </tbody>
+        </table>
+        <table class="overview mt-8">
+          <tbody>
+            <tr>
+              <th>Local changelog</th>
+              <td>
+                <v-icon class="me-2">mdi-file-document-outline</v-icon>
+                <router-link to="/changelog">Changelog</router-link>
+              </td>
+            </tr>
             <tr>
               <th>Source repository</th>
               <td>
