@@ -9,7 +9,7 @@
         :items="booleanOptions"
         label="Shared"
         hide-details
-        min-width="6rem"
+        min-width="8rem"
       />
     </v-col>
 
