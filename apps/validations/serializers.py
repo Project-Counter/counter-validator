@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class CredentialsSerializer(serializers.Serializer):
     requestor_id = serializers.CharField(required=False, allow_blank=True)
-    customer_id = serializers.CharField(required=False, allow_blank=True)
+    customer_id = serializers.CharField()
     api_key = serializers.CharField(required=False, allow_blank=True)
     platform = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
@@ -240,7 +240,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
                 # remove empty platform altogether
                 credentials.pop("platform")
         else:
-            credentials = {}
+            credentials = None
 
         return CounterAPIValidation.objects.create(
             core=core,

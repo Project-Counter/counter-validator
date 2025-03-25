@@ -366,7 +366,9 @@ class CounterAPIValidation(Validation):
     COP_TO_URL_PREFIX = {"5.1": "/r51"}
 
     credentials = models.JSONField(
-        default=dict, help_text="Credentials for the SUSHI service used for the validation"
+        default=dict,
+        help_text="Credentials for the SUSHI service used for the validation",
+        null=True,
     )
     url = models.URLField(help_text="URL of the SUSHI service")
     requested_cop_version = models.CharField(
@@ -402,7 +404,7 @@ class CounterAPIValidation(Validation):
         return dt.strftime("%Y-%m" if self.use_short_dates else "%Y-%m-%d")
 
     def get_url(self):
-        clean_creds = {k: v for k, v in self.credentials.items() if v}
+        clean_creds = {k: v for k, v in self.credentials.items() if v} if self.credentials else {}
         if self.requested_begin_date:
             clean_creds["begin_date"] = self._format_date(self.requested_begin_date)
         if self.requested_end_date:
