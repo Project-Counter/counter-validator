@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-03-27
+
+- use COUNTER Registry information to highlight required fields when entering credentials
+- add back button to validation detail page
+- force page reload when a chunk cannot be loaded (should prevent freezes in production when new
+  version is published)
+
 ## [0.5.0] - 2025-03-25
 
 - make it possible to validate CoP 5.1 /status without credentials
