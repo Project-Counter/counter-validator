@@ -414,14 +414,13 @@ class CounterAPIValidation(Validation):
             path = f"/reports/{self.requested_report_code.lower()}"
         # make sure arguments are sorted by key
         clean_creds = dict(sorted((clean_creds | self.requested_extra_attributes).items()))
-        return (
-            urljoin(
-                self.url,
-                f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}{path}",
-            )
-            + "?"
-            + urlencode(clean_creds)
+        url = urljoin(
+            self.url,
+            f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}{path}",
         )
+        if clean_creds:
+            url += "?" + urlencode(clean_creds)
+        return url
 
 
 class ValidationMessage(UUIDPkMixin, models.Model):
