@@ -1,4 +1,20 @@
 <template>
+  <div>
+    <v-tooltip text="Back">
+      <template #activator="{ props }">
+        <v-btn
+          v-bind="props"
+          variant="text"
+          icon
+          size="large"
+          color="primary"
+          @click="router.back()"
+        >
+          <v-icon size="large">mdi-arrow-left-bold</v-icon>
+        </v-btn>
+      </template>
+    </v-tooltip>
+  </div>
   <ValidationDetailWidget
     v-if="validation"
     :validation="validation"
@@ -24,6 +40,8 @@ const validation = ref<ValidationDetail>()
 const route = useRoute()
 const validationNotFound = ref<boolean>(false)
 const timeoutHandle = ref<number | null>(null)
+
+const router = useRouter()
 
 async function load() {
   if ("id" in route.params) {

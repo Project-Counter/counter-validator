@@ -1,9 +1,8 @@
 <template>
-  <v-container>
+  <v-container v-if="publicView">
     <v-row>
       <v-col v-bind="colAttrs">
         <v-alert
-          v-if="publicView"
           color="info"
           icon="mdi-information"
         >
