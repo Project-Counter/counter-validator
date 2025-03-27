@@ -97,6 +97,13 @@ class TestValidationAPI:
             assert "full_url" in data
             assert data["full_url"] == ""
 
+    def test_validation_detail_using_api_key(self, client_with_api_key, normal_user):
+        v = ValidationFactory(core__user=normal_user)
+        res = client_with_api_key.get(reverse("validation-detail", args=[v.pk]))
+        assert res.status_code == 200
+        data = res.json()
+        assert set(data.keys()) == expected_validation_keys_detail
+
     def test_validation_detail_counter_api(
         self, client_authenticated_user, normal_user, django_assert_max_num_queries
     ):
@@ -914,12 +921,15 @@ class TestValidationMessagesAPI:
         )
         assert res.status_code == 200
         out = res.json()
-        assert "message" in out
-        assert "severity" in out
-        assert "summary" in out
-        assert "hint" in out
-        assert "location" in out
-        assert "data" in out
+        assert set(out.keys()) == {
+            "code",
+            "data",
+            "hint",
+            "location",
+            "message",
+            "severity",
+            "summary",
+        }
 
     @pytest.mark.parametrize("page_size", [5, 8, 10, 15])
     def test_list_pagination(self, client_authenticated_user, normal_user, page_size):

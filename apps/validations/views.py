@@ -60,7 +60,7 @@ class StandardPagination(PageNumberPagination):
 
 class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
     permission_classes = [
-        IsAuthenticatedForListOrCreateAnyForDetail | HasUserAPIKey,
+        HasUserAPIKey | IsAuthenticatedForListOrCreateAnyForDetail,
         IsValidationOwnerOrIsPublic | IsValidatorAdminUser,  # this is per-object permission
     ]
     serializer_class = ValidationSerializer
