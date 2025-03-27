@@ -57,7 +57,7 @@
           </v-col>
           <v-col
             cols="12"
-            md="7"
+            md="6"
           >
             <v-text-field
               v-model="url"
@@ -68,12 +68,15 @@
           </v-col>
           <v-col
             cols="12"
-            md="3"
+            md="4"
           >
-            <v-text-field
+            <TextFieldWithColorHint
               v-model="credentials.platform"
-              hint="Fill only if required by the server"
+              :hint="platformAttrHint"
               label="Platform"
+              :persistent-hint="sushiService?.platform_attr_required"
+              :hint-color="sushiService?.platform_attr_required ? 'deep-orange-darken-4' : ''"
+              :hint-icon="sushiService?.platform_attr_required ? 'mdi-information-outline' : ''"
             />
           </v-col>
         </v-row>
@@ -84,20 +87,27 @@
             cols="12"
             md="4"
           >
-            <v-text-field
+            <TextFieldWithColorHint
               ref="customerIdField"
               v-model="credentials.customer_id"
               label="Customer ID"
               :rules="copHasEndpointsWithoutAuth ? [] : [rules.required]"
+              :hint="copHasEndpointsWithoutAuth ? 'Required for most endpoints' : 'Required'"
+              hint-color="deep-orange-darken-4"
+              hint-icon="mdi-information-outline"
+              persistent-hint
             />
           </v-col>
           <v-col
             cols="12"
             md="4"
           >
-            <v-text-field
+            <TextFieldWithColorHint
               v-model="credentials.requestor_id"
-              hint="Fill only if required by the server"
+              :hint="requestorIdHint"
+              :persistent-hint="sushiService?.requestor_id_required"
+              :hint-color="sushiService?.requestor_id_required ? 'deep-orange-darken-4' : ''"
+              :hint-icon="sushiService?.requestor_id_required ? 'mdi-information-outline' : ''"
               label="Requestor ID"
             />
           </v-col>
@@ -105,9 +115,12 @@
             cols="12"
             md="4"
           >
-            <v-text-field
+            <TextFieldWithColorHint
               v-model="credentials.api_key"
-              hint="Fill only if required by the server"
+              :hint="apiKeyHint"
+              :persistent-hint="sushiService?.api_key_required"
+              :hint-color="sushiService?.api_key_required ? 'deep-orange-darken-4' : ''"
+              :hint-icon="sushiService?.api_key_required ? 'mdi-information-outline' : ''"
               label="API key"
             />
           </v-col>
@@ -530,6 +543,21 @@ watch(visibleEndpoints, () => {
     }
   }
 })
+
+// hints for credentials
+const sushiService = computed(() => {
+  return sushiServices.value?.find((s) => s.counter_release === cop.value)
+})
+
+function getHint(attr: keyof SushiService) {
+  if (!sushiService.value) return "Fill only if required by the server"
+  if (sushiService.value[attr]) return "Required according to the COUNTER Registry"
+  return "Not required according to the COUNTER Registry"
+}
+
+const platformAttrHint = computed(() => getHint("platform_attr_required"))
+const requestorIdHint = computed(() => getHint("requestor_id_required"))
+const apiKeyHint = computed(() => getHint("api_key_required"))
 
 const selectedReportInfo = computed(() => {
   if (!reportEndpoint.value) return null

@@ -39,6 +39,7 @@ declare module 'vue' {
     StatsChip: typeof import('./components/StatsChip.vue')['default']
     StatsPie: typeof import('./components/StatsPie.vue')['default']
     StatsTableSimple: typeof import('./components/StatsTableSimple.vue')['default']
+    TextFieldWithColorHint: typeof import('./components/TextFieldWithColorHint.vue')['default']
     TextTooltip: typeof import('./components/TextTooltip.vue')['default']
     UserEditWidget: typeof import('./components/UserEditWidget.vue')['default']
     UserForm: typeof import('./components/UserForm.vue')['default']

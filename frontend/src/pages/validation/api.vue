@@ -1,7 +1,7 @@
 <template>
   <v-sheet
     class="mx-auto"
-    :max-width="960"
+    :max-width="1200"
   >
     <NewCounterAPIValidation />
   </v-sheet>
