@@ -36,6 +36,7 @@ tailslide = "^0.2.0"
 django-anymail = "^12.0"
 xlsxwriter = "^3.2.2"
 python-magic = "^0.4.27"
+sphinx = "^8.2.3"
 
 [tool.poetry.group.dev.dependencies]
 django-debug-toolbar = "^4.4.6"
