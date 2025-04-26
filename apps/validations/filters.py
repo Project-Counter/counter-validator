@@ -193,11 +193,15 @@ class ValidationPublishedFilter(filters.BaseFilterBackend):
 class ValidationSearchFilter(filters.SearchFilter):
     """
     Special search filter for Validations which takes into account if the user is an admin
-    and allows searching by user fields if so.
+    and allows searching by user fields in the list_all view.
     """
 
     def get_search_fields(self, view, request):
-        if request.user.is_authenticated and request.user.has_admin_role:
+        if (
+            request.user.is_authenticated
+            and request.user.has_admin_role
+            and view.action == "list_all"
+        ):
             return [
                 "user_note",
                 "filename",

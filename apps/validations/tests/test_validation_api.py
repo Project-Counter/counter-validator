@@ -369,6 +369,41 @@ class TestValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
+    @pytest.mark.parametrize("endpoint", ["validation-list", "validation-list-all"])
+    def test_list_filter_by_user_name_is_only_applied_for_all_endpoint(
+        self, client_su_user, endpoint, su_user
+    ):
+        """
+        Test that when superuser lists all validations, the filter by user attrs is applied.
+        But when listing only the user's own validations, the filter is not applied.
+        """
+        su_user.email = "test@example.com"
+        su_user.save()
+        ValidationFactory.create(core__user=su_user, user_note="fooo")
+        ValidationFactory.create(core__user=su_user, user_note="whatever")
+        res = client_su_user.get(reverse(endpoint), {"search": "example"})
+        assert res.status_code == 200
+        if endpoint == "validation-list-all":
+            assert res.json()["count"] == 2, "All validations should be visible"
+        else:
+            assert res.json()["count"] == 0, "No validation with example in user_note or filename"
+
+    def test_list_filter_by_user_name_is_only_applied_for_all_endpoint_normal_user(
+        self, client_authenticated_user, normal_user
+    ):
+        """
+        Test that when normal user lists his own validations, the filter by user attrs is not
+        applied.
+        (normal user cannot see other users' validations)
+        """
+        normal_user.email = "test@example.com"
+        normal_user.save()
+        ValidationFactory.create(core__user=normal_user, user_note="fooo")
+        ValidationFactory.create(core__user=normal_user, user_note="whatever")
+        res = client_authenticated_user.get(reverse("validation-list"), {"search": "example"})
+        assert res.status_code == 200
+        assert res.json()["count"] == 0, "No validation with example in user_note or filename"
+
     def test_validation_publish(self, client_authenticated_user, normal_user):
         v = ValidationFactory.create(core__user=normal_user)
         assert v.public_id is None
