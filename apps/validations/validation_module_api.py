@@ -24,18 +24,18 @@ logger = logging.getLogger(__name__)
 
 
 class HeaderSerializer(serializers.Serializer):
-    cop_version = serializers.CharField(required=False)
-    report_id = serializers.CharField(required=False)
-    institution_name = serializers.CharField(required=False)
-    created = serializers.CharField(required=False)
-    created_by = serializers.CharField(required=False)
-    begin_date = serializers.CharField(required=False)
-    end_date = serializers.CharField(required=False)
-    format = serializers.ChoiceField(choices=["tabular", "json"], required=False)
+    cop_version = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    report_id = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    institution_name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    created = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    created_by = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    begin_date = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    end_date = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    format = serializers.ChoiceField(choices=["tabular", "json"], required=False, allow_blank=True)
     result = serializers.ListField(
-        child=serializers.CharField(allow_blank=True), required=False
+        child=serializers.CharField(allow_blank=True), required=False, allow_empty=True
     )  # list of strings
-    report = serializers.DictField(required=False, allow_null=True)
+    report = serializers.DictField(required=False, allow_null=True, allow_empty=True)
 
 
 class MessageSerializer(serializers.Serializer):
