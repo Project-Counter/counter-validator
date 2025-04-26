@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2025-04-26
+
+- make sure user email is not used for filtering of own validations for admins
+- make it possible for the validation module to return data with empty `report_id`
+
 ## [0.6.0] - 2025-03-27
 
 - use COUNTER Registry information to highlight required fields when entering credentials
