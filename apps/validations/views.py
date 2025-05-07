@@ -294,11 +294,17 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
 class ValidationMessageViewSet(ReadOnlyModelViewSet):
     # default permission is IsAdminUser, so [] is needed to open it up
     # this is because validations may be public and for those we do not require authentication
-    permission_classes = []
+    permission_classes = [HasUserAPIKey | IsAuthenticated]
     serializer_class = ValidationMessageSerializer
     pagination_class = StandardPagination
     filter_backends = [OrderByFilter, SeverityFilter, SearchFilter]
     search_fields = ["message", "hint", "summary", "data"]
+
+    def get_permissions(self):
+        # get the matching validation and check if it is public
+        if Validation.objects.filter(public_id=self.kwargs["validation_pk"]).exists():
+            return []
+        return super().get_permissions()
 
     def get_queryset(self):
         validation = None

@@ -947,6 +947,13 @@ class TestValidationMessagesAPI:
             "summary",
         }
 
+    def test_list_using_api_key(self, client_with_api_key, normal_user):
+        val = ValidationFactory(core__user=normal_user, messages__count=3)
+        res = client_with_api_key.get(reverse("validation-message-list", args=[val.pk]))
+        assert res.status_code == 200
+        out = res.json()
+        assert len(out["results"]) == 3
+
     def test_detail(self, client_authenticated_user, normal_user):
         val = ValidationFactory(core__user=normal_user, messages__count=3)
         ValidationFactory(core__user=normal_user, messages__count=5)
@@ -1121,7 +1128,7 @@ class TestPublicValidationAPI:
     def test_detail_messages_not_publicly_available_using_pk(self, client_unauthenticated):
         val = CounterAPIValidationFactory(public_id=uuid4())
         res = client_unauthenticated.get(reverse("validation-message-list", args=[val.pk]))
-        assert res.status_code == 404
+        assert res.status_code == 403
 
 
 @pytest.mark.django_db
