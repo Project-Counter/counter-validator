@@ -33,7 +33,7 @@ Attributes:
 
 Example:
 
-.. code-block::
+.. code-block:: bash
 
    curl \
    -X POST \
@@ -44,7 +44,7 @@ Example:
 
 Sample response:
 
-.. code-block::
+.. code-block:: json
 
     {
         "api_endpoint" : "",
@@ -102,7 +102,7 @@ Method: ``GET``
 
 Example:
 
-.. code-block::
+.. code-block:: bash
 
    curl \
    -X GET \
@@ -111,7 +111,7 @@ Example:
 
 Sample response (using the ``id`` from the previous example):
 
-.. code-block::
+.. code-block:: json
 
     {
         "api_endpoint" : "",
@@ -201,3 +201,65 @@ Sample response (using the ``id`` from the previous example):
 As you can see, the status is ``2`` (``Success``) and there is some extra information in the response.
 In this case the validation was successful and the result is ``Passed``. In case of some errors,
 the ``stats`` field will contain a histogram of the errors.
+
+
+Validation messages
+-------------------
+
+Endpoint: ``/api/v1/validations/validation/<id>/messages/``
+
+Method: ``GET``
+
+Attributes:
+
+- ``page``: Page number (default: 1)
+- ``page_size``: Number of messages per page (default: 10)
+- ``order_by``: Field to order by (default: empty)
+- ``order_desc``: Order direction ``desc`` or ``asc`` (default: ``desc``)
+- ``severity``: Severity of the messages to filter by (default: empty)
+    - one of ``Unknown``, ``Notice``, ``Warning``, ``Error``, ``Critical error``, ``Fatal error``
+    - more than one severity can be specified as a comma separated list
+- ``search``: Search for a message by code or message (default: empty)
+
+
+Individual validation messages can be retrieved using this endpoint. The number of messages may be quite
+large (thousands), so pagination is used.
+
+Example:
+
+.. code-block:: bash
+
+   curl \
+   -X GET \
+   -H "Authorization: Api-Key <api-key>" \
+   "https://validator.bigdigdata.com/api/v1/validations/validation/<id>/messages/"
+
+Sample response (shortened):
+
+.. code-block:: json
+
+    {
+        "count": 3542,
+        "next": "https://validator.bigdigdata.com/api/v1/validations/validation/<id>/messages/page=2&page_size=10",
+        "previous": null,
+        "results": [
+             {
+            "severity": "Notice",
+            "code": "",
+            "message": "Due to errors in Report_Items some checks were skipped",
+            "location": "element .Report_Items",
+            "summary": "Due to errors in Report_Items some checks were skipped",
+            "hint": "",
+            "data": "Report_Items"
+        },
+        {
+            "severity": "Notice",
+            "code": "",
+            "message": "Multiple Report_Items for the same Item and Report Attributes",
+            "location": "element .Report_Items[1]",
+            "summary": "Multiple Report_Items for the same Item and Report Attributes",
+            "hint": "it is recommended to include all Periods and Metric_Types in a single Report_Item to reduce the size of the report and to make it easier to use the report",
+            "data": "Title 'Biochemistry' (first occurrence at .Report_Items[0])"
+        }
+        ]
+    }
