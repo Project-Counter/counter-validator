@@ -920,6 +920,33 @@ class TestCounterAPIValidationAPI:
             else:
                 assert p.call_count == 0
 
+    @pytest.mark.parametrize(
+        "url", ["https://foo.bar/", "https://foo.bar/sushi/", "https://foo.bar/a/b/c/d"]
+    )
+    def test_create_with_different_counter_api_urls(self, client_authenticated_user, url):
+        """
+        Test that the URL is properly stored with the created object.
+        """
+        credentials_data = factory.build(dict, FACTORY_CLASS=CounterAPICredentialsFactory)
+        data = factory.build(
+            dict,
+            FACTORY_CLASS=CounterAPIValidationRequestDataFactory,
+            api_endpoint="/reports/[id]",
+            cop_version=5.1,
+            url=url,
+            credentials=credentials_data,
+        )
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            validation = CounterAPIValidation.objects.get(pk=res.json()["id"])
+            assert validation.url == url
+            assert p.call_count == 1
+
 
 @pytest.mark.django_db
 class TestValidationMessagesAPI:

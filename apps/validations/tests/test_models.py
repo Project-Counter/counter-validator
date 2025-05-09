@@ -91,6 +91,17 @@ class TestCounterAPIValidation:
         assert parts_query["customer_id"] == [params["customer_id"]]
         assert parts_query["api_key"] == [params["api_key"]]
 
+    @pytest.mark.parametrize("cop_version", ["5", "5.1"])
+    def test_get_url_with_path(self, cop_version):
+        """
+        Test that the get_url method returns the correct URL with a path
+        """
+        validation = CounterAPIValidationFactory(
+            url="http://example.com/path",
+            requested_cop_version=cop_version,
+        )
+        assert validation.get_url().startswith("http://example.com/path")
+
     @pytest.mark.parametrize("endpoint", ["/members", "/status", "/reports"])
     def test_get_url_for_non_report_endpoints(self, endpoint):
         """

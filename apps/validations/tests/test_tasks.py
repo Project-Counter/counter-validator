@@ -195,3 +195,16 @@ class TestCounterAPIValidationTask:
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.FAILURE
         assert obj.core.error_message == "test"
+
+    @pytest.mark.parametrize(
+        "url", ["https://foo.bar/", "https://foo.bar/sushi/", "https://foo.bar/a/b/c/d"]
+    )
+    def test_different_urls(self, requests_mock, url):
+        obj = CounterAPIValidationFactory(
+            url=url, core__user=UserFactory(), core__status=ValidationStatus.WAITING
+        )
+        mock = requests_mock.post("http://localhost:8180/sushi.php", json={})
+        validate_counter_api(obj.pk)
+        assert mock.called_once
+        sent_url = mock.last_request.json()["url"]
+        assert sent_url.startswith(url)

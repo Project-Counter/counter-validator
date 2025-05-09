@@ -363,7 +363,7 @@ class CounterAPIValidation(Validation):
     This is a special validation for the Counter API (SUSHI).
     """
 
-    COP_TO_URL_PREFIX = {"5.1": "/r51"}
+    COP_TO_URL_PREFIX = {"5.1": "r51"}
 
     credentials = models.JSONField(
         default=dict,
@@ -409,16 +409,18 @@ class CounterAPIValidation(Validation):
             clean_creds["begin_date"] = self._format_date(self.requested_begin_date)
         if self.requested_end_date:
             clean_creds["end_date"] = self._format_date(self.requested_end_date)
-        path = self.core.api_endpoint
-        if path == "/reports/[id]":
-            path = f"/reports/{self.requested_report_code.lower()}"
+        path = self.core.api_endpoint.lstrip("/")
+        if path == "reports/[id]":
+            path = f"reports/{self.requested_report_code.lower()}"
+        # add the prefix if it's not already there
+        if (
+            prefix := self.COP_TO_URL_PREFIX.get(self.requested_cop_version, "")
+        ) and not self.url.rstrip("/").endswith(prefix):
+            path = f"{prefix}/{path}"
         # make sure arguments are sorted by key
-        clean_creds = dict(sorted((clean_creds | self.requested_extra_attributes).items()))
-        url = urljoin(
-            self.url,
-            f"{self.COP_TO_URL_PREFIX.get(self.requested_cop_version, '')}{path}",
-        )
-        if clean_creds:
+        url = self.url if self.url.endswith("/") else f"{self.url}/"
+        url = urljoin(url, path)
+        if clean_creds := dict(sorted((clean_creds | self.requested_extra_attributes).items())):
             url += "?" + urlencode(clean_creds)
         return url
 
