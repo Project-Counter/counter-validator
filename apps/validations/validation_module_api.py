@@ -97,6 +97,6 @@ def update_validation_result(validation: Validation, result: dict, duration: flo
         validation.core.file_checksum = checksum_bytes(content)
         validation.core.file_size = len(content)
         validation.file = SimpleUploadedFile(name="foo.json", content=content)
-        validation.filename = f'Counter API {validation.core.created.strftime("%Y-%m-%d %H:%M:%S")}'
+        validation.filename = f"Counter API {validation.core.created.strftime('%Y-%m-%d %H:%M:%S')}"
     validation.core.save()
     validation.save()

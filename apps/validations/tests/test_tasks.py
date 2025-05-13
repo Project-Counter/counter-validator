@@ -103,9 +103,9 @@ class TestFileValidationTask:
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
         assert obj.core.validation_result == result
-        assert (
-            obj.messages.count() == message_count
-        ), f"There are {message_count} messages in the test file"
+        assert obj.messages.count() == message_count, (
+            f"There are {message_count} messages in the test file"
+        )
 
     @pytest.mark.parametrize("http_status", [400, 401, 403, 404, 405, 500])
     def test_task_c5tools_error(self, http_status, requests_mock):

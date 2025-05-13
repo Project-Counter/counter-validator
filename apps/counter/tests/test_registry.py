@@ -71,9 +71,9 @@ class TestRegistry:
 
         p = Platform.objects.get(id="bf9a2458-2386-48c5-a810-4a33c2dacf80")
         r = Report.objects.get(report_id="TR")
-        assert (
-            ReportToPlatform.objects.filter(platform=p, report=r).count() == 0
-        ), "removed reports should be unlinked"
+        assert ReportToPlatform.objects.filter(platform=p, report=r).count() == 0, (
+            "removed reports should be unlinked"
+        )
 
         assert (
             Platform.objects.filter(

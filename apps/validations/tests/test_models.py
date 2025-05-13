@@ -158,8 +158,8 @@ class TestValidationMessage:
         assert message.message == (data["m"] or "")
         assert message.summary == (data["s"] or "")
         assert message.data == (data["d"] or "")
-        assert not ValidationMessage.objects.filter(
-            pk=message.pk
-        ).exists(), "The message should not be saved to the database"
+        assert not ValidationMessage.objects.filter(pk=message.pk).exists(), (
+            "The message should not be saved to the database"
+        )
         # test saving
         message.save()
