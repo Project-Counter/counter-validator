@@ -55,6 +55,17 @@
                 >
               </td>
             </tr>
+            <tr>
+              <th>Latest documentation</th>
+              <td>
+                <v-icon class="me-2">mdi-file-document-arrow-right-outline</v-icon>
+                <a
+                  href="https://counter-validation-tool.readthedocs.io/"
+                  target="_blank"
+                  >ReadTheDocs</a
+                >
+              </td>
+            </tr>
           </tbody>
         </table>
       </v-col>
