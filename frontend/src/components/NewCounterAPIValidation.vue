@@ -715,6 +715,7 @@ async function handleBaseValidation() {
         credentials.customer_id = baseValidation.credentials.customer_id || ""
         credentials.requestor_id = baseValidation.credentials.requestor_id || ""
         credentials.api_key = baseValidation.credentials.api_key || ""
+        credentials.platform = baseValidation.credentials.platform || ""
       }
       if (baseValidation.api_endpoint) {
         endpoint.value =
