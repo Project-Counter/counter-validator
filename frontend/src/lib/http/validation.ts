@@ -14,6 +14,7 @@ import { jsonFetch, wrapFetch } from "./util"
 import { CoP, ReportCode } from "@/lib/definitions/counter"
 
 import { isoDate } from "@/lib/formatting"
+import { endOfMonth } from "date-fns"
 
 export const urls = {
   list: "validations/validation/",
@@ -135,7 +136,7 @@ export async function validateCounterAPI(
     data["begin_date"] = isoDate(beginDate)
   }
   if (endDate) {
-    data["end_date"] = isoDate(endDate)
+    data["end_date"] = isoDate(endOfMonth(endDate))
   }
   return wrapFetch(urls.sushi, {
     method: "POST",
