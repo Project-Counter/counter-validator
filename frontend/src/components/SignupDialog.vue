@@ -8,6 +8,7 @@
       <v-col v-bind="colAttrs">
         <v-text-field
           v-model="firstName"
+          :autofocus="true"
           counter
           label="First name"
           :maxlength="150"
@@ -31,7 +32,6 @@
       <v-col v-bind="colAttrs">
         <v-text-field
           v-model="email"
-          :autofocus="true"
           class="mt-3"
           counter
           label="Email address"
