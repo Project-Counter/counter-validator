@@ -2,6 +2,11 @@
 COUNTER Validation Tool API
 ===========================
 
+The COUNTER Validation Tool offers a simple RESTful API for submitting COUNTER reports for validation and retrieving the results.
+The API is part of the public instance at `https://validator.bigdigdata.com <https://validator.bigdigdata.com>`_, and is also available
+when running your own instance (see :doc:`own-instance`).
+
+
 API access
 ==========
 
