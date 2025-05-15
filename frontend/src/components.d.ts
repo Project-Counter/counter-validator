@@ -25,7 +25,6 @@ declare module 'vue' {
     MsgDialog: typeof import('./components/MsgDialog.vue')['default']
     NewCounterAPIValidation: typeof import('./components/NewCounterAPIValidation.vue')['default']
     NewFileValidation: typeof import('./components/NewFileValidation.vue')['default']
-    PasswordResetDialog: typeof import('./components/PasswordResetDialog.vue')['default']
     PasswordResetWidget: typeof import('./components/PasswordResetWidget.vue')['default']
     RequestPasswordResetDialog: typeof import('./components/RequestPasswordResetDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

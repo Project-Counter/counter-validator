@@ -7,6 +7,7 @@ import Vue from "@vitejs/plugin-vue"
 import VueRouter from "unplugin-vue-router/vite"
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify"
 import vueDevTools from "vite-plugin-vue-devtools"
+import legacy from "@vitejs/plugin-legacy"
 
 // Utilities
 import { defineConfig } from "vite"
@@ -20,6 +21,11 @@ process.env.VITE_APP_VERSION = pkg.version
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    legacy({
+      targets: ["defaults", "not IE 11"],
+      renderLegacyChunks: true,
+      modernPolyfills: true,
+    }),
     VueRouter({
       dts: "src/typed-router.d.ts",
       // default language for <route> custom blocks
