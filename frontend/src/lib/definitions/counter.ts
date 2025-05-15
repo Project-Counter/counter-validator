@@ -41,6 +41,7 @@ export const reportDefinitions: {
   code: ReportCode
   name: string
   attributes?: string[]
+  filters?: string[] // default is to use `attributes`
   metrics?: string[]
   switches?: string[]
   defaultSwitches?: string[]
@@ -190,7 +191,8 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.TR,
     name: "Title Report",
-    attributes: ["Access_Method", "Access_Type", "Data_Type", "YOP"],
+    attributes: ["Access_Method", "Access_Type", "YOP"],
+    filters: ["Access_Method", "Access_Type", "Data_Type", "YOP"],
     metrics: [
       "Total_Item_Investigations",
       "Total_Item_Requests",
@@ -242,7 +244,8 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.DR,
     name: "Database Report",
-    attributes: ["Access_Method", "Data_Type"],
+    attributes: ["Access_Method"],
+    filters: ["Access_Method", "Data_Type"],
     metrics: [
       "Searches_Automated",
       "Searches_Federated",
@@ -272,7 +275,8 @@ export const reportDefinitions: {
     cop: "5.1",
     code: ReportCode.PR,
     name: "Platform Report",
-    attributes: ["Access_Method", "Data_Type"],
+    attributes: ["Access_Method"],
+    filters: ["Access_Method", "Data_Type"],
     metrics: [
       "Searches_Platform",
       "Total_Item_Investigations",
@@ -294,6 +298,14 @@ export const reportDefinitions: {
     code: ReportCode.IR,
     name: "Item Report",
     attributes: [
+      "Access_Method",
+      "Access_Type",
+      "Article_Version",
+      "Authors",
+      "Publication_Date",
+      "YOP",
+    ],
+    filters: [
       "Access_Method",
       "Access_Type",
       "Article_Version",

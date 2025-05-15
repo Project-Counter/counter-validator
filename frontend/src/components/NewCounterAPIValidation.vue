@@ -280,7 +280,9 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row v-if="reportEndpoint && selectedReportInfo?.attributes">
+        <v-row
+          v-if="reportEndpoint && (selectedReportInfo?.filters || selectedReportInfo?.attributes)"
+        >
           <v-col>
             <v-card
               class="ma-0"
@@ -301,7 +303,7 @@
                   class="pb-2"
                 />
                 <template
-                  v-for="attr in selectedReportInfo.attributes"
+                  v-for="attr in selectedReportInfo.filters || selectedReportInfo.attributes"
                   :key="attr"
                 >
                   <v-select
