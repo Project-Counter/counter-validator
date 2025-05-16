@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2025-05-15
+
+- add Apache License Version 2.0 to the project
+- update documentation with licensing information and copyright details
+- standardize "COUNTER" capitalization in user-facing content
+- add legacy browser support with @vitejs/plugin-legacy
+- remove Data_Type from attributes to show for C5.1 reports
+- improve validation table display with conditional tooltips and fallback severity level chips
+
 ## [0.6.4] - 2025-05-14
 
 - fix platform attribute not being copied when repeating a validation
