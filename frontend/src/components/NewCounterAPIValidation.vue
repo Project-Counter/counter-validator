@@ -178,13 +178,19 @@
         </v-row>
 
         <v-row v-if="reportEndpoint">
-          <v-col cols="9">
+          <v-col
+            cols="12"
+            lg="7"
+          >
             <MonthRangePicker
               v-model:start="beginDate"
               v-model:end="endDate"
             />
           </v-col>
-          <v-col cols="3">
+          <v-col
+            cols="6"
+            lg="2"
+          >
             <v-tooltip
               location="bottom"
               max-width="600px"
@@ -203,6 +209,18 @@
                 </div>
               </div>
             </v-tooltip>
+          </v-col>
+          <v-col
+            cols="6"
+            lg="3"
+          >
+            <v-select
+              v-model="granularity"
+              label="Granularity"
+              :items="granularities"
+              item-value="value"
+              item-title="label"
+            ></v-select>
           </v-col>
         </v-row>
         <v-row
@@ -381,6 +399,10 @@
                       >({{ shortDateFormat ? "short" : "long" }} format)</span
                     >
                   </td>
+                </tr>
+                <tr v-if="reportEndpoint">
+                  <th>Granularity</th>
+                  <td>{{ granularity || "Default (do not send)" }}</td>
                 </tr>
                 <tr v-if="reportEndpoint">
                   <th>Attributes to show</th>
@@ -615,6 +637,14 @@ const filters = computed(() => {
   return { ...multiValueFilters.value, ...textFilters.value }
 })
 
+// granularity
+const granularity = ref<string | null>(null)
+const granularities = [
+  { label: "Default (do not send)", value: null },
+  { label: "Month", value: "Month" },
+  { label: "Totals", value: "Totals" },
+]
+
 // methods for API communication
 async function selectPlatform() {
   if (!platform.value) return
@@ -675,6 +705,9 @@ async function create() {
     switches.value.forEach((k) => {
       extra[k.toLowerCase()] = "True"
     })
+    if (granularity.value) {
+      extra["granularity"] = granularity.value
+    }
   }
 
   try {
@@ -746,6 +779,8 @@ async function handleBaseValidation() {
           if (ea[k]) {
             if (k2 === "Metric_Type" || possibleAttributeValues(cop.value, k2)) {
               multiValueFilters.value[k2] = ea[k].split("|")
+            } else if (k2 === "Granularity") {
+              granularity.value = ea[k]
             } else if (reportInfo?.switches?.includes(k2)) {
               switches.value.push(k2)
             } else {
