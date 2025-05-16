@@ -180,7 +180,7 @@ class TestCounterAPIValidationTask:
         assert obj.core.file_size > 0
         with open("test_data/reports/50-Sample-TR.json", "rb") as infile:
             assert obj.file.read() == infile.read()
-        assert obj.filename.startswith("Counter API")
+        assert obj.filename.startswith("COUNTER API")
 
     def test_task_error_in_update_validation_result(self, requests_mock):
         obj = CounterAPIValidationFactory(

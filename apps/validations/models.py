@@ -360,7 +360,7 @@ class Validation(UUIDPkMixin, models.Model):
 
 class CounterAPIValidation(Validation):
     """
-    This is a special validation for the Counter API (SUSHI).
+    This is a special validation for the COUNTER API (SUSHI).
     """
 
     COP_TO_URL_PREFIX = {"5.1": "r51"}

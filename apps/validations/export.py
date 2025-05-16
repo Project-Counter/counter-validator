@@ -112,7 +112,7 @@ class ValidationXlsxExporter:
         writer.writerow([])
         api_validation = hasattr(self.validation, "counterapivalidation")
         writer.writerow(["Validation details"], fmt=self.header_fmt)
-        writer.writerow(["Data source", "Counter API" if api_validation else "File"])
+        writer.writerow(["Data source", "COUNTER API" if api_validation else "File"])
         if not api_validation:
             writer.writerow(["File name", self.validation.filename])
         writer.writerow(["Validation result", self.validation.core.get_validation_result_display()])
@@ -133,7 +133,7 @@ class ValidationXlsxExporter:
 
         if api_validation:
             api_data = self.validation.counterapivalidation
-            writer.writerow(["Counter API details"], fmt=self.header_fmt)
+            writer.writerow(["COUNTER API details"], fmt=self.header_fmt)
             writer.writerow(["URL", api_data.url])
             writer.writerow(["API endpoint", self.validation.core.api_endpoint])
             writer.writerow(["Requested CoP version", api_data.requested_cop_version])
