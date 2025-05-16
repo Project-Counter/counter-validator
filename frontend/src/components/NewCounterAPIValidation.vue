@@ -397,7 +397,7 @@
                   </td>
                 </tr>
                 <tr v-if="reportEndpoint">
-                  <th>Switches</th>
+                  <th>Report attributes</th>
                   <td>
                     <div class="d-flex flex-wrap">
                       <v-checkbox
