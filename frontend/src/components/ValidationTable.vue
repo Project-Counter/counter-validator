@@ -43,7 +43,7 @@
     </template>
 
     <template #item.validation_result="{ item }">
-      <v-tooltip>
+      <v-tooltip v-if="item.stats && Object.keys(item.stats).length > 0">
         <template #activator="{ props }">
           <SeverityLevelChip
             :severity="item.validation_result"
@@ -52,6 +52,11 @@
         </template>
         <StatsTableSimple :stats="item.stats" />
       </v-tooltip>
+      <!-- no tooltip if there are no stats -->
+      <SeverityLevelChip
+        v-else
+        :severity="item.validation_result"
+      />
     </template>
 
     <template #item.created="{ item }">
