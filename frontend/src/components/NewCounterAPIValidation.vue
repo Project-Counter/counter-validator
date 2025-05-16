@@ -474,7 +474,7 @@ import {
   possibleAttributeValues,
   ReportCode,
 } from "@/lib/definitions/counter"
-import { addMonths, endOfMonth, startOfMonth } from "date-fns"
+import { addMonths, endOfMonth, startOfMonth, parseISO } from "date-fns"
 import { getValidationDetail, validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
 import { isoDate, shortIsoDate, stringify } from "@/lib/formatting"
@@ -726,9 +726,9 @@ async function handleBaseValidation() {
       if (baseValidation.requested_report_code)
         reportCode.value = baseValidation.requested_report_code
       if (baseValidation.requested_begin_date)
-        beginDate.value = new Date(baseValidation.requested_begin_date)
+        beginDate.value = parseISO(baseValidation.requested_begin_date)
       if (baseValidation.requested_end_date)
-        endDate.value = new Date(baseValidation.requested_end_date)
+        endDate.value = parseISO(baseValidation.requested_end_date)
       if (baseValidation.use_short_dates) shortDateFormat.value = baseValidation.use_short_dates
       if (baseValidation.user_note) userNote.value = baseValidation.user_note
       if (baseValidation.requested_extra_attributes) {
