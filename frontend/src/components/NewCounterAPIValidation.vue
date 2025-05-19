@@ -799,7 +799,7 @@ async function handleBaseValidation() {
 
   // when report code changes, reset attributes to show and filters
   // we add the watcher here, so that it is not triggered before the base validation is loaded
-  watch([reportCode, cop], () => {
+  watch([reportCode, cop, endpoint], () => {
     // reset attributes to show to all attributes for the selected report
     attributesToShow.value = selectedReportInfo.value?.attributes || []
     switches.value = selectedReportInfo.value?.defaultSwitches || []
