@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-05-19
+
+- fix: ensure all attributes to show are selected by default when CoP version and credentials are changed
+- add granularity selection to the validation wizard
+- change header label from "Switches" to "Report attributes" in NewCounterAPIValidation component
+
 ## [0.6.5] - 2025-05-15
 
 - add Apache License Version 2.0 to the project
