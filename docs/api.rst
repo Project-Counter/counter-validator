@@ -97,6 +97,107 @@ The status of the validation can be checked at any time using the
 ``/api/v1/validations/validation/<id>/`` endpoint described below.
 
 
+Create a new COUNTER API validation
+-----------------------------------
+
+Endpoint: ``/api/v1/validations/validation/counter-api/``
+
+Method: ``POST``
+
+Attributes:
+
+- ``url``: URL of the COUNTER API endpoint
+- ``api_endpoint``: API endpoint to use (default: "/reports/[id]")
+- ``cop_version``: COUNTER version to use (e.g. "5.1")
+- ``report_code``: Optional report code (e.g. "TR", "DR")
+- ``begin_date``: Optional begin date for the report (format: YYYY-MM-DD)
+- ``end_date``: Optional end date for the report (format: YYYY-MM-DD)
+- ``use_short_dates``: Optional boolean to use short dates (default: false)
+- ``extra_attributes``: Optional JSON object with additional attributes
+- ``user_note``: Optional note for the validation
+- ``credentials``: Optional object containing:
+  - ``requestor_id``: Optional requestor ID
+  - ``customer_id``: Customer ID
+  - ``api_key``: Optional API key
+  - ``platform``: Optional platform name
+
+Note: For the `/status` endpoint with COUNTER 5.1 or later, credentials are optional. For all other endpoints, credentials are required.
+
+Example:
+
+.. code-block:: bash
+
+   curl \
+   -X POST \
+   -H "Authorization: Api-Key <api-key>" \
+   -H "Content-Type: application/json" \
+   -d '{
+     "url": "https://example.com/sushi",
+     "api_endpoint": "/reports/[id]",
+     "cop_version": "5.1",
+     "report_code": "TR",
+     "begin_date": "2024-01-01",
+     "end_date": "2024-03-31",
+     "use_short_dates": false,
+     "extra_attributes": {"attributes_to_show": "YOP|Access_Type"},
+     "user_note": "Test COUNTER API validation",
+     "credentials": {
+       "requestor_id": "requestor123",
+       "customer_id": "customer456",
+       "api_key": "apikey789",
+       "platform": "Example Platform"
+     }
+   }' \
+   "https://validator.bigdigdata.com/api/v1/validations/counter-api-validation/"
+
+Sample response:
+
+.. code-block:: json
+
+    {
+        "api_endpoint": "/reports/[id]",
+        "api_key_prefix": "xxxxxxx",
+        "cop_version": "5.1",
+        "created": "2024-04-22T18:10:44.048197Z",
+        "credentials": {
+            "requestor_id": "requestor123",
+            "customer_id": "customer456",
+            "api_key": "apikey789",
+            "platform": "Example Platform"
+        },
+        "data_source": "counter_api",
+        "error_message": "",
+        "expiration_date": "2024-04-29T18:10:44.047820Z",
+        "file_size": 0,
+        "file_url": "",
+        "filename": "",
+        "id": "01965eb1-f8d1-779d-8034-85925df22b80",
+        "public_id": null,
+        "report_code": "",
+        "requested_begin_date": "2024-01-01",
+        "requested_cop_version": "5.1",
+        "requested_end_date": "2024-03-31",
+        "requested_extra_attributes": {"attributes_to_show": "YOP|Access_Type"},
+        "requested_report_code": "TR",
+        "stats": {},
+        "status": 0,
+        "url": "https://example.com/sushi",
+        "use_short_dates": false,
+        "user_note": "Test COUNTER API validation",
+        "validation_result": "Unknown"
+    }
+
+The response format is similar to file validations, with some additional fields specific to COUNTER API validations:
+
+- ``url``: The URL of the COUNTER API endpoint
+- ``api_endpoint``: The API endpoint used
+- ``credentials``: The credentials used for the API call
+- ``requested_*`` fields: The parameters that were requested from the API
+- ``data_source``: Will be "counter_api" for COUNTER API validations
+
+The validation status and results can be checked using the same endpoints as file validations.
+
+
 Retrieve details of a validation
 --------------------------------
 
