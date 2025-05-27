@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2025-05-27
+
+- fix: fix export of COUNTER API validations without credentials (`/status/` in CoP 5.1)
+
 ## [0.7.0] - 2025-05-19
 
 - fix: ensure all attributes to show are selected by default when CoP version and credentials are changed
