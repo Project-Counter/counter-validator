@@ -142,8 +142,11 @@ class ValidationXlsxExporter:
             writer.writerow(["Requested end date", str(api_data.requested_end_date)])
             writer.writerow(["Use short dates", api_data.use_short_dates and "Yes" or "No"])
             writer.writerow(["Credentials"], fmt=self.header_fmt)
-            for key, value in api_data.credentials.items():
-                writer.writerow([key, value])
+            if api_data.credentials:
+                for key, value in api_data.credentials.items():
+                    writer.writerow([key, value])
+            else:
+                writer.writerow(["No credentials"])
             writer.writerow(["Extra attributes"], fmt=self.header_fmt)
             for key, value in api_data.requested_extra_attributes.items():
                 writer.writerow([key, value])

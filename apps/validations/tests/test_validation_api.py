@@ -470,6 +470,29 @@ class TestValidationAPI:
         assert res["Content-Disposition"].startswith("attachment; filename=validation-")
         assert res["Content-Disposition"].endswith(".xlsx")
 
+    @pytest.mark.parametrize("has_credentials", [True, False])
+    def test_validation_export_counter_api_status(
+        self, client_authenticated_user, normal_user, has_credentials
+    ):
+        """
+        Status in CoP 5.1 does not require credentials, so we should be able to export the
+        validation even if there are no credentials.
+        """
+        v = CounterAPIValidationFactory(
+            requested_cop_version="5.1",
+            core__api_endpoint="/status",
+            core__user=normal_user,
+        )
+        if not has_credentials:
+            v.credentials = None
+            v.save()
+        res = client_authenticated_user.get(reverse("validation-export", args=[v.pk]))
+        assert res.status_code == 200
+        assert (
+            res["Content-Type"]
+            == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
 
 @pytest.mark.django_db
 class TestFileValidationAPI:
