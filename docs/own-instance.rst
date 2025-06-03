@@ -2,7 +2,7 @@
 Running your own instance
 =========================
 
-We recommend using the public instance at `https://validator.bigdigdata.com <https://validator.bigdigdata.com>`_.
+We recommend using the public instance at `https://validator.countermetrics.org <https://validator.countermetrics.org>`_.
 
 However, if you for some reason want to run your own instance, we have you covered. You will find the necessary information below.
 

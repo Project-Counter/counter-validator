@@ -18,7 +18,7 @@ limitations under the License.
 Status
 ------
 
-The application is currently in beta. You can try it out at `https://validator.bigdigdata.com <https://validator.bigdigdata.com>`_.
+The application is currently in beta. You can try it out at `https://validator.countermetrics.org <https://validator.countermetrics.org>`_.
 
 
 Documentation

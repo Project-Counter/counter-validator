@@ -10,7 +10,7 @@ COUNTER Validation Tool is a tool for validating COUNTER reports - both from fil
 
 It is published under an open source license, and the source code is available on `GitHub <https://github.com/Project-Counter/counter-validation-tool>`_.
 
-A public instance run and managed by COUNTER is available at `https://validator.bigdigdata.com <https://validator.bigdigdata.com>`_
+A public instance run and managed by COUNTER is available at `https://validator.countermetrics.org <https://validator.countermetrics.org>`_
 and is currently in public beta.
 It is open to everyone and only requires you to create a free account to be able to use it.
 

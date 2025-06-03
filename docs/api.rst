@@ -3,7 +3,7 @@ COUNTER Validation Tool API
 ===========================
 
 The COUNTER Validation Tool offers a simple RESTful API for submitting COUNTER reports for validation and retrieving the results.
-The API is part of the public instance at `https://validator.bigdigdata.com <https://validator.bigdigdata.com>`_, and is also available
+The API is part of the public instance at `https://validator.countermetrics.org <https://validator.countermetrics.org>`_, and is also available
 when running your own instance (see :doc:`own-instance`).
 
 
@@ -45,7 +45,7 @@ Example:
    -H "Authorization: Api-Key <api-key>" \
    -F "file=TR.csv" \
    -F "user_note=This is a test validation" \
-   "https://validator.bigdigdata.com/api/v1/validations/validation/file/"
+   "https://validator.countermetrics.org/api/v1/validations/validation/file/"
 
 Sample response:
 
@@ -148,7 +148,7 @@ Example:
        "platform": "Example Platform"
      }
    }' \
-   "https://validator.bigdigdata.com/api/v1/validations/counter-api-validation/"
+   "https://validator.countermetrics.org/api/v1/validations/counter-api-validation/"
 
 Sample response:
 
@@ -213,7 +213,7 @@ Example:
    curl \
    -X GET \
    -H "Authorization: Api-Key <api-key>" \
-   "https://validator.bigdigdata.com/api/v1/validations/validation/<id>/"
+   "https://validator.countermetrics.org/api/v1/validations/validation/<id>/"
 
 Sample response (using the ``id`` from the previous example):
 
@@ -338,7 +338,7 @@ Example:
    curl \
    -X GET \
    -H "Authorization: Api-Key <api-key>" \
-   "https://validator.bigdigdata.com/api/v1/validations/validation/<id>/messages/"
+   "https://validator.countermetrics.org/api/v1/validations/validation/<id>/messages/"
 
 Sample response (shortened):
 
@@ -346,7 +346,7 @@ Sample response (shortened):
 
     {
         "count": 3542,
-        "next": "https://validator.bigdigdata.com/api/v1/validations/validation/<id>/messages/page=2&page_size=10",
+        "next": "https://validator.countermetrics.org/api/v1/validations/validation/<id>/messages/page=2&page_size=10",
         "previous": null,
         "results": [
              {

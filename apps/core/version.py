@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 
-UPSTREAM_SERVER = "https://validator.bigdigdata.com/"
+UPSTREAM_SERVER = "https://validator.countermetrics.org/"
 UPSTREAM_VERSION_CACHE_KEY = "upstream_version"
 UPSTREAM_VERSION_CACHE_TTL = 3600
 VERSION_INFO_PATH = "/api/v1/core/version"
