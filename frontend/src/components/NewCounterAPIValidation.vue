@@ -516,7 +516,7 @@ const platforms = shallowRef<Platform[]>()
 const platform = ref(null)
 const sushiServices = ref<SushiService[]>([])
 
-const cop = ref<CoP>("5")
+const cop = ref<CoP>("5.1")
 
 const url = ref("")
 const urlAutoAdded = ref(false)
