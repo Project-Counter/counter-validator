@@ -70,6 +70,18 @@
         </table>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col class="py-10">
+        <v-alert type="info">
+          Have you found a bug? Please report it on the
+          <a
+            href="https://github.com/Project-Counter/counter-validation-tool/issues"
+            target="_blank"
+            >GitHub issues page</a
+          >.
+        </v-alert>
+      </v-col>
+    </v-row>
     <v-row class="mt-12">
       <v-col>
         <p>&copy; {{ currentYear }} COUNTER Metrics Limited</p>
