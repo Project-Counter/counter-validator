@@ -1165,6 +1165,7 @@ class TestPublicValidationAPI:
             "user should not be there"
         )
         assert out["credentials"] is None, "credentials should not be exposed"
+        assert out["full_url"] == "", "full_url should not be exposed"
 
     def test_detail_stats(self, all_clients):
         """

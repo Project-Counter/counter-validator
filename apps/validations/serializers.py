@@ -130,8 +130,9 @@ class PublicValidationDetailSerializer(ValidationSerializer):
         return None
 
     def get_full_url(self, obj: Validation):
-        if obj.is_counter_api_validation:
-            return obj.counterapivalidation.get_url()
+        """
+        The full URL should not be exposed for public validations.
+        """
         return ""
 
 

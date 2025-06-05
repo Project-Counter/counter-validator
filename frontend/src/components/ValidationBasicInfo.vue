@@ -111,6 +111,7 @@
     Requested COUNTER API parameters
 
     <v-btn
+      v-if="!publicView && validation.full_url"
       size="small"
       color="subdued"
       variant="flat"
