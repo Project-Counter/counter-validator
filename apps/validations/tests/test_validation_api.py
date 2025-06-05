@@ -1037,6 +1037,27 @@ class TestValidationMessagesAPI:
         assert "results" in out, "results should be in the response - it should be paginated"
         assert len(out["results"]) == min(page_size, 10)
 
+    def test_validation_list_pagination_limit(self, client_authenticated_user, normal_user):
+        """Test that validation list pagination is capped at 100 items per page."""
+        # Create 150 validations
+        ValidationFactory.create_batch(150, core__user=normal_user)
+
+        # Test with page size larger than limit
+        res = client_authenticated_user.get(reverse("validation-list"), {"page_size": 200})
+        assert res.status_code == 200
+        out = res.json()
+        assert len(out["results"]) == 100, "Page size should be capped at 100"
+        assert out["count"] == 150, "Total count should still reflect all validations"
+        assert out["next"] is not None, "Should have next page since there are more results"
+
+        # Test with page size exactly at limit
+        res = client_authenticated_user.get(reverse("validation-list"), {"page_size": 100})
+        assert res.status_code == 200
+        out = res.json()
+        assert len(out["results"]) == 100, "Should get exactly 100 results"
+        assert out["count"] == 150, "Total count should still reflect all validations"
+        assert out["next"] is not None, "Should have next page since there are more results"
+
     @pytest.mark.parametrize("order_desc", [True, False])
     @pytest.mark.parametrize("order_by", ["summary", "hint", "location"])
     def test_list_ordering(self, client_authenticated_user, normal_user, order_by, order_desc):

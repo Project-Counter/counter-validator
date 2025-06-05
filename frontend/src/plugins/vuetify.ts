@@ -37,5 +37,9 @@ export default createVuetify({
   defaults: {
     VSheet: { color: "background" },
     VAlert: { variant: "tonal" },
+    VDataTableServer: {
+      itemsPerPageOptions: [10, 25, 50, 100],
+      showAll: false,
+    },
   },
 })
