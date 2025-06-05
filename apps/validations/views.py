@@ -313,6 +313,9 @@ class ValidationMessageViewSet(ReadOnlyModelViewSet):
             validation = Validation.objects.filter(
                 core__user=self.request.user, pk=self.kwargs["validation_pk"]
             ).first()
+            # or the user is an admin
+            if not validation and self.request.user.has_admin_role:
+                validation = Validation.objects.filter(pk=self.kwargs["validation_pk"]).first()
         if not validation:
             # if the validation is not found, or the user is not authenticated,
             # either this is a public validation, or it does not exist for the user

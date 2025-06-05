@@ -1102,6 +1102,27 @@ class TestValidationMessagesAPI:
         assert res.status_code == 200
         assert len(res.json()) == 4
 
+    @pytest.mark.parametrize(
+        ["user_type", "status_code"],
+        [
+            ("unauthenticated", 403),
+            ("normal", 404),  # 404 because the validation belongs to another user
+            ("su", 200),
+            ("admin", 200),
+            ("api_key_normal", 404),
+            ("api_key_admin", 200),
+        ],
+    )
+    def test_messages_endpoint_access(self, users_and_clients, user_type, status_code):
+        """
+        Test that the messages endpoint is accessible only to appropriate users.
+        """
+        user, client = users_and_clients[user_type]
+        val = ValidationFactory()  # this belongs to some randomly created user
+        ValidationMessageFactory.create_batch(3, validation=val)
+        res = client.get(reverse("validation-message-list", args=[val.pk]))
+        assert res.status_code == status_code
+
 
 @pytest.mark.django_db
 class TestPublicValidationAPI:
