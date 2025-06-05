@@ -6,7 +6,7 @@
           The COUNTER Validation Tool is a web application that allows you to validate your COUNTER
           reports. It is designed to help you ensure that your reports are compliant with the
           <a
-            href="https://cop5.projectcounter.org/"
+            href="https://cop5.countermetrics.org/"
             target="_blank"
             >COUNTER Code of Practice</a
           >.
@@ -39,6 +39,7 @@
               <li>Test Development Environment</li>
               <li>Share Your Validations with Others</li>
               <li>Get On-Screen Error Display and Download Reports</li>
+              <li>Use API to submit reports for validation and check results</li>
             </ul>
           </v-card-text>
         </v-card>
