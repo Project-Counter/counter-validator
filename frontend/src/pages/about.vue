@@ -73,7 +73,9 @@
     <v-row>
       <v-col class="py-10">
         <v-alert type="info">
-          Have you found a bug? Please report it on the
+          This is a <strong>beta version</strong> of the COUNTER Validation Tool.
+          <br />
+          If you have found a bug, we would appreciate it if you could report it on the
           <a
             href="https://github.com/Project-Counter/counter-validation-tool/issues"
             target="_blank"
