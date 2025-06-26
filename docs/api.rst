@@ -1,8 +1,8 @@
-===========================
-COUNTER Validation Tool API
-===========================
+=====================
+COUNTER Validator API
+=====================
 
-The COUNTER Validation Tool offers a simple RESTful API for submitting COUNTER reports for validation and retrieving the results.
+The COUNTER Validator offers a simple RESTful API for submitting COUNTER reports for validation and retrieving the results.
 The API is part of the public instance at `https://validator.countermetrics.org <https://validator.countermetrics.org>`_, and is also available
 when running your own instance (see :doc:`own-instance`).
 

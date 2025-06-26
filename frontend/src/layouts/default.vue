@@ -8,7 +8,7 @@
         <router-link
           to="/"
           class="raleway text-decoration-none text-white font-weight-medium text-h5"
-          >COUNTER Validation Tool</router-link
+          >COUNTER Validator</router-link
         >
       </v-app-bar-title>
     </v-app-bar>

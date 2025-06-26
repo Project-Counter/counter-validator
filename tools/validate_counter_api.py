@@ -1,6 +1,6 @@
 """
-Simple CLI client to start a validation of a COUNTER API using the COUNTER validation tool.
-It relies on the API Key access to the COUNTER validation tool and requires an API key
+Simple CLI client to start a validation of a COUNTER API using the COUNTER validator.
+It relies on the API Key access to the COUNTER validator and requires an API key
 to be set in the environment variable COUNTER_VALIDATOR_API_KEY.
 """
 

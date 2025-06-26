@@ -3,7 +3,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "counter-validation-tool"
+name = "counter-validator"
 version = "0.8.1"
 description = ""
 authors = [

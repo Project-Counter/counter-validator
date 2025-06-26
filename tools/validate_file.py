@@ -1,6 +1,6 @@
 """
-Simple CLI client to upload a file for validation to the COUNTER validation tool.
-It relies on the API Key access to the COUNTER validation tool and requires an API key
+Simple CLI client to upload a file for validation to the COUNTER validator.
+It relies on the API Key access to the COUNTER validator and requires an API key
 to be set in the environment variable COUNTER_VALIDATION_API_KEY.
 """
 

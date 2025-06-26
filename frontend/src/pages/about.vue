@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <h2>COUNTER Validation Tool</h2>
+        <h2>COUNTER Validator</h2>
       </v-col>
     </v-row>
     <v-row>
@@ -73,7 +73,7 @@
     <v-row>
       <v-col class="py-10">
         <v-alert type="info">
-          This is a <strong>beta version</strong> of the COUNTER Validation Tool.
+          This is a <strong>beta version</strong> of the COUNTER Validator.
           <br />
           If you have found a bug, we would appreciate it if you could report it on the
           <a

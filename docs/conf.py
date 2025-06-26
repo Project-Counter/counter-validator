@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "COUNTER Validation Tool"
+project = "COUNTER Validator"
 copyright = "2025, COUNTER"  # noqa: A001
 author = "Beda Kosata"
 release = "0.6.0"

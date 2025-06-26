@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <p>
-          The COUNTER Validation Tool is a web application that allows you to validate your COUNTER
+          The COUNTER Validator is a web application that allows you to validate your COUNTER
           reports. It is designed to help you ensure that your reports are compliant with the
           <a
             href="https://cop5.countermetrics.org/"
@@ -97,7 +97,7 @@
         </p>
 
         <p class="mt-8">
-          The COUNTER Validation Tool is published as open source and available on
+          The COUNTER Validator is published as open source and available on
 
           <a
             href="https://github.com/Project-Counter/counter-validation-tool"

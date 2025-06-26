@@ -20,7 +20,7 @@
         <router-link
           to="/"
           class="text-decoration-none raleway"
-          >COUNTER Validation Tool</router-link
+          >COUNTER Validator</router-link
         >
       </h1>
     </v-app-bar>

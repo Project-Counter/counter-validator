@@ -20,7 +20,7 @@ applications, you should be able to figure it out.
 Using Docker
 ------------
 
-The easiest way to run the COUNTER Validation Tool is by using Docker. Because the application comprises of several components,
+The easiest way to run the COUNTER Validator is by using Docker. Because the application comprises of several components,
 it uses Docker Compose to make it easy to spin up all the necessary services.
 
 This method is currently in preparation and will be documented here in the future.

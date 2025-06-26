@@ -17,7 +17,7 @@
 
     <h3 class="mt-10">API keys</h3>
     <p class="text-caption text-medium-emphasis mb-3">
-      Manage tokens for computer access to the Validation Tool
+      Manage tokens for computer access to the Validator
     </p>
 
     <api-key-table />

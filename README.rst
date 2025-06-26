@@ -1,7 +1,7 @@
-COUNTER Validation Tool
-=======================
+COUNTER Validator
+=================
 
-This repository contains the COUNTER Validation Tool source code.
+This repository contains the COUNTER Validator source code.
 
 It is licensed under the `Apache License, Version 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_.
 
