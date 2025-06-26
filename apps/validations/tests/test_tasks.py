@@ -24,6 +24,8 @@ class ResponseMock:
             "header": {
                 "report": {"A1": "Foobar"},
                 "result": ["This is a report", 'for "Foobar"'],
+            },
+            "reportinfo": {
                 "cop_version": "5",
                 "report_id": "TR",
                 "created": "2021-09-30T14:00:00",
@@ -80,8 +82,8 @@ class TestFileValidationTask:
         assert obj.core.status == ValidationStatus.SUCCESS
 
         assert obj.core.used_memory == json["memory"]
-        assert obj.core.cop_version == json["result"]["header"]["cop_version"]
-        assert obj.core.report_code == json["result"]["header"]["report_id"]
+        assert obj.core.cop_version == json["result"]["reportinfo"]["cop_version"]
+        assert obj.core.report_code == json["result"]["reportinfo"]["report_id"]
 
     @pytest.mark.parametrize(
         ["file_name", "result", "message_count"],
@@ -174,8 +176,8 @@ class TestCounterAPIValidationTask:
         obj.refresh_from_db()
         assert obj.core.status == ValidationStatus.SUCCESS
         assert obj.core.used_memory == json["memory"]
-        assert obj.core.cop_version == json["result"]["header"]["cop_version"]
-        assert obj.core.report_code == json["result"]["header"]["report_id"]
+        assert obj.core.cop_version == json["result"]["reportinfo"]["cop_version"]
+        assert obj.core.report_code == json["result"]["reportinfo"]["report_id"]
         assert obj.file is not None
         assert obj.core.file_size > 0
         with open("test_data/reports/50-Sample-TR.json", "rb") as infile:

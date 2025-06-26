@@ -4,15 +4,6 @@
       "datetime": "2025-03-25 06:54:28",
       "result": "Passed",
       "header": {
-        "result": [
-          "Validation Result for COUNTER Release 5 Report",
-          "",
-          "Title Master Report (TR)",
-          "for Client Demo Site",
-          "created 2019-04-25T11:39:56Z by Publisher Platform Delta",
-          "covering 2016-01-01 to 2016-03-31",
-          "(please see the Report Header sheet for details)"
-        ],
         "report": {
           "A1": "Report_Name",
           "B1": "Title Master Report",
@@ -36,6 +27,17 @@
           "A12": "Created_By",
           "B12": "Publisher Platform Delta"
         },
+        "result": [
+          "Validation Result for COUNTER Release 5 Report",
+          "",
+          "Title Master Report (TR)",
+          "for Client Demo Site",
+          "created 2019-04-25T11:39:56Z by Publisher Platform Delta",
+          "covering 2016-01-01 to 2016-03-31",
+          "(please see the Report Header sheet for details)"
+        ]
+      },
+      "reportinfo": {
         "report_id": "TR",
         "format": "tabular",
         "cop_version": "5",

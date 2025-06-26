@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 #
 
 
-class HeaderSerializer(serializers.Serializer):
+class ReportInfoSerializer(serializers.Serializer):
     cop_version = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     report_id = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     institution_name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
@@ -32,10 +32,13 @@ class HeaderSerializer(serializers.Serializer):
     begin_date = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     end_date = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     format = serializers.ChoiceField(choices=["tabular", "json"], required=False, allow_blank=True)
+
+
+class HeaderSerializer(serializers.Serializer):
+    report = serializers.DictField(required=False, allow_null=True, allow_empty=True)
     result = serializers.ListField(
         child=serializers.CharField(allow_blank=True), required=False, allow_empty=True
     )  # list of strings
-    report = serializers.DictField(required=False, allow_null=True, allow_empty=True)
 
 
 class MessageSerializer(serializers.Serializer):
@@ -49,6 +52,7 @@ class MessageSerializer(serializers.Serializer):
 
 class ResultSerializer(serializers.Serializer):
     header = HeaderSerializer()
+    reportinfo = ReportInfoSerializer(required=False, allow_null=True)
     messages = MessageSerializer(many=True)
     result = serializers.ChoiceField(choices=SeverityLevel.labels)
     datetime = serializers.CharField()
@@ -83,10 +87,10 @@ def update_validation_result(validation: Validation, result: dict, duration: flo
     validation.core.stats = validation.add_result(data["result"])
     validation.core.used_memory = data["memory"]
     validation.core.status = ValidationStatus.SUCCESS
-    if header := data["result"].get("header", {}):
+    if reportinfo := data["result"].get("reportinfo", {}):
         # replace potentially null values with ""
-        validation.core.cop_version = header.get("cop_version", "") or ""
-        validation.core.report_code = header.get("report_id", "") or ""
+        validation.core.cop_version = reportinfo.get("cop_version", "") or ""
+        validation.core.report_code = reportinfo.get("report_id", "") or ""
     if (report := data.get("report")) and hasattr(validation, "file"):
         # only set the file if the Validation object has a file field
         # this should be always true when the `report` is present
