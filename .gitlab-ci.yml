@@ -1,4 +1,4 @@
-image: beda42/validation-tool-ci:03
+image: beda42/validator-ci:03
 
 stages:
   - lints

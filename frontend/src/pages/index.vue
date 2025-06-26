@@ -100,7 +100,7 @@
           The COUNTER Validator is published as open source and available on
 
           <a
-            href="https://github.com/Project-Counter/counter-validation-tool"
+            href="https://github.com/Project-Counter/counter-validator"
             target="_blank"
             >GitHub</a
           >. There you will find the complete source code and information about how to run your own

@@ -9,7 +9,7 @@ However, if you for some reason want to run your own instance, we have you cover
 Running from source
 -------------------
 
-You can download the source code from `GitHub <https://github.com/Project-Counter/counter-validation-tool>`_ and run it locally.
+You can download the source code from `GitHub <https://github.com/Project-Counter/counter-validator>`_ and run it locally.
 It is written in Python in combination with Vue for the frontend. It will require some additional setup to get it running, like
 creating a database and setting up a virtual environment.
 

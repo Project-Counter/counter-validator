@@ -1,6 +1,6 @@
 from celery import Celery
 
-app = Celery("counter-validation-tool")
+app = Celery("counter-validator")
 
 app.config_from_object("django.conf:settings", namespace="CELERY")
 

@@ -24,5 +24,5 @@ The application is currently in beta. You can try it out at `https://validator.c
 Documentation
 -------------
 
-The documentation is available at `https://counter-validation-tool.readthedocs.io/en/latest/index.html <https://counter-validation-tool.readthedocs.io/en/latest/index.html>`_.
+The documentation is available at `https://counter-validator.readthedocs.io/en/latest/index.html <https://counter-validator.readthedocs.io/en/latest/index.html>`_.
 The source code of the documentation is available in the `docs directory <docs/index.rst>`_.

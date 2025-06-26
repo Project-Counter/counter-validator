@@ -49,7 +49,7 @@
               <td>
                 <v-icon class="me-2">mdi-github</v-icon>
                 <a
-                  href="https://github.com/Project-Counter/counter-validation-tool"
+                  href="https://github.com/Project-Counter/counter-validator"
                   target="_blank"
                   >GitHub</a
                 >
@@ -60,7 +60,7 @@
               <td>
                 <v-icon class="me-2">mdi-file-document-arrow-right-outline</v-icon>
                 <a
-                  href="https://counter-validation-tool.readthedocs.io/"
+                  href="https://counter-validator.readthedocs.io/"
                   target="_blank"
                   >ReadTheDocs</a
                 >
@@ -77,7 +77,7 @@
           <br />
           If you have found a bug, we would appreciate it if you could report it on the
           <a
-            href="https://github.com/Project-Counter/counter-validation-tool/issues"
+            href="https://github.com/Project-Counter/counter-validator/issues"
             target="_blank"
             >GitHub issues page</a
           >.

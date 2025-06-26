@@ -1,5 +1,5 @@
 {
-  "name": "counter-validation-tool",
+  "name": "counter-validator",
   "version": "0.8.1",
   "scripts": {
     "dev": "vite",
