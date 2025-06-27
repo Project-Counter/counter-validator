@@ -2,8 +2,9 @@ from datetime import timedelta
 
 import celery
 from django.conf import settings
-from django.core.mail import mail_admins, send_mail
+from django.core.mail import EmailMultiAlternatives, mail_admins, send_mail
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.timezone import now
 from validations.models import ValidationCore
 
@@ -38,6 +39,31 @@ def async_mail_operators(subject, body):
 
 
 @celery.shared_task
+def async_mail_operators_html(subject, html_body, text_body):
+    """
+    Send HTML email to operators (defaults to ADMINS if OPERATORS not specified).
+    Uses the OPERATORS setting from Django settings.
+    """
+    if not settings.OPERATORS:
+        # If no operators are configured, don't send any emails
+        return
+
+    # Extract email addresses from the OPERATORS setting
+    # OPERATORS is a tuple of tuples, where each inner tuple is (name, email)
+    operator_recipients = [f"{name} <{email}>" for name, email in settings.OPERATORS]
+
+    if operator_recipients:
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=operator_recipients,
+        )
+        email.attach_alternative(html_body, "text/html")
+        email.send(fail_silently=False)
+
+
+@celery.shared_task
 def daily_validation_report():
     """
     Send daily validation report to operators with statistics from the last 24 hours.
@@ -50,7 +76,7 @@ def daily_validation_report():
     validation_count = ValidationCore.objects.filter(created__gte=start_time).count()
 
     # Get validations grouped by user for the last 24 hours
-    user_validations = (
+    user_validations_raw = (
         ValidationCore.objects.filter(created__gte=start_time)
         .values("user__email", "user__first_name", "user__last_name")
         .annotate(count=models.Count("id"))
@@ -58,7 +84,7 @@ def daily_validation_report():
     )
 
     # Get validations grouped by CoP version for the last 24 hours
-    cop_version_validations = (
+    cop_version_validations_raw = (
         ValidationCore.objects.filter(created__gte=start_time)
         .values("cop_version")
         .annotate(count=models.Count("id"))
@@ -70,23 +96,40 @@ def daily_validation_report():
         f"{start_time.strftime('%Y-%m-%d %H:%M:%S')} to {end_time.strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
-    subject = f"Daily Validation Report - {end_time.strftime('%Y-%m-%d')}"
+    # Prepare user data for templates
+    user_validations = []
+    for user_data in user_validations_raw:
+        user_email = user_data["user__email"] or "Unknown"
+        user_name = (
+            f"{user_data['user__first_name'] or ''} {user_data['user__last_name'] or ''}".strip()
+        )
+        user_validations.append(
+            {
+                "user_email": user_email,
+                "user_name": user_name if user_name else None,
+                "count": user_data["count"],
+            }
+        )
 
-    # Build the user statistics table
+    # Prepare CoP version data for templates
+    cop_version_validations = []
+    for cop_data in cop_version_validations_raw:
+        cop_version_validations.append(
+            {"cop_version": cop_data["cop_version"] or "Unknown", "count": cop_data["count"]}
+        )
+
+    # Build plain text tables for the text template
     user_table = ""
     if user_validations:
-        user_table += "-" * 60 + "\n"
+        user_table = "\n" + "-" * 60 + "\n"
         user_table += f"{'User':<40} {'Validations':<10}\n"
         user_table += "-" * 60 + "\n"
 
         for user_data in user_validations:
-            user_email = user_data["user__email"] or "Unknown"
-            if user_name := (
-                f"{user_data['user__first_name'] or ''} {user_data['user__last_name'] or ''}"
-            ).strip():
-                user_display = f"{user_name} ({user_email})"
+            if user_data["user_name"]:
+                user_display = f"{user_data['user_name']} ({user_data['user_email']})"
             else:
-                user_display = user_email
+                user_display = user_data["user_email"]
 
             # Truncate user display if too long
             if len(user_display) > 39:
@@ -96,33 +139,32 @@ def daily_validation_report():
     else:
         user_table = "\nNo user activity in the reported period.\n"
 
-    # Build the CoP version statistics table
     cop_version_table = ""
     if cop_version_validations:
-        cop_version_table += "-" * 50 + "\n"
+        cop_version_table = "\n" + "-" * 50 + "\n"
         cop_version_table += f"{'CoP Version':<20} {'Validations':<10}\n"
         cop_version_table += "-" * 50 + "\n"
 
         for cop_data in cop_version_validations:
-            cop_version = cop_data["cop_version"] or "Unknown"
-            cop_version_table += f"{cop_version:<20} {cop_data['count']:<10}\n"
+            cop_version_table += f"{cop_data['cop_version']:<20} {cop_data['count']:<10}\n"
     else:
         cop_version_table = "\nNo CoP version data in the reported period.\n"
 
-    body = f"""Daily Validation Report
+    subject = f"Daily Validation Report - {end_time.strftime('%Y-%m-%d')}"
 
-Time Period: {date_range}
-Total Validations: {validation_count}
+    # Prepare context for templates
+    context = {
+        "date_range": date_range,
+        "validation_count": validation_count,
+        "user_validations": user_validations,
+        "cop_version_validations": cop_version_validations,
+        "user_table": user_table,
+        "cop_version_table": cop_version_table,
+    }
 
-Validations by CoP version:
-{cop_version_table}
+    # Render both HTML and text versions
+    html_body = render_to_string("core/daily_validation_report.html", context)
+    text_body = render_to_string("core/daily_validation_report.txt", context)
 
-Validations by user:
-{user_table}
-
----
-COUNTER Validator
-"""
-
-    # Send the report to operators
-    async_mail_operators.delay(subject, body)
+    # Send the report to operators with both HTML and text versions
+    async_mail_operators_html.delay(subject, html_body, text_body)
