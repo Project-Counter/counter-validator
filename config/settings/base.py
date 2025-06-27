@@ -114,6 +114,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "counter.tasks.update_registry_models",
         "schedule": crontab(minute="10", hour="0"),  # every day at 00:10
     },
+    "daily_validation_report": {
+        "task": "core.tasks.daily_validation_report",
+        "schedule": crontab(minute="0", hour="6"),  # every day at 6:00 AM
+    },
 }
 
 
