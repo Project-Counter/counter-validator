@@ -228,6 +228,10 @@ LOGGING = {
 DJANGO_ADMIN_PATH = config("DJANGO_ADMIN_PATH", default="admin/")
 # Email
 ADMINS = config("ADMINS", cast=Csv(cast=Csv(post_process=tuple), delimiter=";"), default="")
+OPERATORS = config("OPERATORS", cast=Csv(cast=Csv(post_process=tuple), delimiter=";"), default="")
+if not OPERATORS:
+    OPERATORS = ADMINS
+
 EMAIL_SUBJECT_PREFIX = config("EMAIL_SUBJECT_PREFIX", default="[COUNTER Validator] ")
 SERVER_EMAIL = config("SERVER_EMAIL", default="root@localhost")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="root@localhost")

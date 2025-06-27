@@ -322,7 +322,7 @@ class TestApiKeyAPI:
 @pytest.mark.django_db
 class TestRegistrationAPI:
     def test_registration(self, client_unauthenticated):
-        with patch("core.signals.async_mail_admins") as email_task:
+        with patch("core.signals.async_mail_operators") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
                 data={
@@ -336,7 +336,7 @@ class TestRegistrationAPI:
             assert User.objects.filter(email="foo@bar.baz").exists()
 
     def test_registration_invalid_email(self, client_unauthenticated):
-        with patch("core.signals.async_mail_admins") as email_task:
+        with patch("core.signals.async_mail_operators") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
                 data={
@@ -349,7 +349,7 @@ class TestRegistrationAPI:
             assert not email_task.delay.called
 
     def test_registration_already_used_email(self, client_unauthenticated, normal_user):
-        with patch("core.signals.async_mail_admins") as email_task:
+        with patch("core.signals.async_mail_operators") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
                 data={
@@ -365,7 +365,7 @@ class TestRegistrationAPI:
             assert not email_task.delay.called
 
     def test_names_are_stored(self, client_unauthenticated):
-        with patch("core.signals.async_mail_admins") as email_task:
+        with patch("core.signals.async_mail_operators") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
                 data={
@@ -382,8 +382,8 @@ class TestRegistrationAPI:
             assert user.first_name == "Foo"
             assert user.last_name == "Bar"
 
-    def test_email_to_admins_sent_after_registration(self, client_unauthenticated, mailoutbox):
-        with patch("core.signals.async_mail_admins") as email_task:
+    def test_email_to_operators_sent_after_registration(self, client_unauthenticated, mailoutbox):
+        with patch("core.signals.async_mail_operators") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
                 data={
