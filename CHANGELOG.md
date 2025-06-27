@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] - 2025-06-27
 
 - feat: rename project from "COUNTER Validation Tool" to "COUNTER Validator"
+- update the code to use the new validation module interface with `reportinfo` attribute
 - feat: add daily validation report functionality with email notifications to operators (see `OPERATORS` in settings)
 
 ## [0.8.1] - 2025-06-05
