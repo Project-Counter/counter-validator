@@ -15,6 +15,7 @@ class MyUserAdmin(UserAdmin):
         "last_name",
         "last_login",
         "is_validator_admin",
+        "receive_operator_emails",
         "is_active",
         "is_staff",
     )
@@ -26,6 +27,7 @@ class MyUserAdmin(UserAdmin):
         "first_name",
         "last_name",
         "is_validator_admin",
+        "receive_operator_emails",
         "is_active",
         "is_staff",
         "is_superuser",

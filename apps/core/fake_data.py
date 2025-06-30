@@ -11,6 +11,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     is_active = True
     is_validator_admin = False
+    receive_operator_emails = factory.LazyAttribute(lambda o: o.is_validator_admin)
 
     @factory.post_generation
     def verified_email(self, create, extracted, **kwargs):

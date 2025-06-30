@@ -2,14 +2,14 @@ from allauth.account.models import EmailAddress
 from allauth.account.signals import user_signed_up
 from django.dispatch import Signal, receiver
 
-from .tasks import async_mail_operators
+from .tasks import async_mail_admins
 
 password_reset_signal = Signal()
 
 
 @receiver(user_signed_up)
 def mail_about_user_signing_up(request, user, **kwargs):
-    async_mail_operators.delay(
+    async_mail_admins.delay(
         f"New user registered - {user.email}",
         f"""\
 A new user has registered.

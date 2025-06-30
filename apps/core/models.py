@@ -49,6 +49,10 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     is_validator_admin = models.BooleanField(default=False)
+    receive_operator_emails = models.BooleanField(
+        default=True,
+        help_text="Whether this user should receive operator emails. Only relevant for admins.",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ()

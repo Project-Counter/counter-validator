@@ -15,52 +15,59 @@ def async_mail_admins(subject, body):
 
 
 @celery.shared_task
-def async_mail_operators(subject, body):
+def async_mail_operators(subject, text_body, html_body=None):
     """
-    Send email to operators (defaults to ADMINS if OPERATORS not specified).
-    Uses the OPERATORS setting from Django settings.
+    Send email to operators and validator admins.
+
+    Args:
+        subject: Email subject
+        text_body: Plain text email body
+        html_body: Optional HTML email body. If provided, sends multipart email
     """
-    if not settings.OPERATORS:
-        # If no operators are configured, don't send any emails
+    recipients = set()  # Use set to avoid duplicates
+
+    # Add operators from settings
+    if settings.OPERATORS:
+        for name, email in settings.OPERATORS:
+            recipients.add(f"{name} <{email}>")
+
+    # Add validator admins
+    from core.models import User
+
+    validator_admins = User.objects.filter(
+        is_validator_admin=True, receive_operator_emails=True, is_active=True
+    ).values_list("first_name", "last_name", "email")
+
+    for first_name, last_name, email in validator_admins:
+        name = f"{first_name or ''} {last_name or ''}".strip()
+        if name:
+            recipients.add(f"{name} <{email}>")
+        else:
+            recipients.add(email)
+
+    if not recipients:
+        # If no recipients configured, don't send any emails
         return
 
-    # Extract email addresses from the OPERATORS setting
-    # OPERATORS is a tuple of tuples, where each inner tuple is (name, email)
-    operator_recipients = [f"{name} <{email}>" for name, email in settings.OPERATORS]
-
-    if operator_recipients:
-        send_mail(
-            subject=subject,
-            message=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=operator_recipients,
-            fail_silently=False,
-        )
-
-
-@celery.shared_task
-def async_mail_operators_html(subject, html_body, text_body):
-    """
-    Send HTML email to operators (defaults to ADMINS if OPERATORS not specified).
-    Uses the OPERATORS setting from Django settings.
-    """
-    if not settings.OPERATORS:
-        # If no operators are configured, don't send any emails
-        return
-
-    # Extract email addresses from the OPERATORS setting
-    # OPERATORS is a tuple of tuples, where each inner tuple is (name, email)
-    operator_recipients = [f"{name} <{email}>" for name, email in settings.OPERATORS]
-
-    if operator_recipients:
+    if html_body:
+        # Send multipart email with both text and HTML
         email = EmailMultiAlternatives(
             subject=subject,
             body=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=operator_recipients,
+            to=list(recipients),
         )
         email.attach_alternative(html_body, "text/html")
         email.send(fail_silently=False)
+    else:
+        # Send simple text email
+        send_mail(
+            subject=subject,
+            message=text_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=list(recipients),
+            fail_silently=False,
+        )
 
 
 @celery.shared_task
@@ -167,4 +174,4 @@ def daily_validation_report():
     text_body = render_to_string("core/daily_validation_report.txt", context)
 
     # Send the report to operators with both HTML and text versions
-    async_mail_operators_html.delay(subject, html_body, text_body)
+    async_mail_operators.delay(subject, text_body, html_body)
