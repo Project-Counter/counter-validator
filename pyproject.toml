@@ -4,13 +4,13 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "counter-validator"
-version = "0.9.0"
-description = ""
+version = "0.10.0"
+description = "COUNTER Validator - A tool for validating COUNTER reports"
 authors = [
     "Beda Kosata <beda@bigdigdata.com>",
     "Jakub Smetana <jakub.smetana@protonmail.com>",
 ]
-readme = "README.md"
+readme = "README.rst"
 package-mode = false
 
 [tool.poetry.dependencies]

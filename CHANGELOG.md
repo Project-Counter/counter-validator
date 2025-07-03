@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2025-07-03
+
+- feat: make it possible to send operator emails to validator admins via new `receive_operator_emails` user field
+- feat: enhance daily validation report to include validation results breakdown with severity levels
+- feat: add email notifications to admins for validation failures
+
 ## [0.9.0] - 2025-06-27
 
 - feat: rename project from "COUNTER Validation Tool" to "COUNTER Validator"
