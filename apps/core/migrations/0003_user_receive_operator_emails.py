@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
             model_name="user",
             name="receive_operator_emails",
             field=models.BooleanField(
-                default=True,
+                default=False,
                 help_text="Whether this user should receive operator emails. Only relevant for admins.",
             ),
         ),
