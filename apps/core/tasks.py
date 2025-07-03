@@ -6,6 +6,7 @@ from django.core.mail import EmailMultiAlternatives, mail_admins, send_mail
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.timezone import now
+from validations.enums import SeverityLevel
 from validations.models import ValidationCore
 
 
@@ -98,6 +99,14 @@ def daily_validation_report():
         .order_by("-count", "cop_version")
     )
 
+    # Get validations grouped by validation result for the last 24 hours
+    validation_result_validations_raw = (
+        ValidationCore.objects.filter(created__gte=start_time)
+        .values("validation_result")
+        .annotate(count=models.Count("id"))
+        .order_by("-count", "validation_result")
+    )
+
     # Format the date range for the email
     date_range = (
         f"{start_time.strftime('%Y-%m-%d %H:%M:%S')} to {end_time.strftime('%Y-%m-%d %H:%M:%S')}"
@@ -123,6 +132,19 @@ def daily_validation_report():
     for cop_data in cop_version_validations_raw:
         cop_version_validations.append(
             {"cop_version": cop_data["cop_version"] or "Unknown", "count": cop_data["count"]}
+        )
+
+    # Prepare validation result data for templates
+    validation_result_validations = []
+    for result_data in validation_result_validations_raw:
+        # Get the display name for the validation result
+        try:
+            result_display = SeverityLevel(result_data["validation_result"]).label
+        except ValueError:
+            result_display = "Unknown"
+
+        validation_result_validations.append(
+            {"validation_result": result_display, "count": result_data["count"]}
         )
 
     # Build plain text tables for the text template
@@ -157,6 +179,19 @@ def daily_validation_report():
     else:
         cop_version_table = "\nNo CoP version data in the reported period.\n"
 
+    validation_result_table = ""
+    if validation_result_validations:
+        validation_result_table = "\n" + "-" * 50 + "\n"
+        validation_result_table += f"{'Validation Result':<20} {'Validations':<10}\n"
+        validation_result_table += "-" * 50 + "\n"
+
+        for result_data in validation_result_validations:
+            validation_result_table += (
+                f"{result_data['validation_result']:<20} {result_data['count']:<10}\n"
+            )
+    else:
+        validation_result_table = "\nNo validation result data in the reported period.\n"
+
     subject = f"Daily Validation Report - {end_time.strftime('%Y-%m-%d')}"
 
     # Prepare context for templates
@@ -165,8 +200,10 @@ def daily_validation_report():
         "validation_count": validation_count,
         "user_validations": user_validations,
         "cop_version_validations": cop_version_validations,
+        "validation_result_validations": validation_result_validations,
         "user_table": user_table,
         "cop_version_table": cop_version_table,
+        "validation_result_table": validation_result_table,
     }
 
     # Render both HTML and text versions

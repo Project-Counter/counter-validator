@@ -68,6 +68,28 @@
         .right {
             text-align: right;
         }
+        /* Severity level colors matching frontend */
+        .severity-unknown {
+            color: #aaaaaa;
+        }
+        .severity-passed {
+            color: #0fa40f;
+        }
+        .severity-notice {
+            color: #0267b4;
+        }
+        .severity-warning {
+            color: #fc6100;
+        }
+        .severity-error {
+            color: #dd0000;
+        }
+        .severity-critical-error {
+            color: #aa0000;
+        }
+        .severity-fatal-error {
+            color: #8f0026;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +124,48 @@
             </table>
         {% else %}
             <p class="no-data">No CoP version data in the reported period.</p>
+        {% endif %}
+    </div>
+
+    <div class="table-container">
+        <div class="table-title">Validations by result:</div>
+        {% if validation_result_validations %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Validation Result</th>
+                        <th class="right">Validations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result_data in validation_result_validations %}
+                    <tr>
+                        <td>
+                            {% if result_data.validation_result == "Unknown" %}
+                                <span class="severity-unknown">{{ result_data.validation_result }}</span>
+                            {% elif result_data.validation_result == "Passed" %}
+                                <span class="severity-passed">{{ result_data.validation_result }}</span>
+                            {% elif result_data.validation_result == "Notice" %}
+                                <span class="severity-notice">{{ result_data.validation_result }}</span>
+                            {% elif result_data.validation_result == "Warning" %}
+                                <span class="severity-warning">{{ result_data.validation_result }}</span>
+                            {% elif result_data.validation_result == "Error" %}
+                                <span class="severity-error">{{ result_data.validation_result }}</span>
+                            {% elif result_data.validation_result == "Critical error" %}
+                                <span class="severity-critical-error">{{ result_data.validation_result }}</span>
+                            {% elif result_data.validation_result == "Fatal error" %}
+                                <span class="severity-fatal-error">{{ result_data.validation_result }}</span>
+                            {% else %}
+                                {{ result_data.validation_result }}
+                            {% endif %}
+                        </td>
+                        <td class="right">{{ result_data.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-data">No validation result data in the reported period.</p>
         {% endif %}
     </div>
 

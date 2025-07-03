@@ -8,6 +8,9 @@ This report shows the number of validations performed in the last 24 hours.
 Validations by CoP version:
 {{ cop_version_table }}
 
+Validations by result:
+{{ validation_result_table }}
+
 Validations by user:
 {{ user_table }}
 

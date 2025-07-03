@@ -5,6 +5,7 @@ import pytest
 from django.conf import settings
 from django.utils.timezone import now
 from freezegun import freeze_time
+from validations.enums import SeverityLevel
 from validations.fake_data import ValidationCoreFactory
 
 from core.fake_data import UserFactory
@@ -228,6 +229,249 @@ class TestDailyValidationReport:
             assert "Unknown" in text_body
             assert "No CoP version data in the reported period" not in html_body
             assert "No CoP version data in the reported period" not in text_body
+
+    def test_daily_validation_report_validation_result_table(self):
+        """Test daily validation report includes validation result table with correct data."""
+        # Create validations with different validation results
+        with freeze_time(now() - timedelta(hours=6)):
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)  # 1 validation passed
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)  # 2nd validation passed
+            ValidationCoreFactory(validation_result=SeverityLevel.WARNING)  # 1 validation warning
+            ValidationCoreFactory(validation_result=SeverityLevel.ERROR)  # 1 validation error
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            text_body = call_args[0][1]
+            html_body = call_args[0][2]
+
+            # Check both HTML and text bodies contain correct information
+            assert "<strong>Total Validations:</strong> 4" in html_body
+            assert "Total Validations: 4" in text_body
+            assert "Validations by result:" in html_body
+            assert "Validations by result:" in text_body
+            assert "Passed" in html_body
+            assert "Passed" in text_body
+            assert "Warning" in html_body
+            assert "Warning" in text_body
+            assert "Error" in html_body
+            assert "Error" in text_body
+            # Check that Passed appears first (more validations)
+            passed_index = html_body.find("Passed")
+            warning_index = html_body.find("Warning")
+            assert passed_index < warning_index
+
+    def test_daily_validation_report_validation_result_ordering(self):
+        """
+        Test daily validation report validation result table is ordered by count then by
+        result.
+        """
+        # Create validations with different validation results
+        with freeze_time(now() - timedelta(hours=6)):
+            # Create 3 warnings (should appear first due to count)
+            for _ in range(3):
+                ValidationCoreFactory(validation_result=SeverityLevel.WARNING)
+            # Create 2 errors (should appear second)
+            for _ in range(2):
+                ValidationCoreFactory(validation_result=SeverityLevel.ERROR)
+            # Create 1 passed (should appear third)
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            text_body = call_args[0][1]
+            html_body = call_args[0][2]
+
+            # Check both HTML and text bodies contain correct information
+            assert "<strong>Total Validations:</strong> 6" in html_body
+            assert "Total Validations: 6" in text_body
+            assert "Validations by result:" in html_body
+            assert "Validations by result:" in text_body
+
+            # Check ordering: Warning (3) should appear before Error (2), which should appear before
+            # Passed (1)
+            warning_index = html_body.find("Warning")
+            error_index = html_body.find("Error")
+            passed_index = html_body.find("Passed")
+
+            assert warning_index < error_index
+            assert error_index < passed_index
+
+    def test_daily_validation_report_all_validation_results(self):
+        """Test daily validation report includes all possible validation result types."""
+        # Create validations with all possible validation results
+        with freeze_time(now() - timedelta(hours=6)):
+            ValidationCoreFactory(validation_result=SeverityLevel.UNKNOWN)
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)
+            ValidationCoreFactory(validation_result=SeverityLevel.NOTICE)
+            ValidationCoreFactory(validation_result=SeverityLevel.WARNING)
+            ValidationCoreFactory(validation_result=SeverityLevel.ERROR)
+            ValidationCoreFactory(validation_result=SeverityLevel.CRITICAL_ERROR)
+            ValidationCoreFactory(validation_result=SeverityLevel.FATAL_ERROR)
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            text_body = call_args[0][1]
+            html_body = call_args[0][2]
+
+            # Check both HTML and text bodies contain correct information
+            assert "<strong>Total Validations:</strong> 7" in html_body
+            assert "Total Validations: 7" in text_body
+            assert "Validations by result:" in html_body
+            assert "Validations by result:" in text_body
+
+            # Check all validation result types are present
+            assert "Unknown" in html_body
+            assert "Unknown" in text_body
+            assert "Passed" in html_body
+            assert "Passed" in text_body
+            assert "Notice" in html_body
+            assert "Notice" in text_body
+            assert "Warning" in html_body
+            assert "Warning" in text_body
+            assert "Error" in html_body
+            assert "Error" in text_body
+            assert "Critical error" in html_body
+            assert "Critical error" in text_body
+            assert "Fatal error" in html_body
+            assert "Fatal error" in text_body
+
+    def test_daily_validation_report_no_validation_result_data(self):
+        """Test daily validation report handles case with no validation result data."""
+        # Create validations outside the 24-hour window
+        with freeze_time(now() - timedelta(hours=25)):
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)
+            ValidationCoreFactory(validation_result=SeverityLevel.ERROR)
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            text_body = call_args[0][1]
+            html_body = call_args[0][2]
+
+            # Check both HTML and text bodies contain correct information
+            assert "<strong>Total Validations:</strong> 0" in html_body
+            assert "Total Validations: 0" in text_body
+            assert "Validations by result:" in html_body
+            assert "Validations by result:" in text_body
+            assert "No validation result data in the reported period" in html_body
+            assert "No validation result data in the reported period" in text_body
+
+    def test_daily_validation_report_validation_result_with_unknown_value(self):
+        """Test daily validation report handles unknown validation result values gracefully."""
+        # Create a validation with an unknown validation result value
+        with freeze_time(now() - timedelta(hours=6)):
+            validation = ValidationCoreFactory()
+            # Set an invalid validation result value
+            validation.validation_result = 999
+            validation.save()
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            text_body = call_args[0][1]
+            html_body = call_args[0][2]
+
+            # Check both HTML and text bodies contain correct information
+            assert "<strong>Total Validations:</strong> 1" in html_body
+            assert "Total Validations: 1" in text_body
+            assert "Validations by result:" in html_body
+            assert "Validations by result:" in text_body
+            # Should display "Unknown" for invalid validation result values
+            assert "Unknown" in html_body
+            assert "Unknown" in text_body
+
+    def test_daily_validation_report_validation_result_table_in_text_format(self):
+        """Test daily validation report validation result table formatting in text version."""
+        # Create validations with different validation results
+        with freeze_time(now() - timedelta(hours=6)):
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)
+            ValidationCoreFactory(validation_result=SeverityLevel.WARNING)
+            ValidationCoreFactory(validation_result=SeverityLevel.ERROR)
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            text_body = call_args[0][1]
+
+            # Check text formatting
+            assert "Validations by result:" in text_body
+            assert "Validation Result" in text_body
+            assert "Validations" in text_body
+            assert "Passed" in text_body
+            assert "Warning" in text_body
+            assert "Error" in text_body
+            # Check for table formatting with dashes
+            assert "-" * 50 in text_body
+
+    def test_daily_validation_report_validation_result_colors_in_html(self):
+        """Test daily validation report validation result colors are applied in HTML version."""
+        # Create validations with different validation results
+        with freeze_time(now() - timedelta(hours=6)):
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)
+            ValidationCoreFactory(validation_result=SeverityLevel.WARNING)
+            ValidationCoreFactory(validation_result=SeverityLevel.ERROR)
+            ValidationCoreFactory(validation_result=SeverityLevel.CRITICAL_ERROR)
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            html_body = call_args[0][2]
+
+            # Check that severity level colors are applied
+            assert "severity-passed" in html_body
+            assert "severity-warning" in html_body
+            assert "severity-error" in html_body
+            assert "severity-critical-error" in html_body
+
+            # Check that CSS color definitions are included
+            assert "color: #0fa40f" in html_body  # Passed color
+            assert "color: #fc6100" in html_body  # Warning color
+            assert "color: #dd0000" in html_body  # Error color
+            assert "color: #aa0000" in html_body  # Critical error color
+
+            # Check that the severity levels are wrapped in colored spans
+            assert '<span class="severity-passed">Passed</span>' in html_body
+            assert '<span class="severity-warning">Warning</span>' in html_body
+            assert '<span class="severity-error">Error</span>' in html_body
+            assert '<span class="severity-critical-error">Critical error</span>' in html_body
 
     def test_async_mail_operators_includes_validator_admins(self):
         """Test that validator admins are included in email recipients."""
