@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] - 2025-07-03
 
+- fix: use data from `reportinfo` attribute to display extracted information both in UI and in exports
 - feat: make it possible to send operator emails to validator admins via new `receive_operator_emails` user field
 - feat: enhance daily validation report to include validation results breakdown with severity levels
 - feat: add email notifications to admins for validation failures
