@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import celery
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives, mail_admins, send_mail
 from django.db import models
 from django.template.loader import render_to_string
@@ -204,6 +205,7 @@ def daily_validation_report():
         "user_table": user_table,
         "cop_version_table": cop_version_table,
         "validation_result_table": validation_result_table,
+        "site_domain": get_current_site(None).domain,
     }
 
     # Render both HTML and text versions

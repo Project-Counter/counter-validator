@@ -467,11 +467,24 @@ class TestDailyValidationReport:
             assert "color: #dd0000" in html_body  # Error color
             assert "color: #aa0000" in html_body  # Critical error color
 
-            # Check that the severity levels are wrapped in colored spans
-            assert '<span class="severity-passed">Passed</span>' in html_body
-            assert '<span class="severity-warning">Warning</span>' in html_body
-            assert '<span class="severity-error">Error</span>' in html_body
-            assert '<span class="severity-critical-error">Critical error</span>' in html_body
+            # Check that the severity levels are wrapped in colored links with absolute URLs
+            assert '<a href="https://' in html_body
+            assert (
+                '/validation/admin?severity=Passed" class="severity-link" '
+                'style="color: #0fa40f;">Passed</a>' in html_body
+            )
+            assert (
+                '/validation/admin?severity=Warning" class="severity-link" '
+                'style="color: #fc6100;">Warning</a>' in html_body
+            )
+            assert (
+                '/validation/admin?severity=Error" class="severity-link" '
+                'style="color: #dd0000;">Error</a>' in html_body
+            )
+            assert (
+                '/validation/admin?severity=Critical%20error" class="severity-link" '
+                'style="color: #aa0000;">Critical error</a>' in html_body
+            )
 
     def test_async_mail_operators_includes_validator_admins(self):
         """Test that validator admins are included in email recipients."""
@@ -586,6 +599,29 @@ class TestDailyValidationReport:
 
             # Check that the inactive validator admin is NOT in the recipients
             assert "Admin User <admin@example.com>" not in recipients
+
+    def test_daily_validation_report_site_domain_in_context(self):
+        """
+        Test daily validation report includes site domain in template context for absolute URLs.
+        """
+        # Create a validation with a validation result
+        with freeze_time(now() - timedelta(hours=6)):
+            ValidationCoreFactory(validation_result=SeverityLevel.PASSED)
+
+        with patch("core.tasks.async_mail_operators") as mock_mail_operators:
+            daily_validation_report()
+
+            # Check that the task was called
+            assert mock_mail_operators.delay.called
+
+            # Get the call arguments
+            call_args = mock_mail_operators.delay.call_args
+            html_body = call_args[0][2]
+
+            # Check that the site domain is included in the HTML (should be in the links)
+            # The default test site domain is "example.com"
+            assert "example.com" in html_body
+            assert "https://example.com/validation/admin?severity=Passed" in html_body
 
 
 @pytest.mark.django_db

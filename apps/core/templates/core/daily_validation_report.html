@@ -90,6 +90,14 @@
         .severity-fatal-error {
             color: #8f0026;
         }
+        /* Severity level links */
+        .severity-link {
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .severity-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -142,19 +150,19 @@
                     <tr>
                         <td>
                             {% if result_data.validation_result == "Unknown" %}
-                                <span class="severity-unknown">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Unknown" class="severity-link" style="color: #aaaaaa;">{{ result_data.validation_result }}</a>
                             {% elif result_data.validation_result == "Passed" %}
-                                <span class="severity-passed">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Passed" class="severity-link" style="color: #0fa40f;">{{ result_data.validation_result }}</a>
                             {% elif result_data.validation_result == "Notice" %}
-                                <span class="severity-notice">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Notice" class="severity-link" style="color: #0267b4;">{{ result_data.validation_result }}</a>
                             {% elif result_data.validation_result == "Warning" %}
-                                <span class="severity-warning">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Warning" class="severity-link" style="color: #fc6100;">{{ result_data.validation_result }}</a>
                             {% elif result_data.validation_result == "Error" %}
-                                <span class="severity-error">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Error" class="severity-link" style="color: #dd0000;">{{ result_data.validation_result }}</a>
                             {% elif result_data.validation_result == "Critical error" %}
-                                <span class="severity-critical-error">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Critical%20error" class="severity-link" style="color: #aa0000;">{{ result_data.validation_result }}</a>
                             {% elif result_data.validation_result == "Fatal error" %}
-                                <span class="severity-fatal-error">{{ result_data.validation_result }}</span>
+                                <a href="https://{{ site_domain }}/validation/admin?severity=Fatal%20error" class="severity-link" style="color: #8f0026;">{{ result_data.validation_result }}</a>
                             {% else %}
                                 {{ result_data.validation_result }}
                             {% endif %}
