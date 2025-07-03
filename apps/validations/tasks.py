@@ -7,6 +7,7 @@ import celery
 import requests
 from celery.contrib.django.task import DjangoTask
 
+from apps.core.tasks import async_mail_admins
 from validations.enums import ValidationStatus
 from validations.models import CounterAPIValidation, Validation
 from validations.validation_module_api import update_validation_result
@@ -54,6 +55,10 @@ def validate_file(pk: uuid.UUID):
         end = time.monotonic()
         obj.core.duration = end - start
         obj.core.save(update_fields=["status", "error_message", "duration"])
+        async_mail_admins.delay(
+            "Validation failed",
+            f"Validation {obj.id} failed: {obj.core.error_message}",
+        )
         return
     finally:
         lock.release()
@@ -66,7 +71,10 @@ def validate_file(pk: uuid.UUID):
         obj.core.status = ValidationStatus.FAILURE
         obj.core.error_message = str(e)
         obj.core.save(update_fields=["status", "error_message", "duration"])
-        return
+        async_mail_admins.delay(
+            "Validation update failed",
+            f"Validation {obj.id} update failed: {obj.core.error_message}",
+        )
 
 
 @celery.shared_task(base=ValidationTask)
@@ -100,6 +108,11 @@ def validate_counter_api(pk):
         obj.core.duration = end - start
         obj.core.save()
         obj.save()
+        async_mail_admins.delay(
+            "Validation failed",
+            f"Validation {obj.id} failed: {obj.core.error_message}",
+        )
+        return
     finally:
         lock.release()
 
@@ -110,7 +123,10 @@ def validate_counter_api(pk):
         obj.core.status = ValidationStatus.FAILURE
         obj.core.error_message = str(e)
         obj.core.save(update_fields=["status", "error_message", "duration"])
-        return
+        async_mail_admins.delay(
+            "Validation update failed",
+            f"Validation {obj.id} update failed: {obj.core.error_message}",
+        )
 
 
 @celery.shared_task(base=ValidationTask)
