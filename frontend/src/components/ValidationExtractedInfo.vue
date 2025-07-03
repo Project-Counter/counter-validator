@@ -12,21 +12,21 @@
       <tr v-if="validation.result_data">
         <th>Date range</th>
         <td>
-          {{ validation.result_data.header.begin_date }} &ndash;
-          {{ validation.result_data.header.end_date }}
+          {{ validation.result_data.reportinfo.begin_date }} &ndash;
+          {{ validation.result_data.reportinfo.end_date }}
         </td>
       </tr>
       <tr v-if="validation.result_data">
         <th>Institution name</th>
-        <td>{{ validation.result_data.header.institution_name }}</td>
+        <td>{{ validation.result_data.reportinfo.institution_name }}</td>
       </tr>
       <tr v-if="validation.result_data">
         <th>Created by</th>
-        <td>{{ validation.result_data.header.created_by }}</td>
+        <td>{{ validation.result_data.reportinfo.created_by }}</td>
       </tr>
       <tr v-if="validation.result_data">
         <th>Created</th>
-        <td>{{ validation.result_data.header.created }}</td>
+        <td>{{ validation.result_data.reportinfo.created }}</td>
       </tr>
     </tbody>
   </table>

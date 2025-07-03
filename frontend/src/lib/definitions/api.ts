@@ -75,6 +75,10 @@ export type Result = {
   datetime: string
   result: string
   header: {
+    report: Record<string, string>
+    result: string[]
+  }
+  reportinfo: {
     begin_date: string
     cop_version: string
     created: string
@@ -82,7 +86,6 @@ export type Result = {
     end_date: string
     format: string
     institution_name: string
-    report: Record<string, string>
     report_id: string
   }
 }

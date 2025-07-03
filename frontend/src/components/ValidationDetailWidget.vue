@@ -149,7 +149,7 @@
               v-bind="cardAttrs"
             >
               <v-card-title>Report Header</v-card-title>
-              <v-card-text v-if="header.format === 'tabular'">
+              <v-card-text v-if="reportinfo?.format === 'tabular'">
                 <table class="src">
                   <tbody>
                     <tr
@@ -262,10 +262,11 @@ const colAttrs = {
 }
 
 // computed
+const reportinfo = computed(() => props.validation?.result_data?.reportinfo)
 const header = computed(() => props.validation?.result_data?.header)
 
 const tableHeader = computed(() => {
-  if (!header.value || header.value.format !== "tabular") return []
+  if (!reportinfo.value || reportinfo.value.format !== "tabular" || !header.value) return []
 
   let out = []
   for (let i = 1; i < 100; i++) {
@@ -288,7 +289,10 @@ const inProgress = computed(() => {
 })
 
 const hasExtractedInfo = computed(() => {
-  return props.validation?.cop_version && props.validation?.api_endpoint === "/reports/[id]"
+  return (
+    props.validation?.cop_version &&
+    (props.validation?.api_endpoint === "/reports/[id]" || props.validation?.data_source === "file")
+  )
 })
 
 // message selected in the stats table

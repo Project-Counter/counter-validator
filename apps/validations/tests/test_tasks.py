@@ -143,6 +143,72 @@ class TestFileValidationTask:
         assert obj.core.status == ValidationStatus.FAILURE
         assert obj.core.error_message == "test"
 
+    def test_task_reportinfo_data_copied_to_header(self, settings, requests_mock):
+        """
+        Test that data from the reportinfo attribute is properly stored in
+        result_data['reportinfo'].
+        """
+        file = SimpleUploadedFile("ok-result.json", b"test data")
+        obj = Validation.create_from_file(user=UserFactory(), file=file)
+        obj.core.status = ValidationStatus.WAITING
+        obj.core.save()
+
+        with open(settings.BASE_DIR / "test_data/validation_results/ok-result.json") as datafile:
+            mock = requests_mock.post(re.compile(".*"), text=datafile.read(), status_code=200)
+            validate_file(obj.pk)
+            assert mock.called_once
+
+        obj.refresh_from_db()
+        assert obj.core.status == ValidationStatus.SUCCESS
+        assert obj.core.validation_result == SeverityLevel.PASSED
+
+        # Verify that the header data is stored in result_data
+        assert obj.result_data is not None
+        assert "header" in obj.result_data
+        header = obj.result_data["header"]
+
+        # Check that the header contains the expected report data
+        assert "report" in header
+        report = header["report"]
+        assert report["A1"] == "Report_Name"
+        assert report["B1"] == "Title Master Report"
+        assert report["A2"] == "Report_ID"
+        assert report["B2"] == "TR"
+        assert report["A3"] == "Release"
+        assert report["B3"] == "5"
+        assert report["A4"] == "Institution_Name"
+        assert report["B4"] == "Client Demo Site"
+        assert report["A5"] == "Institution_ID"
+        assert report["B5"] == "ISNI:1234123412341234"
+        assert report["A11"] == "Created"
+        assert report["B11"] == "2019-04-25T11:39:56Z"
+        assert report["A12"] == "Created_By"
+        assert report["B12"] == "Publisher Platform Delta"
+        assert report["A10"] == "Reporting_Period"
+        assert report["B10"] == "Begin_Date=2016-01-01; End_Date=2016-03-31"
+
+        # Check that the header contains the expected result data
+        assert "result" in header
+        result = header["result"]
+        assert len(result) == 7
+        assert result[0] == "Validation Result for COUNTER Release 5 Report"
+        assert result[2] == "Title Master Report (TR)"
+        assert result[3] == "for Client Demo Site"
+        assert result[4] == "created 2019-04-25T11:39:56Z by Publisher Platform Delta"
+        assert result[5] == "covering 2016-01-01 to 2016-03-31"
+
+        # Check that reportinfo data is stored in result_data['reportinfo']
+        assert "reportinfo" in obj.result_data
+        reportinfo = obj.result_data["reportinfo"]
+        assert reportinfo["report_id"] == "TR"
+        assert reportinfo["format"] == "tabular"
+        assert reportinfo["cop_version"] == "5"
+        assert reportinfo["institution_name"] == "Client Demo Site"
+        assert reportinfo["created"] == "2019-04-25T11:39:56Z"
+        assert reportinfo["created_by"] == "Publisher Platform Delta"
+        assert reportinfo["begin_date"] == "2016-01-01"
+        assert reportinfo["end_date"] == "2016-03-31"
+
     def test_task_error_in_update_validation_result(self, requests_mock):
         """
         Test that when the task crashed during save of the model, the status will

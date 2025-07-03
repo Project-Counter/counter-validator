@@ -119,16 +119,16 @@ class ValidationXlsxExporter:
         writer.writerow([])
 
         writer.writerow(["Extracted data"], fmt=self.header_fmt)
-        header = (
-            self.validation.result_data.get("header", {}) if self.validation.result_data else {}
+        reportinfo = (
+            self.validation.result_data.get("reportinfo", {}) if self.validation.result_data else {}
         )
         writer.writerow(["CoP version", self.validation.core.cop_version])
         writer.writerow(["Report code", self.validation.core.report_code])
-        writer.writerow(["Begin date", header.get("begin_date", "-")])
-        writer.writerow(["End date", header.get("end_date", "-")])
-        writer.writerow(["Institution name", header.get("institution_name", "-")])
-        writer.writerow(["Created by", header.get("created_by", "-")])
-        writer.writerow(["Created", header.get("created", "-")])
+        writer.writerow(["Begin date", reportinfo.get("begin_date", "-")])
+        writer.writerow(["End date", reportinfo.get("end_date", "-")])
+        writer.writerow(["Institution name", reportinfo.get("institution_name", "-")])
+        writer.writerow(["Created by", reportinfo.get("created_by", "-")])
+        writer.writerow(["Created", reportinfo.get("created", "-")])
         writer.writerow([])
 
         if api_validation:
