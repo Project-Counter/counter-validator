@@ -9,7 +9,7 @@
 project = "COUNTER Validator"
 copyright = "2025, COUNTER"  # noqa: A001
 author = "Beda Kosata"
-release = "0.10.0"
+release = "0.11.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
