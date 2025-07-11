@@ -3,6 +3,7 @@ Tests for validation export functionality.
 """
 
 import io
+import os
 
 import pytest
 from django.urls import reverse
@@ -43,7 +44,9 @@ class TestValidationExport:
             response["Content-Type"]
             == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        assert response["Content-Disposition"].startswith("attachment; filename=validation-")
+        assert str(validation.pk) in response["Content-Disposition"]
+        base = os.path.splitext(validation.filename)[0]
+        assert response["Content-Disposition"].startswith(f"attachment; filename={base}")
         assert response["Content-Disposition"].endswith(".xlsx")
 
         # Read the Excel file

@@ -1,3 +1,5 @@
+import os
+
 from core.models import User
 from core.permissions import HasUserAPIKey, HasVerifiedEmail, IsValidatorAdminUser
 from django.conf import settings
@@ -193,12 +195,13 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
     def export(self, request, pk=None):
         validation: Validation = self.get_object()
         exporter = ValidationXlsxExporter(validation)
+        # construct the filename from the validation filename without the extension
+        base = os.path.splitext(validation.filename)[0]
+        filename = f"{base}-report-{validation.pk}.xlsx"
         return HttpResponse(
             exporter.export(),
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={
-                "Content-Disposition": f"attachment; filename=validation-{validation.id}.xlsx"
-            },
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
 
 

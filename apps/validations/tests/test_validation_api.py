@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
@@ -467,7 +468,8 @@ class TestValidationAPI:
             res["Content-Type"]
             == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        assert res["Content-Disposition"].startswith("attachment; filename=validation-")
+        base = os.path.splitext(v.filename)[0]
+        assert res["Content-Disposition"].startswith(f"attachment; filename={base}")
         assert res["Content-Disposition"].endswith(".xlsx")
 
     @pytest.mark.parametrize("has_credentials", [True, False])
