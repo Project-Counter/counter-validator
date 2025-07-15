@@ -4,6 +4,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 import pluginVue from "eslint-plugin-vue";
 import js from "@eslint/js";
 import ts from "typescript-eslint";
+import globals from "globals";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +15,7 @@ const compat = new FlatCompat({
 });
 
 export default [
-  ...compat.extends("@vue/eslint-config-typescript", "./.eslintrc-auto-import.json"),
+  ...compat.extends("./.eslintrc-auto-import.json"),
   js.configs.recommended,
   ...ts.configs.recommended,
   ...pluginVue.configs["flat/recommended"],
@@ -23,6 +24,9 @@ export default [
     languageOptions: {
       parserOptions: {
         parser: "@typescript-eslint/parser",
+      },
+      globals: {
+        ...globals.browser,
       },
     },
   },

@@ -4,6 +4,7 @@ Basic filters for the REST API.
 
 import logging
 import operator
+from datetime import datetime
 from functools import reduce
 
 from django.db.models import Q
@@ -221,8 +222,6 @@ class ValidationDateFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         if date_param := request.query_params.get("date", "").strip():
             try:
-                from datetime import datetime
-
                 # Parse the date parameter
                 date_obj = datetime.strptime(date_param, "%Y-%m-%d").date()
                 # Filter validations created on the specified date

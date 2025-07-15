@@ -366,10 +366,6 @@ class TestValidationAPI:
         self, client_authenticated_user, normal_user
     ):
         """Test that date filtering works correctly with timezone-aware datetime fields."""
-        from datetime import datetime
-
-        from django.utils.timezone import make_aware
-
         # Create a validation at a specific time on a specific date
         target_date = make_aware(datetime(2024, 1, 15, 23, 59, 59))
         validation = ValidationFactory(core__user=normal_user)
@@ -521,7 +517,7 @@ class TestValidationAPI:
             res["Content-Type"]
             == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        base = os.path.splitext(v.filename)[0]
+        base = os.path.splitext(v.filename)[0]  # noqa: F821
         assert res["Content-Disposition"].startswith(f"attachment; filename={base}")
         assert res["Content-Disposition"].endswith(".xlsx")
 
