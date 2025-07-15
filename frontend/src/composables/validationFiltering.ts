@@ -8,6 +8,8 @@ import {
   severityLevelIconMap,
 } from "@/lib/definitions/api"
 import { useRouteQuery } from "@vueuse/router"
+import { useDate } from "vuetify"
+import { parseISO } from "date-fns"
 
 export function useValidationFilters() {
   function arrayTransform<T>(param: T | T[]): T[] {
@@ -35,6 +37,13 @@ export function useValidationFilters() {
   })
   // const textFilter = ref<string>("")
   const textFilter = useRouteQuery<string>("text", "")
+
+  const dateAdapter = useDate()
+  const dateTransform = {
+    set: (val: Date | null): string => (val ? dateAdapter.toISO(val) : ""),
+    get: (val: string): Date | null => (val ? parseISO(val) : null),
+  }
+  const dateFilter = useRouteQuery("date", undefined, { transform: dateTransform })
 
   // filters
   const severityLevels = [
@@ -73,5 +82,6 @@ export function useValidationFilters() {
     reportCodes,
     copVersions,
     counterAPIEndpoints,
+    dateFilter,
   }
 }

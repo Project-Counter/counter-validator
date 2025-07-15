@@ -4,10 +4,12 @@ Basic filters for the REST API.
 
 import logging
 import operator
+import zoneinfo
 from datetime import datetime
 from functools import reduce
 
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import filters
 
 from validations.enums import SeverityLevel
@@ -216,7 +218,8 @@ class ValidationSearchFilter(filters.SearchFilter):
 class ValidationDateFilter(filters.BaseFilterBackend):
     """
     A filter backend that allows filtering Validations by creation date.
-    Accepts a date parameter in YYYY-MM-DD format and filters validations created on that day.
+    Accepts a date parameter in YYYY-MM-DD format and an optional timezone parameter.
+    Filters validations created on that day in the specified timezone.
     """
 
     def filter_queryset(self, request, queryset, view):
@@ -224,10 +227,73 @@ class ValidationDateFilter(filters.BaseFilterBackend):
             try:
                 # Parse the date parameter
                 date_obj = datetime.strptime(date_param, "%Y-%m-%d").date()
-                # Filter validations created on the specified date
-                return queryset.filter(core__created__date=date_obj)
+
+                # Check if timezone parameter is provided
+                timezone_param = request.query_params.get("timezone", "").strip()
+
+                if timezone_param:
+                    # Parse timezone offset (e.g., "+03:00", "-05:00", "+00:00")
+                    try:
+                        tz = zoneinfo.ZoneInfo(timezone_param)
+                        # To get the UTC range for the user's local day, add the offset
+                        # (i.e., UTC = local time - offset, so local = UTC + offset)
+                        start_local = datetime.combine(date_obj, datetime.min.time())
+                        end_local = datetime.combine(date_obj, datetime.max.time())
+                        start_utc = timezone.make_aware(start_local, timezone=tz)
+                        end_utc = timezone.make_aware(end_local, timezone=tz)
+                        return queryset.filter(
+                            core__created__gte=start_utc, core__created__lte=end_utc
+                        )
+                    except zoneinfo.ZoneInfoNotFoundError:
+                        logger.warning(
+                            f"Invalid timezone format: {timezone_param}. "
+                            "Expected format: IANA timezone name"
+                        )
+                        return queryset.filter(core__created__date=date_obj)
+                else:
+                    return queryset.filter(core__created__date=date_obj)
             except ValueError:
-                # If date format is invalid, return the original queryset
+                logger.warning(f"Invalid date format: {date_param}. Expected YYYY-MM-DD format.")
+                return queryset
+        return queryset
+
+
+class ValidationCoreDateFilter(filters.BaseFilterBackend):
+    """
+    A filter backend that allows filtering ValidationCore objects by creation date.
+    Accepts a date parameter in YYYY-MM-DD format and an optional timezone parameter.
+    Filters validation cores created on that day in the specified timezone.
+    """
+
+    def filter_queryset(self, request, queryset, view):
+        if date_param := request.query_params.get("date", "").strip():
+            try:
+                # Parse the date parameter
+                date_obj = datetime.strptime(date_param, "%Y-%m-%d").date()
+
+                # Check if timezone parameter is provided
+                timezone_param = request.query_params.get("timezone", "").strip()
+
+                if timezone_param:
+                    # Parse timezone offset (e.g., "+03:00", "-05:00", "+00:00")
+                    try:
+                        tz = zoneinfo.ZoneInfo(timezone_param)
+                        # To get the UTC range for the user's local day, add the offset
+                        # (i.e., UTC = local time - offset, so local = UTC + offset)
+                        start_local = datetime.combine(date_obj, datetime.min.time())
+                        end_local = datetime.combine(date_obj, datetime.max.time())
+                        start_utc = timezone.make_aware(start_local, timezone=tz)
+                        end_utc = timezone.make_aware(end_local, timezone=tz)
+                        return queryset.filter(created__gte=start_utc, created__lte=end_utc)
+                    except zoneinfo.ZoneInfoNotFoundError:
+                        logger.warning(
+                            f"Invalid timezone format: {timezone_param}. "
+                            "Expected format: IANA timezone name"
+                        )
+                        return queryset.filter(created__date=date_obj)
+                else:
+                    return queryset.filter(created__date=date_obj)
+            except ValueError:
                 logger.warning(f"Invalid date format: {date_param}. Expected YYYY-MM-DD format.")
                 return queryset
         return queryset

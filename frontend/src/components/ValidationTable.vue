@@ -131,6 +131,7 @@
         v-model:source-filter="sourceFilter"
         v-model:published-filter="publishedFilter"
         v-model:text-filter="textFilter"
+        v-model:date-filter="dateFilter"
         show-published-filter
         show-text-filter
         :text-filter-label="admin ? 'Note, filename, user' : 'Note, filename'"
@@ -152,6 +153,7 @@ import UserName from "@/components/UserName.vue"
 import ShortenText from "@/components/ShortenText.vue"
 import { usePaginationWithMemory } from "@/composables/usePaginationWithMemory"
 import { HttpStatusError } from "@/lib/http/util"
+import { useDate } from "vuetify"
 
 const props = withDefaults(
   defineProps<{
@@ -192,6 +194,7 @@ const { url, params, filters } = usePaginatedAPI(props.admin ? urls.adminList : 
 const { page, pageSize, sortBy } = usePaginationWithMemory(params)
 const totalCount = ref(0)
 const lastUrl = ref("")
+const dateAdapter = useDate()
 
 const {
   validationResultFilter,
@@ -201,6 +204,7 @@ const {
   sourceFilter,
   publishedFilter,
   textFilter,
+  dateFilter,
 } = useValidationFilters()
 
 function updateNormalFilters() {
@@ -211,6 +215,10 @@ function updateNormalFilters() {
   filters.data_source = sourceFilter.value.join(",")
   if (publishedFilter.value != null) filters.published = publishedFilter.value.toString()
   else delete filters.published
+  if (dateFilter.value) {
+    filters.date = dateAdapter.toISO(dateFilter.value)
+    filters.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  } else delete filters.date
 }
 
 // note: we need to watch a combined value of all filters because using useRouteQuery
@@ -226,6 +234,7 @@ watch(
       validationResultFilter.value.join(","),
       endpointFilter.value.join(","),
       sourceFilter.value.join(","),
+      dateFilter.value,
     ].join("---"),
   () => {
     updateNormalFilters()

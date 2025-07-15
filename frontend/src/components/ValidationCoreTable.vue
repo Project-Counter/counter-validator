@@ -54,6 +54,7 @@
         v-model:endpoint-filter="endpointFilter"
         v-model:source-filter="sourceFilter"
         v-model:text-filter="textFilter"
+        v-model:date-filter="dateFilter"
         text-filter-label="User"
         show-text-filter
         class="pb-8"
@@ -71,6 +72,7 @@ import { usePaginatedAPI } from "@/composables/paginatedAPI"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import { usePaginationWithMemory } from "@/composables/usePaginationWithMemory"
 import { HttpStatusError } from "@/lib/http/util"
+import { useDate } from "vuetify"
 
 const items = ref<ValidationCore[]>([])
 
@@ -100,7 +102,10 @@ const {
   endpointFilter,
   sourceFilter,
   textFilter,
+  dateFilter,
 } = useValidationFilters()
+
+const dateAdapter = useDate()
 
 // the effect will also load data in the beginning
 watch(
@@ -113,6 +118,7 @@ watch(
       endpointFilter.value.join(","),
       sourceFilter.value.join(","),
       textFilter.value,
+      dateFilter.value,
     ].join("---"),
   () => {
     filters.validation_result = validationResultFilter.value.join(",")
@@ -121,13 +127,20 @@ watch(
     filters.api_endpoint = endpointFilter.value.join(",")
     filters.data_source = sourceFilter.value.join(",")
     filters.search = textFilter.value
+    if (dateFilter.value) {
+      filters.date = dateAdapter.toISO(dateFilter.value)
+      filters.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    } else delete filters.date
     load()
   },
   { immediate: true },
 )
 
+let lastUrl = ref("")
 // loading of data
 async function load() {
+  if (url.value === lastUrl.value) return
+  lastUrl.value = url.value
   loading.value = true
   try {
     const { count, results } = await getValidationCoresFromUrl(url.value)

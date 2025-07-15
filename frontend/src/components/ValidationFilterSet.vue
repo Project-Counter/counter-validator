@@ -85,6 +85,16 @@
       />
     </v-col>
 
+    <v-col cols="auto">
+      <v-date-input
+        v-model="dateFilter"
+        label="Date"
+        min-width="12rem"
+        max-width="24rem"
+        prepend-icon=""
+      />
+    </v-col>
+
     <v-col v-if="showTextFilter">
       <v-text-field
         v-model="textFilter"
@@ -110,6 +120,7 @@ import {
 } from "@/lib/definitions/api"
 import { useValidationFilters } from "@/composables/validationFiltering"
 import { booleanOptions } from "@/lib/options"
+import { VDateInput } from "vuetify/labs/VDateInput"
 
 // models
 const validationResultFilter = defineModel<SeverityLevel[]>("validationResultFilter")
@@ -119,6 +130,8 @@ const endpointFilter = defineModel<CounterAPIEndpoint[]>("endpointFilter")
 const sourceFilter = defineModel<DataSource[]>("sourceFilter")
 const publishedFilter = defineModel<boolean | null>("publishedFilter")
 const textFilter = defineModel<string>("textFilter")
+
+const dateFilter = defineModel<Date | null>("dateFilter")
 
 // props
 withDefaults(

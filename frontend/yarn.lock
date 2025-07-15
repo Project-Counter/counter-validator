@@ -3769,6 +3769,7 @@ __metadata:
     sass: "npm:^1.89.2"
     sass-embedded: "npm:^1.89.2"
     terser: "npm:^5.43.1"
+    type-fest: "npm:^4.41.0"
     typescript: "npm:~5.8.3"
     typescript-eslint: "npm:^8.37.0"
     unplugin-auto-import: "npm:^19.3.0"
@@ -8062,6 +8063,13 @@ __metadata:
   dependencies:
     prelude-ls: "npm:^1.2.1"
   checksum: 10c0/7b3fd0ed43891e2080bf0c5c504b418fbb3e5c7b9708d3d015037ba2e6323a28152ec163bcb65212741fa5d2022e3075ac3c76440dbd344c9035f818e8ecee58
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.41.0":
+  version: 4.41.0
+  resolution: "type-fest@npm:4.41.0"
+  checksum: 10c0/f5ca697797ed5e88d33ac8f1fec21921839871f808dc59345c9cf67345bfb958ce41bd821165dbf3ae591cedec2bf6fe8882098dfdd8dc54320b859711a2c1e4
   languageName: node
   linkType: hard
 

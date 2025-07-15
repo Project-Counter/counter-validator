@@ -26,6 +26,7 @@ from validations.filters import (
     ValidationCoPVersionFilter,
     ValidationCoreAPIEndpointFilter,
     ValidationCoreCoPVersionFilter,
+    ValidationCoreDateFilter,
     ValidationCoreReportCodeFilter,
     ValidationCoreSourceFilter,
     ValidationCoreValidationResultFilter,
@@ -258,6 +259,7 @@ class ValidationCoreViewSet(ReadOnlyModelViewSet):
         ValidationCoreValidationResultFilter,
         ValidationCoreReportCodeFilter,
         ValidationCoreAPIEndpointFilter,
+        ValidationCoreDateFilter,
         SearchFilter,
     ]
     # which fields to search using the SearchFilter

@@ -9,7 +9,7 @@ import pytest
 from core.fake_data import UserFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
-from django.utils.timezone import make_aware, now
+from django.utils.timezone import make_aware, now, timezone
 
 import validations.tasks
 from validations.enums import SeverityLevel
@@ -362,20 +362,102 @@ class TestValidationAPI:
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
 
+    @pytest.mark.parametrize(
+        ["filter_date", "timezone_name", "expected_count", "description"],
+        [
+            (
+                "2024-01-15",
+                "Asia/Jerusalem",
+                1,
+                "Filter by same date in Asia/Jerusalem timezone (UTC+2/UTC+3)",
+            ),
+            (
+                "2024-01-15",
+                "UTC",
+                1,
+                "Filter by same date in UTC timezone - should match (validation is at 23:59 UTC+3 "
+                "= 20:59 UTC, so it's on 2024-01-15 in both UTC+3 and UTC)",
+            ),
+            (
+                "2024-01-15",
+                "America/New_York",
+                1,
+                "Filter by same date in America/New_York timezone (UTC-5/UTC-4) - should match "
+                "(validation is at 20:59 UTC, which is 15:59 EST, so it's on 2024-01-15 in EST)",
+            ),
+            (
+                "2024-01-16",
+                "UTC",
+                0,
+                "Filter by next day in UTC timezone - should not match (validation at 20:59 UTC "
+                "on 2024-01-15, so it's not on 2024-01-16 in UTC)",
+            ),
+            (
+                "2024-01-16",
+                "Asia/Jerusalem",
+                0,
+                "Filter by next day in Asia/Jerusalem timezone - should not match",
+            ),
+            (
+                "2024-01-14",
+                "Asia/Jerusalem",
+                0,
+                "Filter by previous day in Asia/Jerusalem timezone - should not match",
+            ),
+            (
+                "",
+                "Asia/Jerusalem",
+                1,
+                "No date filter with timezone - should return all validations",
+            ),
+            (
+                "invalid-date",
+                "Asia/Jerusalem",
+                1,
+                "Invalid date format with timezone - should return all validations",
+            ),
+        ],
+    )
     def test_list_filters_by_date_with_timezone_awareness(
-        self, client_authenticated_user, normal_user
+        self,
+        client_authenticated_user,
+        normal_user,
+        filter_date,
+        timezone_name,
+        expected_count,
+        description,
     ):
-        """Test that date filtering works correctly with timezone-aware datetime fields."""
-        # Create a validation at a specific time on a specific date
-        target_date = make_aware(datetime(2024, 1, 15, 23, 59, 59))
+        """
+        Test that date filtering works correctly with timezone-aware datetime fields.
+
+        Creates a validation at 2024-01-15 23:59:59 UTC+3 and tests filtering
+        with different dates and timezones to ensure timezone handling works correctly.
+
+        The validation is created at:
+        - 2024-01-15 23:59:59 UTC+3
+        - 2024-01-15 20:59:59 UTC
+        - 2024-01-15 15:59:59 EST (America/New_York)
+        """
+        # Create a validation at a specific time on 2024-01-15 in UTC+3 timezone
+        # This is 2024-01-15 20:59:59 UTC (3 hours behind)
+        utc_plus_3 = timezone(timedelta(hours=3))
+        target_datetime = datetime(2024, 1, 15, 23, 59, 59)
+        target_date_utc_plus_3 = make_aware(target_datetime, timezone=utc_plus_3)
+
         validation = ValidationFactory(core__user=normal_user)
-        validation.core.created = target_date
+        validation.core.created = target_date_utc_plus_3
         validation.core.save()
 
-        # Filter by the date (should match regardless of time)
-        res = client_authenticated_user.get(reverse("validation-list"), {"date": "2024-01-15"})
+        # Filter by the specified date and timezone
+        query_params = {}
+        if filter_date:
+            query_params["date"] = filter_date
+        if timezone_name:
+            query_params["timezone"] = timezone_name
+
+        res = client_authenticated_user.get(reverse("validation-list"), query_params)
         assert res.status_code == 200
-        assert res.json()["count"] == 1
+        assert res.json()["count"] == expected_count, f"Failed: {description}"
 
     @pytest.mark.parametrize("desc", [True, False])
     @pytest.mark.parametrize(
