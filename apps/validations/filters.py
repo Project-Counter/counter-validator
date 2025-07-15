@@ -210,3 +210,25 @@ class ValidationSearchFilter(filters.SearchFilter):
                 "core__user__email",
             ]
         return ["user_note", "filename"]
+
+
+class ValidationDateFilter(filters.BaseFilterBackend):
+    """
+    A filter backend that allows filtering Validations by creation date.
+    Accepts a date parameter in YYYY-MM-DD format and filters validations created on that day.
+    """
+
+    def filter_queryset(self, request, queryset, view):
+        if date_param := request.query_params.get("date", "").strip():
+            try:
+                from datetime import datetime
+
+                # Parse the date parameter
+                date_obj = datetime.strptime(date_param, "%Y-%m-%d").date()
+                # Filter validations created on the specified date
+                return queryset.filter(core__created__date=date_obj)
+            except ValueError:
+                # If date format is invalid, return the original queryset
+                logger.warning(f"Invalid date format: {date_param}. Expected YYYY-MM-DD format.")
+                return queryset
+        return queryset

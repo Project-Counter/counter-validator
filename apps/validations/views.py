@@ -29,6 +29,7 @@ from validations.filters import (
     ValidationCoreReportCodeFilter,
     ValidationCoreSourceFilter,
     ValidationCoreValidationResultFilter,
+    ValidationDateFilter,
     ValidationOrderByFilter,
     ValidationPublishedFilter,
     ValidationReportCodeFilter,
@@ -76,6 +77,7 @@ class ValidationViewSet(DestroyModelMixin, ReadOnlyModelViewSet):
         ValidationSourceFilter,
         ValidationPublishedFilter,
         ValidationSearchFilter,
+        ValidationDateFilter,
     ]
 
     def get_serializer_class(self):

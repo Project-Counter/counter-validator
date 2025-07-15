@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 from uuid import UUID, uuid4
@@ -9,7 +9,7 @@ import pytest
 from core.fake_data import UserFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
-from django.utils.timezone import now
+from django.utils.timezone import make_aware, now
 
 import validations.tasks
 from validations.enums import SeverityLevel
@@ -327,6 +327,59 @@ class TestValidationAPI:
         )
         assert res.status_code == 200
         assert res.json()["count"] == expected_count
+
+    @pytest.mark.parametrize(
+        ["date", "expected_count"],
+        [
+            ("2024-01-15", 2),
+            ("2024-01-16", 1),
+            ("2024-01-17", 0),
+            ("", 3),
+            ("invalid-date", 3),  # Invalid date format should return all results
+        ],
+    )
+    def test_list_filters_by_date(
+        self, client_authenticated_user, normal_user, date, expected_count
+    ):
+        # Create validations on specific dates
+        date_2024_01_15 = make_aware(datetime(2024, 1, 15, 10, 0, 0))
+        date_2024_01_16 = make_aware(datetime(2024, 1, 16, 10, 0, 0))
+
+        # Create 2 validations on 2024-01-15
+        for _ in range(2):
+            validation = ValidationFactory(core__user=normal_user)
+            validation.core.created = date_2024_01_15
+            validation.core.save()
+
+        # Create 1 validation on 2024-01-16
+        validation = ValidationFactory(core__user=normal_user)
+        validation.core.created = date_2024_01_16
+        validation.core.save()
+
+        res = client_authenticated_user.get(
+            reverse("validation-list"), {"date": date} if date else {}
+        )
+        assert res.status_code == 200
+        assert res.json()["count"] == expected_count
+
+    def test_list_filters_by_date_with_timezone_awareness(
+        self, client_authenticated_user, normal_user
+    ):
+        """Test that date filtering works correctly with timezone-aware datetime fields."""
+        from datetime import datetime
+
+        from django.utils.timezone import make_aware
+
+        # Create a validation at a specific time on a specific date
+        target_date = make_aware(datetime(2024, 1, 15, 23, 59, 59))
+        validation = ValidationFactory(core__user=normal_user)
+        validation.core.created = target_date
+        validation.core.save()
+
+        # Filter by the date (should match regardless of time)
+        res = client_authenticated_user.get(reverse("validation-list"), {"date": "2024-01-15"})
+        assert res.status_code == 200
+        assert res.json()["count"] == 1
 
     @pytest.mark.parametrize("desc", [True, False])
     @pytest.mark.parametrize(
