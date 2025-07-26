@@ -92,6 +92,7 @@
         min-width="12rem"
         max-width="24rem"
         prepend-icon=""
+        clearable
       />
     </v-col>
 
