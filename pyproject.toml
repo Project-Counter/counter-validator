@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "counter-validator"
-version = "0.12.0"
+version = "0.12.1"
 description = "COUNTER Validator - A tool for validating COUNTER reports"
 authors = [
     "Beda Kosata <beda@bigdigdata.com>",
