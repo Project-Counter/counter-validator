@@ -28,6 +28,7 @@ export function usePaginatedAPI(apiUrl: string) {
     }
     // filters
     for (const [key, value] of Object.entries(filters)) {
+      if (value === null || value === undefined) continue // skip null and undefined values
       searchParams.append(key, value.toString())
     }
     return `${apiUrl}?${searchParams.toString()}`

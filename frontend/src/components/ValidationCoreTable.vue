@@ -106,6 +106,7 @@ const {
 } = useValidationFilters()
 
 const dateAdapter = useDate()
+const lastUrl = ref("")
 
 // the effect will also load data in the beginning
 watch(
@@ -136,7 +137,6 @@ watch(
   { immediate: true },
 )
 
-let lastUrl = ref("")
 // loading of data
 async function load() {
   if (url.value === lastUrl.value) return
