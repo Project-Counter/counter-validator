@@ -501,6 +501,7 @@ import { getValidationDetail, validateCounterAPI } from "@/lib/http/validation"
 import { useAppStore } from "@/stores/app"
 import { isoDate, shortIsoDate, stringify } from "@/lib/formatting"
 import { VTextField } from "vuetify/components/VTextField"
+import { HttpStatusError } from "@/lib/http/util"
 
 // housekeeping
 const stepper = ref(1)
@@ -724,7 +725,19 @@ async function create() {
       userNote.value,
     )
   } catch (err) {
-    console.error(err)
+    let details = err.message
+    if (err instanceof HttpStatusError && err.res) {
+      const errData = await err.res?.json()
+      if (errData.url) {
+        details = `URL: ${errData.url}`
+      }
+    }
+    store.displayNotification({
+      message: "Could not start validation",
+      type: "error",
+      timeout: 16000,
+      details,
+    })
     return
   } finally {
     creatingValidation.value = false
