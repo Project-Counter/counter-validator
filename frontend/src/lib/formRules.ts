@@ -11,3 +11,11 @@ export function email(val: string) {
 export function password(val: string) {
   return val.length >= 8 || "Password must be at least 8 characters long"
 }
+
+export function url(val: string) {
+  return /^https?:\/\/.+$/.test(val) || "Invalid URL"
+}
+
+export function urlNoQueryParams(val: string) {
+  return !val.includes("?") || "URL must not contain query parameters"
+}

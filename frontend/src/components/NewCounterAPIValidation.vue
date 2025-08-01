@@ -62,7 +62,7 @@
             <v-text-field
               v-model="url"
               label="URL"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.url, rules.urlNoQueryParams]"
               @update:model-value="urlAutoAdded = false"
             />
           </v-col>
@@ -725,12 +725,14 @@ async function create() {
       userNote.value,
     )
   } catch (err) {
-    let details = err.message
+    let details = ""
     if (err instanceof HttpStatusError && err.res) {
       const errData = await err.res?.json()
       if (errData.url) {
         details = `URL: ${errData.url}`
       }
+    } else if (err instanceof Error) {
+      details = err.message
     }
     store.displayNotification({
       message: "Could not start validation",
