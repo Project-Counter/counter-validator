@@ -1136,6 +1136,37 @@ class TestCounterAPIValidationAPI:
             error_text = str(response_data).lower()
             assert "max" in error_text or "length" in error_text or "200" in error_text
 
+    def test_create_with_url_containing_query_parameters(self, client_authenticated_user):
+        """
+        Test that submitting a URL with query parameters returns a 400 error
+        with appropriate error message about query parameters not being allowed.
+        """
+        # Create a URL with query parameters
+        url_with_params = "https://example.com/api?param1=value1&param2=value2"
+
+        credentials_data = factory.build(dict, FACTORY_CLASS=CounterAPICredentialsFactory)
+        data = factory.build(
+            dict,
+            FACTORY_CLASS=CounterAPIValidationRequestDataFactory,
+            api_endpoint="/reports/[id]",
+            cop_version=5.1,
+            url=url_with_params,
+            credentials=credentials_data,
+        )
+
+        with patch("validations.tasks.validate_counter_api.delay_on_commit"):
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 400
+            # The response should contain information about query parameters not being allowed
+            response_data = res.json()
+            # Check that the error message mentions query parameters
+            error_text = str(response_data).lower()
+            assert "query" in error_text or "parameter" in error_text or "?" in error_text
+
 
 @pytest.mark.django_db
 class TestValidationMessagesAPI:

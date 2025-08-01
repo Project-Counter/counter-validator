@@ -213,6 +213,17 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
     extra_attributes = serializers.JSONField(default=dict)
     user_note = serializers.CharField(required=False, allow_blank=True)
 
+    def validate_url(self, value):
+        """
+        Validate that the URL does not contain query parameters.
+        """
+        if "?" in value:
+            raise serializers.ValidationError(
+                "URL must not contain query parameters - it should be just the base COUNTER API "
+                "URL according to the Code of Practice"
+            )
+        return value
+
     def validate(self, attrs):
         attrs = super().validate(attrs)
         if attrs.get("api_endpoint") == "/reports/[id]":
