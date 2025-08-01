@@ -203,7 +203,7 @@ class CounterAPIValidationCreateSerializer(serializers.Serializer):
     """
 
     credentials = CredentialsSerializer(required=False, allow_null=True)
-    url = serializers.URLField()
+    url = serializers.URLField(max_length=200)
     api_endpoint = serializers.CharField(default="/reports/[id]")
     cop_version = serializers.CharField()
     report_code = serializers.CharField(allow_blank=True, required=False)

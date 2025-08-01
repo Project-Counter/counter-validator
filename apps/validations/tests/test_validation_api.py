@@ -1103,6 +1103,39 @@ class TestCounterAPIValidationAPI:
             assert validation.url == url
             assert p.call_count == 1
 
+    def test_create_with_url_longer_than_200_characters(self, client_authenticated_user):
+        """
+        Test that submitting a URL longer than 200 characters returns a 400 error
+        with appropriate error message about the URL being too long.
+        """
+        # Create a URL that is longer than 200 characters (just a long path, no query parameters)
+        long_url = "https://example.com/" + "a" * 200
+
+        credentials_data = factory.build(dict, FACTORY_CLASS=CounterAPICredentialsFactory)
+        data = factory.build(
+            dict,
+            FACTORY_CLASS=CounterAPIValidationRequestDataFactory,
+            api_endpoint="/reports/[id]",
+            cop_version=5.1,
+            url=long_url,
+            credentials=credentials_data,
+        )
+
+        with patch("validations.tasks.validate_counter_api.delay_on_commit"):
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 400
+            # The response should contain information about the URL being too long
+            response_data = res.json()
+            # Check that the error message mentions the URL field and max length
+            assert "url" in response_data or "error" in response_data or "detail" in response_data
+            # The error should indicate that the URL is too long
+            error_text = str(response_data).lower()
+            assert "max" in error_text or "length" in error_text or "200" in error_text
+
 
 @pytest.mark.django_db
 class TestValidationMessagesAPI:
