@@ -18,6 +18,7 @@
   <ValidationDetailWidget
     v-if="validation"
     :validation="validation"
+    @expiration-date-updated="updateExpirationDate"
   />
   <v-alert
     v-else-if="validationNotFound"
@@ -72,6 +73,12 @@ onUnmounted(() => {
     timeoutHandle.value = null
   }
 })
+
+function updateExpirationDate(expirationDate: string) {
+  if (validation.value) {
+    validation.value.expiration_date = expirationDate
+  }
+}
 </script>
 
 <style scoped lang="scss"></style>

@@ -256,13 +256,21 @@ const relExpirationDate = computed(() => {
 
 // publishing/unpublishing
 
+const emit = defineEmits<{
+  (e: "expiration-date-updated", expirationDate: string): void
+}>()
+
 async function publish() {
   const res = await publishValidation(p.validation.id)
   publicId.value = res.public_id
+  // emit expiration date update event
+  emit("expiration-date-updated", res.expiration_date)
 }
 
 async function unpublish() {
   const res = await unpublishValidation(p.validation.id)
   publicId.value = res.public_id
+  // emit expiration date update event
+  emit("expiration-date-updated", res.expiration_date)
 }
 </script>

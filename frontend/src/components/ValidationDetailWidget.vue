@@ -118,6 +118,7 @@
                   v-if="validation"
                   :validation="validation"
                   :public-view="publicView"
+                  @expiration-date-updated="updateExpirationDate"
                 />
               </v-card-text>
             </v-card>
@@ -312,6 +313,14 @@ function repeatValidation() {
     path: "/validation/api",
     query: { base: props.validation.id },
   })
+}
+
+const emit = defineEmits<{
+  (e: "expiration-date-updated", expirationDate: string): void
+}>()
+
+function updateExpirationDate(expirationDate: string) {
+  emit("expiration-date-updated", expirationDate)
 }
 </script>
 
