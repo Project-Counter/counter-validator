@@ -65,8 +65,9 @@ Celery server
 C5Tools server
 ~~~~~~~~~~~~~~
 
-For this you will need the ``c5tool`` package which is available in a separate repository. When you
-get it, you need to start the docker container with the following command:
+For this you will need the ``c5tool`` package which is available in a `separate repository
+<https://github.com/ubfr/c5tools>`_.
+When you get it, you need to start the docker container with the following command:
 
 .. code-block:: bash
 
