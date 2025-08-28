@@ -1149,7 +1149,7 @@ class TestCounterAPIValidationAPI:
             use_short_dates=use_short_dates,
             url="https://foo.bar",
         )
-        mock = requests_mock.post("http://localhost:8180/sushi.php", json={})
+        mock = requests_mock.post("http://localhost:8180/api.php", json={})
         with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
             res = client_authenticated_user.post(
                 reverse("counter-api-validation-list"),
@@ -1192,7 +1192,7 @@ class TestCounterAPIValidationAPI:
             )
             assert res.status_code == 201
             p.assert_called_once_with(UUID(res.json()["id"]))
-            rmock = requests_mock.post("http://localhost:8180/sushi.php", json={})
+            rmock = requests_mock.post("http://localhost:8180/api.php", json={})
             validations.tasks.validate_counter_api(res.json()["id"])
             assert rmock.call_count == 1
             sent_url = rmock.last_request.json()["url"]

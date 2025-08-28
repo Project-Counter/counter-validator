@@ -271,7 +271,7 @@ class TestCounterAPIValidationTask:
         obj = CounterAPIValidationFactory(
             url=url, core__user=UserFactory(), core__status=ValidationStatus.WAITING
         )
-        mock = requests_mock.post("http://localhost:8180/sushi.php", json={})
+        mock = requests_mock.post("http://localhost:8180/api.php", json={})
         validate_counter_api(obj.pk)
         assert mock.called_once
         sent_url = mock.last_request.json()["url"]

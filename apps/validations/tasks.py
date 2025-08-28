@@ -77,6 +77,9 @@ def validate_file(pk: uuid.UUID):
         )
 
 
+COUNTER_API_VALIDATION_PATH = "api.php"
+
+
 @celery.shared_task(base=ValidationTask)
 def validate_counter_api(pk):
     while not (vm_url := get_available_validation_module_url()):
@@ -96,7 +99,7 @@ def validate_counter_api(pk):
     lock = create_validation_module_lock(vm_url)
     lock.acquire(blocking=True)
     try:
-        resp = requests.post(vm_url + "sushi.php", json={"url": req_url})
+        resp = requests.post(vm_url + COUNTER_API_VALIDATION_PATH, json={"url": req_url})
         resp.raise_for_status()
     except Exception as e:
         obj.core.status = ValidationStatus.FAILURE
