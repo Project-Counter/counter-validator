@@ -1,0 +1,5 @@
+---
+description: When writing code, always use import statements at the beginning of the file. Use local imports (inside methods and functions) only when necessary to prevent circular imports. When adding new code, always try to use a style similar to the rest of the code.
+globs:
+alwaysApply: true
+---

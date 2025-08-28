@@ -1,0 +1,5 @@
+---
+description: When adding new code, tests should always be added as well. For testing, we use the pytest library and run it via `poetry pytest`. When writing tests, consider using `pytest.mark.parametrize` when testing several related states or conditions.
+globs:
+alwaysApply: true
+---
