@@ -265,6 +265,9 @@ HASHING_SALT = config("FILE_HASHING_SALT", default=SECRET_KEY)
 # the time in days the validation is valid, after that it will no longer be available
 # and will be deleted at the next cleanup
 VALIDATION_LIFETIME = config("VALIDATION_LIFETIME", cast=int, default=7)
+# the time in days public validations are valid, after that they will no longer be available
+# and will be deleted at the next cleanup
+PUBLIC_VALIDATION_LIFETIME = config("PUBLIC_VALIDATION_LIFETIME", cast=int, default=90)
 # per-file type file size limit in bytes
 FILE_SIZE_LIMITS = {
     "json": config("FILE_SIZE_LIMIT_JSON", cast=int, default=100_000_000),

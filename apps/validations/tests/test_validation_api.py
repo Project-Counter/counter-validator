@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 from uuid import UUID, uuid4
@@ -10,6 +10,7 @@ from core.fake_data import UserFactory
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils.timezone import make_aware, now, timezone
+from freezegun import freeze_time
 
 import validations.tasks
 from validations.enums import SeverityLevel
@@ -564,6 +565,136 @@ class TestValidationAPI:
         res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
         assert res.status_code == 404
 
+    def test_validation_publish_updates_expiration_date(
+        self, client_authenticated_user, normal_user, settings
+    ):
+        """
+        Test that publishing a validation updates its expiration date to use
+        PUBLIC_VALIDATION_LIFETIME.
+        """
+        settings.VALIDATION_LIFETIME = 7
+        settings.PUBLIC_VALIDATION_LIFETIME = 90
+
+        # Create a validation with the default expiration
+        v = ValidationFactory.create(core__user=normal_user)
+        original_expiration = v.core.expiration_date
+
+        # Publish the validation
+        res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+        assert res.status_code == 200
+
+        # Refresh from database
+        v.refresh_from_db()
+        v.core.refresh_from_db()
+
+        # Check that public_id is set
+        assert v.public_id is not None
+
+        # Check that expiration date was updated
+        assert v.core.expiration_date != original_expiration
+        expected_expiration = v.core.created + timedelta(days=90)
+        # Compare only the date part (ignore time differences)
+        assert v.core.expiration_date.date() == expected_expiration.date()
+
+    def test_validation_publish_without_expiration_date(
+        self, client_authenticated_user, normal_user, settings
+    ):
+        """
+        Test that publishing a validation without expiration date sets it to
+        PUBLIC_VALIDATION_LIFETIME.
+        """
+        settings.VALIDATION_LIFETIME = 0  # No default expiration
+        settings.PUBLIC_VALIDATION_LIFETIME = 90
+
+        # Create a validation without expiration date
+        v = ValidationFactory.create(core__user=normal_user, core__expiration_date=None)
+        assert v.core.expiration_date is None
+
+        # Publish the validation
+        res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+        assert res.status_code == 200
+
+        # Refresh from database
+        v.refresh_from_db()
+        v.core.refresh_from_db()
+
+        # Check that public_id is set
+        assert v.public_id is not None
+
+        # Check that expiration date was set to public validation lifetime
+        assert v.core.expiration_date is not None
+        expected_expiration = v.core.created + timedelta(days=90)
+        # Compare only the date part (ignore time differences)
+        assert v.core.expiration_date.date() == expected_expiration.date()
+
+    def test_validation_unpublish_resets_expiration_date(
+        self, client_authenticated_user, normal_user, settings
+    ):
+        """
+        Test that unpublishing a validation resets its expiration date back to
+        VALIDATION_LIFETIME.
+        """
+        settings.VALIDATION_LIFETIME = 7
+        settings.PUBLIC_VALIDATION_LIFETIME = 90
+
+        # Create and publish a validation
+        v = ValidationFactory.create(core__user=normal_user)
+        res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+        assert res.status_code == 200
+
+        # Refresh and get the expiration date after publishing
+        v.refresh_from_db()
+        v.core.refresh_from_db()
+        expiration_after_publish = v.core.expiration_date
+        assert expiration_after_publish is not None
+
+        # Unpublish the validation
+        res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
+        assert res.status_code == 200
+
+        # Refresh from database
+        v.refresh_from_db()
+        v.core.refresh_from_db()
+
+        # Check that public_id is removed
+        assert v.public_id is None
+
+        # Check that expiration date is reset to VALIDATION_LIFETIME (7 days)
+        expected_expiration = v.core.created + timedelta(days=7)
+        assert v.core.expiration_date.date() == expected_expiration.date()
+
+    def test_validation_publish_multiple_times_resets_expiration(
+        self, client_authenticated_user, normal_user, settings
+    ):
+        """Test that publishing a validation multiple times always resets the expiration date."""
+        settings.VALIDATION_LIFETIME = 7
+        settings.PUBLIC_VALIDATION_LIFETIME = 90
+
+        with freeze_time("2025-01-01"):
+            v = ValidationFactory.create(core__user=normal_user)
+        assert v.core.expiration_date.date() == date(2025, 1, 8)  # 7 days from 2025-01-01
+
+        with freeze_time("2025-01-02"):
+            res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+            assert res.status_code == 200
+
+        v.core.refresh_from_db()
+        assert v.core.expiration_date.date() == date(2025, 4, 2)  # 90 days from 2025-01-02
+
+        with freeze_time("2025-01-03"):
+            res = client_authenticated_user.post(reverse("validation-unpublish", args=[v.pk]))
+            assert res.status_code == 200
+
+        v.core.refresh_from_db()
+        assert v.core.expiration_date.date() == date(2025, 1, 10)  # 7 days from 2025-01-03
+
+        with freeze_time("2025-01-04"):
+            res = client_authenticated_user.post(reverse("validation-publish", args=[v.pk]))
+            assert res.status_code == 200
+
+        v.core.refresh_from_db()
+        assert v.core.expiration_date.date() == date(2025, 4, 4)  # 90 days from 2025-01-04
+
     def test_all_validations_endpoint_access(self, client_and_status_code_admin_only):
         client, status_code = client_and_status_code_admin_only
         res = client.get(reverse("validation-list-all"))
@@ -809,6 +940,32 @@ class TestCounterAPIValidationAPI:
         assert out["cop_version"] == "5.1", "cop_version should be taken from the request"
         assert out["use_short_dates"] is False
         assert out["user_note"] == "Lorem ipsum"
+
+    def test_create_with_public_validation_lifetime_setting(
+        self, client_authenticated_user, settings
+    ):
+        """
+        Test that PUBLIC_VALIDATION_LIFETIME setting doesn't affect normal validation creation.
+        """
+        settings.VALIDATION_LIFETIME = 7
+        settings.PUBLIC_VALIDATION_LIFETIME = 90
+
+        data = factory.build(
+            dict, FACTORY_CLASS=CounterAPIValidationRequestDataFactory, cop_version="5.1"
+        )
+        with patch("validations.tasks.validate_counter_api.delay_on_commit") as p:
+            res = client_authenticated_user.post(
+                reverse("counter-api-validation-list"),
+                data=data,
+                format="json",
+            )
+            assert res.status_code == 201
+            p.assert_called_once_with(UUID(res.json()["id"]))
+
+        val = Validation.objects.select_related("core").get()
+        # Should use VALIDATION_LIFETIME (7 days) not PUBLIC_VALIDATION_LIFETIME (90 days)
+        expected_expiration = val.core.created + timedelta(days=7)
+        assert val.core.expiration_date.date() == expected_expiration.date()
 
     @pytest.mark.parametrize(
         ["empty_field", "missing", "allowed"],

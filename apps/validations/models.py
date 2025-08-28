@@ -348,6 +348,10 @@ class Validation(UUIDPkMixin, models.Model):
         Publish the validation results.
         """
         self.public_id = uuid4()
+
+        # Update expiration date to use public validation lifetime
+        self.core.expiration_date = now() + timedelta(days=settings.PUBLIC_VALIDATION_LIFETIME)
+        self.core.save(update_fields=["expiration_date"])
         self.save()
 
     def unpublish(self):
@@ -355,6 +359,13 @@ class Validation(UUIDPkMixin, models.Model):
         Unpublish the validation results.
         """
         self.public_id = None
+
+        # Reset expiration date back to original validation lifetime
+        if settings.VALIDATION_LIFETIME:
+            self.core.expiration_date = now() + timedelta(days=settings.VALIDATION_LIFETIME)
+        else:
+            self.core.expiration_date = None
+        self.core.save(update_fields=["expiration_date"])
         self.save()
 
 
