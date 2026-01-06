@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue"
 import { ValidationCore, severityLevelColorMap, severityLevelIconMap } from "@/lib/definitions/api"
 import type { Entries } from "type-fest"
 

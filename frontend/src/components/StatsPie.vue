@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue"
 import { severityLevelColorMap, ValidationBase } from "@/lib/definitions/api"
 import type { Entries } from "type-fest"
 import StatsTableSimple from "@/components/StatsTableSimple.vue"
