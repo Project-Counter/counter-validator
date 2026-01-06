@@ -1,6 +1,6 @@
 {
   "name": "counter-validator",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
