@@ -29,6 +29,7 @@
     <v-tab
       v-if="finished"
       prepend-icon="mdi-chart-bar"
+      value="statistics"
       >Statistics</v-tab
     >
 
