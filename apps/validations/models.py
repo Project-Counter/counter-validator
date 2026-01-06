@@ -64,7 +64,7 @@ class ValidationCore(UUIDPkMixin, CreatedUpdatedMixin, models.Model):
     )
     api_endpoint = models.CharField(max_length=64, blank=True)
     report_code = models.CharField(
-        max_length=16,
+        max_length=64,
         blank=True,
         help_text="Code of the report as reported by the validation module",
     )
