@@ -43,7 +43,7 @@ Example:
    curl \
    -X POST \
    -H "Authorization: Api-Key <api-key>" \
-   -F "file=TR.csv" \
+   -F "file=@TR.csv" \
    -F "user_note=This is a test validation" \
    "https://validator.countermetrics.org/api/v1/validations/validation/file/"
 
