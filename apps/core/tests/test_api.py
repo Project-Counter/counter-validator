@@ -1,13 +1,36 @@
+import importlib
 import re
 from unittest.mock import patch
 
 import pytest
 from allauth.account.models import EmailAddress
-from django.urls import reverse
+from django.urls import clear_url_caches, reverse, set_urlconf
+
+import config.urls
 
 from ..fake_data import UserFactory
 from ..models import User, UserApiKey
 from ..version import UPSTREAM_SERVER, get_server_version
+
+
+@pytest.fixture
+def allow_user_registration(settings, request):
+    """
+    Set ALLOW_USER_REGISTRATION and reload the URLconf so registration routes
+    are included or omitted to match the setting.
+    """
+    original = settings.ALLOW_USER_REGISTRATION
+    settings.ALLOW_USER_REGISTRATION = request.param
+
+    def _reload_urls():
+        clear_url_caches()
+        importlib.reload(config.urls)
+        set_urlconf(None)
+
+    _reload_urls()
+    yield request.param
+    settings.ALLOW_USER_REGISTRATION = original
+    _reload_urls()
 
 
 @pytest.mark.django_db
@@ -320,9 +343,14 @@ class TestApiKeyAPI:
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    "allow_user_registration",
+    [True, False],
+    indirect=True,
+    ids=["allowed", "disallowed"],
+)
 class TestRegistrationAPI:
-    def test_registration(self, client_unauthenticated, settings):
-        settings.ALLOW_USER_REGISTRATION = True
+    def test_registration(self, client_unauthenticated, allow_user_registration):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
@@ -332,12 +360,16 @@ class TestRegistrationAPI:
                     "password2": "fksldj2938wflkjsw",
                 },
             )
-            assert res.status_code == 204
-            assert email_task.delay.called
-            assert User.objects.filter(email="foo@bar.baz").exists()
+            if not allow_user_registration:
+                assert res.status_code == 404
+                assert not email_task.delay.called
+                assert not User.objects.filter(email="foo@bar.baz").exists()
+            else:
+                assert res.status_code == 204
+                assert email_task.delay.called
+                assert User.objects.filter(email="foo@bar.baz").exists()
 
-    def test_registration_invalid_email(self, client_unauthenticated, settings):
-        settings.ALLOW_USER_REGISTRATION = True
+    def test_registration_invalid_email(self, client_unauthenticated, allow_user_registration):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
@@ -347,11 +379,16 @@ class TestRegistrationAPI:
                     "password2": "fksldj2938wflkjsw",
                 },
             )
-            assert res.status_code == 400
-            assert not email_task.delay.called
+            if not allow_user_registration:
+                assert res.status_code == 404
+                assert not email_task.delay.called
+            else:
+                assert res.status_code == 400
+                assert not email_task.delay.called
 
-    def test_registration_already_used_email(self, client_unauthenticated, normal_user, settings):
-        settings.ALLOW_USER_REGISTRATION = True
+    def test_registration_already_used_email(
+        self, client_unauthenticated, normal_user, allow_user_registration
+    ):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
@@ -361,14 +398,17 @@ class TestRegistrationAPI:
                     "password2": "fksldj2938wflkjsw",
                 },
             )
-            assert res.status_code == 400
-            assert res.json() == {
-                "email": ["A user is already registered with this e-mail address."]
-            }
-            assert not email_task.delay.called
+            if not allow_user_registration:
+                assert res.status_code == 404
+                assert not email_task.delay.called
+            else:
+                assert res.status_code == 400
+                assert res.json() == {
+                    "email": ["A user is already registered with this e-mail address."]
+                }
+                assert not email_task.delay.called
 
-    def test_names_are_stored(self, client_unauthenticated, settings):
-        settings.ALLOW_USER_REGISTRATION = True
+    def test_names_are_stored(self, client_unauthenticated, allow_user_registration):
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
@@ -380,16 +420,20 @@ class TestRegistrationAPI:
                     "password2": "fksld39082dwfjl",
                 },
             )
-            assert res.status_code == 204
-            assert email_task.delay.called
-            user = User.objects.get(email="foo@bar.baz")
-            assert user.first_name == "Foo"
-            assert user.last_name == "Bar"
+            if not allow_user_registration:
+                assert res.status_code == 404
+                assert not email_task.delay.called
+                assert not User.objects.filter(email="foo@bar.baz").exists()
+            else:
+                assert res.status_code == 204
+                assert email_task.delay.called
+                user = User.objects.get(email="foo@bar.baz")
+                assert user.first_name == "Foo"
+                assert user.last_name == "Bar"
 
     def test_email_to_operators_sent_after_registration(
-        self, client_unauthenticated, mailoutbox, settings
+        self, client_unauthenticated, mailoutbox, allow_user_registration
     ):
-        settings.ALLOW_USER_REGISTRATION = True
         with patch("core.signals.async_mail_admins") as email_task:
             res = client_unauthenticated.post(
                 "/api/v1/registration/",
@@ -399,10 +443,14 @@ class TestRegistrationAPI:
                     "password2": "fksld39082dwfjl",
                 },
             )
-            assert res.status_code == 204
-            assert email_task.delay.called
-            assert "New user registered" in email_task.delay.call_args[0][0]
-            assert "foo@bar.baz" in email_task.delay.call_args[0][1]
+            if not allow_user_registration:
+                assert res.status_code == 404
+                assert not email_task.delay.called
+            else:
+                assert res.status_code == 204
+                assert email_task.delay.called
+                assert "New user registered" in email_task.delay.call_args[0][0]
+                assert "foo@bar.baz" in email_task.delay.call_args[0][1]
 
 
 @pytest.mark.django_db
