@@ -93,8 +93,11 @@ Immediately after the validation is created, the status is ``0`` (Waiting). It i
 up by a worker and the status is updated to ``1`` (Running). When the validation is finished,
 the status is updated to ``2`` (Success) or ``3`` (Failure).
 
+Until the validation finishes, the reported ``validation_result`` value will be ``Unknown``.
+
 The status of the validation can be checked at any time using the
-``/api/v1/validations/validation/<id>/`` endpoint described below.
+``/api/v1/validations/validation/<id>/`` endpoint described below. It is recommended to check the status
+once a few seconds after the validation is created to retrieve the final validation result.
 
 
 Create a new COUNTER API validation
