@@ -346,7 +346,7 @@ Sample response (shortened):
 
     {
         "count": 3542,
-        "next": "https://validator.countermetrics.org/api/v1/validations/validation/<id>/messages/page=2&page_size=10",
+        "next": "https://validator.countermetrics.org/api/v1/validations/validation/<id>/messages/?page=2&page_size=10",
         "previous": null,
         "results": [
              {
