@@ -1,0 +1,102 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # A trunk run records whether main is green, so only cancel PR runs.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pre-commit:
+    name: Pre-commit
+    runs-on: { group: trusted-linux, labels: [self-hosted, linux, x64, bdd] }
+    timeout-minutes: 30
+    services:
+      # Only the django-migrations hook touches a database: makemigrations
+      # opens a connection to check for a consistent migration history.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: coval
+          POSTGRES_USER: coval
+          POSTGRES_PASSWORD: coval
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U coval -d coval"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+      redis:
+        image: redis:7
+        ports:
+          - 6379/tcp
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.base
+      DB_NAME: coval
+      DB_USER: coval
+      DB_PASSWORD: coval
+      DB_HOST: 127.0.0.1
+      REDIS_HOST: 127.0.0.1
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # Installed with the interpreter from the step above so the project
+      # environment is built against 3.12 rather than the host python. Not
+      # cached through actions/cache: poetry's own ~/.cache/pypoetry persists
+      # between jobs on each self-hosted runner.
+      - name: Install poetry
+        run: python -m pip install poetry
+
+      # settings/base.py reads SECRET_KEY and DB_PASSWORD through decouple,
+      # which has no defaults for them. decouple prefers the environment over
+      # the file, so the job env above still wins over these values.
+      - name: Install Python dependencies
+        run: |
+          cp .env.example .env
+          poetry install --no-root
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      # The prettier, eslint and ts check hooks all shell out to yarn in
+      # frontend/, so the UI dependencies are needed even though this is a
+      # lint job. corepack activates the yarn version package.json pins.
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: |
+          corepack enable
+          yarn install --immutable
+
+      - name: Run hooks
+        env:
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+        run: >-
+          poetry run pre-commit run
+          --hook-stage pre-push --all-files
+          --show-diff-on-failure --color=always

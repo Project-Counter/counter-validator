@@ -1,0 +1,129 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # A trunk run records whether main is green, so only cancel PR runs.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pytest:
+    name: Python tests
+    runs-on: { group: trusted-linux, labels: [self-hosted, linux, x64, bdd] }
+    permissions:
+      contents: read
+      # Needed to post the coverage comment.
+      pull-requests: write
+    timeout-minutes: 30
+    services:
+      # Ports are published on random host ports so that two jobs sharing a
+      # runner host cannot collide. The mapped ports are only readable from the
+      # job context, which is unavailable in job-level env, so they are set on
+      # the steps that need them.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: coval
+          POSTGRES_USER: coval
+          POSTGRES_PASSWORD: coval
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U coval -d coval"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+      redis:
+        image: redis:7
+        ports:
+          - 6379/tcp
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.base
+      DB_NAME: coval
+      DB_USER: coval
+      DB_PASSWORD: coval
+      DB_HOST: 127.0.0.1
+      REDIS_HOST: 127.0.0.1
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # Installed with the interpreter from the step above so the project
+      # environment is built against 3.12 rather than the host python. Not
+      # cached through actions/cache: poetry's own ~/.cache/pypoetry persists
+      # between jobs on each self-hosted runner.
+      - name: Install poetry
+        run: python -m pip install poetry
+
+      # settings/base.py reads SECRET_KEY and DB_PASSWORD through decouple,
+      # which has no defaults for them. decouple prefers the environment over
+      # the file, so the job env above still wins over these values.
+      - name: Install Python dependencies
+        run: |
+          cp .env.example .env
+          poetry install --no-root
+
+      - name: Run tests
+        env:
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+        run: >-
+          poetry run pytest -v --create-db
+          --junitxml=report.xml --cov --cov-report=xml --cov-report=term
+
+      - name: Upload test reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-reports
+          path: |
+            report.xml
+            coverage.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+      # This replaces the GitLab `coverage:` regex, which parsed the total out
+      # of the job log. Reporting must never turn a passing run red, hence
+      # continue-on-error on both steps.
+      - name: Build coverage comment
+        if: ${{ github.event_name == 'pull_request' && !cancelled() }}
+        continue-on-error: true
+        run: |
+          {
+            echo "### Python tests coverage: $(poetry run coverage report --format=total)%"
+            echo
+            echo "<details><summary>Per-file coverage</summary>"
+            echo
+            poetry run coverage report --format=markdown
+            echo
+            echo "</details>"
+          } > coverage-comment.md
+
+      - name: Post coverage comment
+        if: ${{ github.event_name == 'pull_request' && !cancelled() }}
+        continue-on-error: true
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: coverage
+          path: coverage-comment.md
