@@ -103,7 +103,7 @@ once a few seconds after the validation is created to retrieve the final validat
 Create a new COUNTER API validation
 -----------------------------------
 
-Endpoint: ``/api/v1/validations/validation/counter-api/``
+Endpoint: ``/api/v1/validations/counter-api-validation/``
 
 Method: ``POST``
 
